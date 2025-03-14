@@ -3,6 +3,16 @@ const productsPerPage = 6;
 let allProducts = []; // Lưu tất cả sản phẩm
 let filteredProducts = []; // Danh sách sản phẩm đã lọc
 
+// Định dạng giá
+function formatPrice(price) {
+    return new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+        minimumFractionDigits: 0,  // Không hiển thị số lẻ
+        maximumFractionDigits: 0
+    }).format(price);
+}
+
 // Lấy danh sách sản phẩm và hiển thị
 async function fetchProducts() {
     try {
@@ -45,7 +55,7 @@ function displayProducts(products, page, totalPages) {
             <div class="product" onclick="fetchProductDetail(${product.id})">
                 <img src="${product.image_url}" alt="${product.name}">
                 <h3>${product.name}</h3>
-                <p>${product.price} VND</p>
+                <p>${formatPrice(product.price)}</p>
             </div>
         `;
         productContainer.innerHTML += productItem;
@@ -83,7 +93,7 @@ async function fetchProductDetail(productId) {
                 <div class="product-detail-left">
                     <img src="${product.image_url}" alt="${product.name}">
                     <h3>${product.name}</h3>
-                    <p>${product.price} VND</p>
+                    <p>${formatPrice(product.price)}</p>
                 </div>
                 <div class="product-detail-right">
                     <h4>Thông số kỹ thuật:</h4>
