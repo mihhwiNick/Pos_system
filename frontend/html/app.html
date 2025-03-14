@@ -1,0 +1,69 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý bán hàng điện thoại</title>
+    <link rel="stylesheet" href="../css/mainPage.css">
+    <link rel="stylesheet" href="../css/detailProduct.css">
+</head>
+<body>
+    <div class="container">
+        <!--header-->
+        <div class="header">
+            <div class="grid menu">
+                <div class="logo">
+                    <a href=""><img src="../img/Logo.png "></a>
+                </div>
+                <div class="brand"> <a href="#" onclick="filterByBrand('APPLE')">APPLE</a> </div>
+                <div class="brand"> <a href="#" onclick="filterByBrand('OPPO')">OPPO</a></div>
+                <div class="brand"> <a href="#" onclick="filterByBrand('SAMSUNG')">SAMSUNG</a></div>
+                <div class="brand"> <a href="#" onclick="filterByBrand('XIAOMI')">XIAOMI</a></div>
+                <div class="brand"> <a href="#" onclick="filterByBrand('REALMI')">REALMI</a></div>
+
+                <div id="search-container">
+                    <input type="text" id="search-input" placeholder="Nhập tên sản phẩm..." oninput="toggleClearButton()">
+                    <span id="clear-btn" onclick="clearSearch()">×</span>
+                    <button onclick="searchProduct()">Tìm kiếm</button>
+                </div>
+                <div class="user">
+                    <a href=""><img src="../img/user_icon.png" style="width:40px"></a>
+                    <div class="dropdown">
+                        <a href="">Tên người đăng nhập</a>
+                        <a href="">Quản lý</a>
+                        <a href="">Đăng xuất</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-container">
+            <div id="price-filter">
+                <button class="price-button">Mức giá</button>
+                <div class="price-options">
+                    <a href="#" onclick="filterByPrice(0, 2000000)">Dưới 2 triệu</a>
+                    <a href="#" onclick="filterByPrice(2000000, 4000000)">Từ 2 - 4 triệu</a>
+                    <a href="#" onclick="filterByPrice(4000000, 7000000)">Từ 4 - 7 triệu</a>
+                    <a href="#" onclick="filterByPrice(7000000, 12000000)">Từ 7 - 12 triệu</a>
+                    <a href="#" onclick="filterByPrice(12000000, 20000000)">Từ 12 - 20 triệu</a>
+                    <a href="#" onclick="filterByPrice(20000000, Infinity)">Trên 20 triệu</a>
+                </div>
+            </div>
+        </div>
+        
+        
+
+        <div id="product-list"></div>
+
+        <!-- Vùng hiển thị chi tiết sản phẩm -->
+        <div id="product-detail-container" style="display: none;"></div>
+
+        <div id="pagination">
+            <button id="prev" onclick="changePage(-1)">Trang trước</button>
+            <button id="next" onclick="changePage(1)">Trang sau</button>
+        </div>
+    </div>
+    <script src="../js/mainPage.js"></script>
+</body>
+</html>
