@@ -11,10 +11,10 @@ CORS(app)
 app.config['MYSQL_HOST'] = "localhost"
 app.config['MYSQL_USER'] = "root"
 app.config['MYSQL_PASSWORD'] = ""
-app.config['MYSQL_DB'] = "pos_system"  # Sửa lỗi tại đây
+app.config['MYSQL_DB'] = "pos_system"  
 
 # Khởi tạo database
-db = MySQL(app)  # Không dùng db.init_app(app)
+db = MySQL(app)  
 
 # Đăng ký Blueprint
 app.register_blueprint(products_bp, url_prefix='/products')
