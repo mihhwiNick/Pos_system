@@ -6,10 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý bán hàng điện thoại</title>
     <link rel="stylesheet" href="../css/mainPage.css">
-    <link rel="stylesheet" href="../css/detailProduct.css">
 </head>
 <body>
     <div class="container">
+        <!-- Popup Login -->
+        <div id="login-popup" class="popup">
+            <div class="popup-content">
+                <h2>Đăng nhập</h2>
+                <form id="login-form">
+                    <label for="username">Tên đăng nhập:</label>
+                    <input type="text" id="username" name="username" required>
+                    
+                    <label for="password">Mật khẩu:</label>
+                    <input type="password" id="password" name="password" required>
+                    
+                    <label for="role">Vai trò:</label>
+                    <select id="role" name="role">
+                        <option value="admin">Admin</option>
+                        <option value="staff">Staff</option>
+                    </select>
+                    
+                    <button type="submit">Đăng nhập</button>
+                </form>
+                <p id="login-error" style="color: red; display: none;">Đăng nhập thất bại. Vui lòng thử lại!</p>
+            </div>
+        </div>
         <!--header-->
         <div class="header">
             <div class="grid menu">
@@ -30,9 +51,9 @@
                 <div class="user">
                     <a href=""><img src="../img/user_icon.png" style="width:40px"></a>
                     <div class="dropdown">
-                        <a href="">Tên người đăng nhập</a>
-                        <a href="">Quản lý</a>
-                        <a href="">Đăng xuất</a>
+                        <button id="loginBtn">Tên người đăng nhập</button>
+                        <a href="manage_user.html" id="manage-link" style="display: none;">Quản lý</a>
+                        <button id="logoutBtn" style="display: none;">Đăng xuất</button>
                     </div>
                 </div>
             </div>
@@ -65,5 +86,6 @@
         </div>
     </div>
     <script src="../js/mainPage.js"></script>
+    <script src="../js/login.js"></script>
 </body>
 </html>

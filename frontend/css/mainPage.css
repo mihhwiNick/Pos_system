@@ -409,7 +409,87 @@
     pointer-events: auto; /* Cho phép click */
 }
 
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
 
+.popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+}
 
+.popup-content h2 {
+    margin-bottom: 20px;
+}
 
+.popup-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.popup-content input, .popup-content select, .popup-content button {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.popup-content button {
+    background-color: #ff5722;
+    color: white;
+    cursor: pointer;
+}
+
+.popup-content button:hover {
+    background-color: #e64a19;
+}
+.dropdown a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+    font-size: 14px;
+    text-align: center;
+    transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+    border: 2px solid black;
+    border-radius: 8px;
+    margin: 5px 0; /* Thêm khoảng cách giữa các mục */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Thêm bóng nhẹ cho các mục */
+}
+.dropdown a:hover {
+    transform: scale(1.05); /* Tăng kích thước khi hover */
+    background: #ddd; /* Thay đổi màu nền khi hover */
+    color: black; /* Đổi màu chữ khi hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Tăng độ bóng khi hover */
+}
+.dropdown button {
+    width: 100%;
+    text-align: center; /* Căn trái chữ trong button */
+    background-color: white;
+    color: black;
+    border: 2px solid black;
+    padding: 7px 18px;
+    cursor: pointer;
+    font-size: 14px;
+    /* font-weight: bold; */
+    border-radius: 8px;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+}
+.dropdown button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
 

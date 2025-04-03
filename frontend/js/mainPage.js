@@ -271,12 +271,3 @@ document.querySelectorAll('.brand a').forEach(el => {
         console.log("Brand được nhấn:", this.innerText);
     });
 });
-
-
-
-
-
-
-
-
-
