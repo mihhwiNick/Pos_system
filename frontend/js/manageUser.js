@@ -8,11 +8,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch and display users
     async function fetchUsers() {
         try {
-            const response = await fetch("http://127.0.0.1:5001/users");
+            const response = await fetch("http://127.0.0.1:5001/accounts/users"); // Correct URL
+            if (!response.ok) {
+                throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`);
+            }
             const users = await response.json();
             displayUsers(users);
         } catch (error) {
             console.error("Error fetching users:", error);
+            userTableBody.innerHTML = `<tr><td colspan="4">Không thể tải danh sách người dùng. Vui lòng thử lại sau!</td></tr>`;
         }
     }
 
@@ -23,11 +27,13 @@ document.addEventListener("DOMContentLoaded", () => {
             row.setAttribute("data-id", user.id);
             row.innerHTML = `
                 <td>${user.id}</td>
-                <td class="username">${user.username}</td>
-                <td class="role">${user.role}</td>
+                <td>${user.username}</td>
+                <td>${user.role}</td>
                 <td>
-                    <button onclick="editUser(${user.id})">Sửa</button>
-                    <button onclick="deleteUser(${user.id})">Xóa</button>
+                    <button onclick="editUser(${user.id})" style="background-color: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Chỉnh Sửa</button>
+                    <button onclick="deleteUser(${user.id})" style="background: none; border: none; cursor: pointer;">
+                        <img src="../img/delete.png" alt="Delete" style="width: 20px; height: 20px;">
+                    </button>
                 </td>
             `;
             userTableBody.appendChild(row);
@@ -39,10 +45,16 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const username = document.getElementById("add-username").value;
         const password = document.getElementById("add-password").value;
+        const confirmPassword = document.getElementById("add-confirm-password").value;
         const role = document.getElementById("add-role").value;
 
+        if (password !== confirmPassword) {
+            alert("Mật khẩu và xác nhận mật khẩu không khớp!");
+            return;
+        }
+
         try {
-            const response = await fetch("http://127.0.0.1:5001/users", {
+            const response = await fetch("http://127.0.0.1:5001/accounts/users", { // Correct URL
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password, role }),
@@ -65,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!confirm("Bạn có chắc chắn muốn xóa tài khoản này?")) return;
 
         try {
-            const response = await fetch(`http://127.0.0.1:5001/users/${id}`, {
+            const response = await fetch(`http://127.0.0.1:5001/accounts/users/${id}`, { // Correct URL
                 method: "DELETE",
             });
 
@@ -85,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const query = searchInput.value.trim();
 
         try {
-            const response = await fetch(`http://127.0.0.1:5001/users?search=${query}`);
+            const response = await fetch(`http://127.0.0.1:5001/accounts/users?search=${query}`); // Correct URL
             const users = await response.json();
             displayUsers(users);
         } catch (error) {
@@ -96,8 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Open edit modal and populate fields
     window.editUser = (id) => {
         const userRow = document.querySelector(`#user-table tbody tr[data-id="${id}"]`);
-        const username = userRow.querySelector(".username").textContent;
-        const role = userRow.querySelector(".role").textContent;
+        const username = userRow.children[1].textContent;
+        const role = userRow.children[2].textContent;
 
         document.getElementById("edit-user-id").value = id;
         document.getElementById("edit-username").value = username;
@@ -127,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const response = await fetch(`http://127.0.0.1:5001/users/${id}`, {
+            const response = await fetch(`http://127.0.0.1:5001/accounts/users/${id}`, { // Correct URL
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, oldPassword, newPassword, role }),
@@ -136,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (response.ok) {
                 alert("Cập nhật tài khoản thành công!");
                 fetchUsers();
-                editUserForm.reset(); // Reset the form fields
+                editUserForm.reset();
                 closeEditModal();
             } else {
                 const result = await response.json();
@@ -146,6 +158,12 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Error updating user:", error);
         }
     });
+
+    // Logout function
+    window.logout = function () {
+        sessionStorage.removeItem("loginData");
+        window.location.href = "app.html";
+    };
 
     // Initial fetch
     fetchUsers();
