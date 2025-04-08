@@ -18,3 +18,5 @@ class Product:
         product = dict(zip(columns, cursor.fetchone())) if cursor.rowcount > 0 else None
         cursor.close()
         return product
+
+
