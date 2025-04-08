@@ -1,0 +1,551 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    flex-direction: column;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    flex-grow: 1;
+}
+
+.sidebar {
+    width: 15%;
+    background: white;
+    color: gray;
+    padding: 20px;
+    border-right: 3px solid #ddd;
+}
+
+.table-container {
+    height: 500px;
+}
+
+/* Sidebar Header */
+.sidebar h2 {
+    padding: 10px;
+    font-size: 20px;
+    color: #333;
+}
+
+/* Menu List */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+/* Menu Item */
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    background: white;
+    color: gray;
+    transition: background 0.3s, color 0.3s;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.sidebar ul li a.active {
+    color: #fff;
+    background: #3498db;
+}
+
+.sidebar ul li a:hover {
+    background: #ccc;
+}
+
+/* Hover on Active Item */
+.sidebar ul li a.active:hover {
+    background: #2980b9;
+}
+
+
+.main-content {
+    width: 85%;
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.card {
+    padding: 20px;
+    color: white;
+    border-radius: 5px;
+}
+
+.blue {
+    background: #3498db;
+}
+
+.green {
+    background: #2ecc71;
+}
+
+.yellow {
+    background: #f1c40f;
+}
+
+.red {
+    background: #e74c3c;
+}
+
+.main-content h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.search-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.search-container input {
+    width: 90%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.search-container button {
+    padding: 8px 15px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.search-container button:hover {
+    background-color: #0056b3;
+}
+
+#search-input {
+    padding: 8px 35px 8px 10px;
+    /* Chừa khoảng trống bên phải để nút X */
+    border: 2px solid black;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 200px;
+}
+
+#clear-btn {
+    position: absolute;
+    right: 130px;
+    top: 98px;
+    cursor: pointer;
+    font-size: 18px;
+    color: black;
+    display: none;
+    user-select: none;
+    font-weight: bold;
+}
+
+#clear-btn:hover {
+    color: red;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+table th,
+table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+    font-weight: normal;
+}
+
+table th {
+    background-color: #3498db;
+    color: white;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.view-btn {
+    padding: 8px 15px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.view-btn:hover {
+    background-color: #0056b3; 
+    transform: scale(1.05); 
+}
+
+.view-btn:focus {
+    outline: none; 
+}
+
+.view-btn:active {
+    background-color: #388e3c; 
+}
+
+.edit-btn,
+.delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    margin: 0 10px;
+}
+
+.edit-btn img,
+.delete-btn img {
+    width: 30px;
+    height: 30px;
+}
+
+.pagination {
+    position: fixed;
+    /* Cố định vị trí của pagination */
+    bottom: 20px;
+    /* Khoảng cách từ đáy của màn hình */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin: 0;
+    z-index: 100;
+}
+
+/* Nút phân trang */
+.btn-pagination {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: opacity 0.3s ease, transform 0.2s ease;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    margin-top: 10px;
+}
+
+/* Hiệu ứng khi hover (di chuột vào) */
+.btn-pagination:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+}
+
+/* Khi nút bị vô hiệu hóa */
+.btn-pagination.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    transform: none;
+    cursor: not-allowed;
+}
+
+/* Modal Xác Nhận */
+#deleteModal {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+}
+
+#deleteModal .modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 2px solid #888;
+    width: 400px;
+}
+
+/* Tiêu đề Modal */
+#deleteModal .modal-content h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#deleteModal .modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+#deleteModal #confirmDeleteBtn,
+#deleteModal #cancelDeleteBtn {
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#deleteModal #confirmDeleteBtn {
+    background-color: red;
+    color: white;
+    border: none;
+}
+
+#deleteModal #cancelDeleteBtn {
+    background-color: grey;
+    color: white;
+    border: none;
+}
+#add_btn {
+    margin-left: auto;
+}
+#addCustomerModal {
+    display: none; /* Ẩn modal mặc định */
+    position: fixed; /* Đặt vị trí cố định */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Nền mờ */
+    z-index: 9999; /* Đặt lên trên các phần tử khác */
+    display: flex; /* Sử dụng flex để căn giữa nội dung */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+/* Nội dung Modal Thêm Khách Hàng */
+#addCustomerModal .modal-content {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    width: 400px; /* Chiều rộng của form */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Tiêu đề Modal */
+#addCustomerModal h2 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Nhóm trường nhập liệu */
+.add-customer-form {
+    display: flex;
+    flex-direction: column; /* Sắp xếp các trường theo cột */
+}
+
+.add-customer-form .form-group {
+    margin-bottom: 15px; /* Khoảng cách giữa các trường */
+}
+
+/* Nhãn cho các trường nhập liệu */
+.add-customer-form label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+/* Các trường nhập liệu */
+.add-customer-form input[type="text"],
+.add-customer-form input[type="tel"],
+.add-customer-form input[type="number"] {
+    width: 95%; /* Chiều rộng 100% */
+    padding: 10px; /* Padding cho trường nhập liệu */
+    border: 1px solid #ccc; /* Đường viền */
+    border-radius: 5px; /* Bo góc */
+    font-size: 16px; /* Kích thước chữ */
+}
+
+/* Hiệu ứng khi trường nhập liệu được chọn */
+.add-customer-form input[type="text"]:focus,
+.add-customer-form input[type="tel"]:focus,
+.add-customer-form input[type="number"]:focus {
+    border-color: #3498db; /* Đổi màu viền khi focus */
+    outline: none; /* Ẩn outline mặc định */
+}
+
+/* Nút "Thêm Khách Hàng" */
+.add-customer-form button.submit-btn {
+    padding: 10px;
+    background-color: #3498db; /* Màu nền */
+    color: white; /* Màu chữ */
+    border: none; /* Không có đường viền */
+    border-radius: 5px; /* Bo góc */
+    font-size: 16px; /* Kích thước chữ */
+    cursor: pointer; /* Con trỏ chuột */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu */
+}
+
+/* Hiệu ứng khi hover vào nút "Thêm Khách Hàng" */
+.add-customer-form button.submit-btn:hover {
+    background-color: #2980b9; /* Đổi màu khi hover */
+}
+
+/* Nút "Hủy" */
+.add-customer-form button.cancel-btn {
+    padding: 10px;
+    background-color: grey; /* Màu nền */
+    color: white; /* Màu chữ */
+    border: none; /* Không có đường viền */
+    border-radius: 5px; /* Bo góc */
+    font-size: 16px; /* Kích thước chữ */
+    cursor: pointer; /* Con trỏ chuột */
+    margin-top: 10px; /* Khoảng cách trên */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu */
+}
+
+/* Hiệu ứng khi hover vào nút "Hủy" */
+.add-customer-form button.cancel-btn:hover {
+    background-color: #555; /* Đổi màu khi hover */
+}
+#customer-type {
+    width: 100%; /* Chiều rộng 100% */
+    padding: 10px; /* Padding cho dropdown */
+    border: 1px solid #ccc; /* Đường viền */
+    border-radius: 5px; /* Bo góc */
+    font-size: 16px; /* Kích thước chữ */
+    background-color: white; /* Màu nền */
+    transition: border-color 0.3s ease; /* Hiệu ứng chuyển màu viền */
+}
+#editCustomerModal {
+    display: none; /* Ẩn modal mặc định */
+    position: fixed; /* Đặt vị trí cố định */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Nền mờ */
+    z-index: 9999; /* Đặt lên trên các phần tử khác */
+    display: flex; /* Sử dụng flex để căn giữa nội dung */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+/* Nội dung Modal Sửa Khách Hàng */
+#editCustomerModal .modal-content {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    width: 400px; /* Chiều rộng của form */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Tiêu đề Modal */
+#editCustomerModal h2 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Nhóm trường nhập liệu */
+.edit-customer-form {
+    display: flex;
+    flex-direction: column; /* Sắp xếp các trường theo cột */
+}
+
+.edit-customer-form .form-group {
+    margin-bottom: 15px; /* Khoảng cách giữa các trường */
+}
+
+/* Nhãn cho các trường nhập liệu */
+.edit-customer-form label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+/* Các trường nhập liệu */
+.edit-customer-form input[type="text"],
+.edit-customer-form input[type="tel"],
+.edit-customer-form input[type="number"],
+.edit-customer-form select {
+    width: 95%; /* Chiều rộng 100% */
+    padding: 10px; /* Padding cho trường nhập liệu */
+    border: 1px solid #ccc; /* Đường viền */
+    border-radius: 5px; /* Bo góc */
+    font-size: 16px; /* Kích thước chữ */
+}
+
+/* Hiệu ứng khi trường nhập liệu được chọn */
+.edit-customer-form input[type="text"]:focus,
+.edit-customer-form input[type="tel"]:focus,
+.edit-customer-form input[type="number"]:focus,
+.edit-customer-form select:focus {
+    border-color: #3498db; /* Đổi màu viền khi focus */
+    outline: none; /* Ẩn outline mặc định */
+}
+
+/* Nút "Cập Nhật" */
+.edit-customer-form button.submit-btn {
+    padding: 10px;
+    background-color: #3498db; /* Màu nền */
+    color: white; /* Màu chữ */
+    border: none; /* Không có đường viền */
+    border-radius: 5px; /* Bo góc */
+    font-size: 16px; /* Kích thước chữ */
+    cursor: pointer; /* Con trỏ chuột */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu */
+    margin-top: 10px; /* Khoảng cách trên */
+}
+
+/* Hiệu ứng khi hover vào nút "Cập Nhật" */
+.edit-customer-form button.submit-btn:hover {
+    background-color: #2980b9; /* Đổi màu khi hover */
+}
+
+/* Nút "Hủy" */
+.edit-customer-form button.cancel-btn {
+    padding: 10px;
+    background-color: grey; /* Màu nền */
+    color: white; /* Màu chữ */
+    border: none; /* Không có đường viền */
+    border-radius: 5px; /* Bo góc */
+    font-size: 16px; /* Kích thước chữ */
+    cursor: pointer; /* Con trỏ chuột */
+    margin-top: 10px; /* Khoảng cách trên */
+    margin-left: auto; /* Đẩy nút "Hủy" sang bên phải */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu */
+}
+/* Hiệu ứng khi hover vào nút "Hủy" */
+.edit-customer-form button.cancel-btn:hover {
+    background-color: #555; /* Đổi màu khi hover */
+}
+.btn_group {
+    display: flex;
+    justify-content: flex-end; /* Đẩy các nút sang bên phải */
+    gap: 10px; /* Khoảng cách giữa các nút */
+}
