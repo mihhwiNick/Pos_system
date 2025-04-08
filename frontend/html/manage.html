@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tổng Quan</title>
+    <title>Quản lý hệ thống</title>
     <link rel="stylesheet" href="../css/manage.css">
+    <link rel="stylesheet" href="../css/manageUser.css">
 </head>
 <body>
     <div class="container">
@@ -13,24 +14,27 @@
             <h2>Menu</h2>
             <ul>
                 <li><a href="../html/manage.html" class="active">Tổng quan</a></li>
-                <li>Sản phẩm</li>
+                <li>Sản Phẩm</li>
                 <li>Khách hàng</li>
+                <li><a href="../html/manage_user.html" >Tài khoản</a></li>
                 <li><a href="../html/invoice.html">Hóa đơn</a></li>
-                <li>Tài khoản</li>
-                <li>Đăng xuất</li>
+                <li><a href="#" onclick="logout()">Đăng xuất</a></li>
             </ul>
         </div>
 
         <div class="main-content">
             <div id="tab-content">
+                <h1>Tổng quan</h1>
                 <div class="stats">
                     <div class="card blue">Doanh thu hôm nay: 5,200,000 VND</div>
                     <div class="card green">Số đơn hàng hôm nay: 35</div>
                     <div class="card yellow">Khách hàng mới: 5</div>
                 </div>
             </div>
+            
         </div>
     </div>
     <script src="../js/manage.js"></script>
+    <script src="../js/manageUser.js"></script>
 </body>
 </html>

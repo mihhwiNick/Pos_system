@@ -490,7 +490,6 @@ body {
     pointer-events: auto;
     /* Cho phép click */
 }
-
 .popup {
     position: fixed;
     top: 0;
@@ -573,5 +572,12 @@ body {
 .dropdown button:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.no-products {
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+    margin-top: 20px;
 }
 

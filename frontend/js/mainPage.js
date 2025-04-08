@@ -8,7 +8,7 @@ function formatPrice(price) {
     return new Intl.NumberFormat("vi-VN", {
         style: "currency",
         currency: "VND",
-        minimumFractionDigits: 0,  // Không hiển thị số lẻ
+        minimumFractionDigits: 0,
         maximumFractionDigits: 0
     }).format(price);
 }
@@ -17,14 +17,17 @@ function formatPrice(price) {
 async function fetchProducts() {
     try {
         let response = await fetch("http://127.0.0.1:5001/products");
+        if (!response.ok) {
+            throw new Error(`Failed to fetch products: ${response.status} ${response.statusText}`);
+        }
         allProducts = await response.json();
-
         filteredProducts = allProducts;
 
         const totalPages = Math.ceil(allProducts.length / productsPerPage);
         displayProducts(allProducts, currentPage, totalPages);
     } catch (error) {
         console.error("Lỗi khi lấy dữ liệu:", error);
+        document.querySelector(".product-container").innerHTML = `<p class="no-products">Không thể tải sản phẩm. Vui lòng thử lại sau!</p>`;
     }
 }
 
@@ -52,7 +55,6 @@ function displayProducts(products, page, totalPages) {
         nextButton.style.display = "inline-block";
     }
 
-
     let startIndex = (page - 1) * productsPerPage;
     let endIndex = page * productsPerPage;
     let pageProducts = products.slice(startIndex, endIndex);
@@ -77,6 +79,9 @@ function displayProducts(products, page, totalPages) {
 async function fetchProductDetail(productId) {
     try {
         let response = await fetch(`http://127.0.0.1:5001/products/${productId}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch product details: ${response.status} ${response.statusText}`);
+        }
         let product = await response.json();
 
         // Ẩn danh sách sản phẩm và hiển thị chi tiết sản phẩm
@@ -113,6 +118,7 @@ async function fetchProductDetail(productId) {
         `;
     } catch (error) {
         console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
+        alert("Không thể tải chi tiết sản phẩm. Vui lòng thử lại sau!");
     }
 }
 
@@ -264,3 +270,7 @@ document.querySelectorAll('.brand a').forEach(el => {
         console.log("Brand được nhấn:", this.innerText);
     });
 });
+
+function createOrder() {
+    window.location.href = "order.html";
+}
