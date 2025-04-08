@@ -4,7 +4,11 @@ from database import db
 from flask_mysqldb import MySQL
 from routes.products import products_bp
 from routes.invoicesRoute import invoices_bp
+<<<<<<< HEAD
+from routes.Customer import customers_bp
+=======
 from routes.quanLiSPRoute import quanLiSP_bp
+>>>>>>> caf330e8f5b5325e0ada152376f48995fc0c6aef
 app = Flask(__name__)
 CORS(app)
 
@@ -20,7 +24,11 @@ db = MySQL(app)
 # Đăng ký Blueprint
 app.register_blueprint(products_bp, url_prefix='/products')
 app.register_blueprint(invoices_bp, url_prefix='/invoices')
+<<<<<<< HEAD
+app.register_blueprint(customers_bp, url_prefix='/customers')
+=======
 app.register_blueprint(quanLiSP_bp, url_prefix='/quanLiSP')
+>>>>>>> caf330e8f5b5325e0ada152376f48995fc0c6aef
 
 @app.route("/")
 def home():
