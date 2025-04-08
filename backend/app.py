@@ -9,17 +9,14 @@ from routes.accounts import accounts_bp  # Import accounts blueprint
 app = Flask(__name__)
 CORS(app)
 
-# Database configuration
+# Cấu hình database
 app.config['MYSQL_HOST'] = "localhost"
 app.config['MYSQL_USER'] = "root"
 app.config['MYSQL_PASSWORD'] = ""
 app.config['MYSQL_DB'] = "pos_system"
 
-try:
-    db = MySQL(app)
-    print("Database connection successful!")
-except Exception as e:
-    print(f"Error connecting to the database: {e}")
+db = MySQL(app)
+
 
 # Register Blueprints
 app.register_blueprint(products_bp, url_prefix='/products')
