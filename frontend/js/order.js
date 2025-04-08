@@ -120,7 +120,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-
 let brandFilteredProducts = []; // Lưu sản phẩm đã lọc theo hãng
 let searchFilteredProducts = []; // Lưu kết quả tìm kiếm gần nhất
 
@@ -161,8 +160,6 @@ function filterByPrice(minPrice, maxPrice) {
 
     displayProducts(filteredProducts, currentPage, totalPages);
 }
-
-
 
 function searchProduct() {
     let searchValue = document.getElementById("search-input").value.trim().toLowerCase();
