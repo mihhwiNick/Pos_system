@@ -1,0 +1,88 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Hóa Đơn</title>
+    <link rel="stylesheet" href="../css/invoice.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Menu</h2>
+            <ul>
+                <li><a href="../html/manage.html">Tổng quan</a></li>
+                <li>Sản phẩm</li>
+                <li>Khách hàng</li>
+                <li><a href="../html/invoice.html" class="active">Hóa đơn</a></li>
+                <li>Tài khoản</li>
+                <li>Đăng xuất</li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <h2>Quản lý Hóa đơn</h2>
+            <div class="search-container">
+                <input type="text" id="search" placeholder="Nhập nội dung tìm kiếm..."
+                    oninput="toggleClearButton()">
+                <span id="clear-btn" onclick="clearSearch()">×</span>
+                <button onclick="searchInvoice()">Tìm kiếm</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã hóa đơn</th>
+                            <th>Tên khách hàng</th>
+                            <th>Ngày tạo</th>
+                            <th>Tổng tiền</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoice-list">
+                        <!-- Dữ liệu sẽ được thêm vào đây -->
+                        <tr class="invoice-row">
+                            <td class="invoice-id"></td>
+                            <td class="customer-name"></td>
+                            <td class="created-at"></td>
+                            <td class="total-amount"></td>
+                            <td class="actions"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="pagination"></div>
+
+            <!-- Modal Xem Chi Tiết Hóa Đơn -->
+            <div id="viewModal" class="modal">
+                <div class="modal-content">
+                    <h2>Chi Tiết Hóa Đơn</h2>
+                    <div id="invoiceDetails">
+                        <!-- Các chi tiết hóa đơn sẽ hiển thị ở đây -->
+                    </div>
+                    <button class="cancel-btn" onclick="closeViewModal()">Đóng</button>
+                </div>
+            </div>
+
+            <!-- Modal Xác Nhận Xóa -->
+            <div id="deleteModal" class="modal">
+                <div class="modal-content">
+                    <h2>Xác nhận xóa</h2>
+                    <p id="deleteMessage">Bạn có chắc chắn muốn xóa?</p>
+                    <div class="modal-actions">
+                        <button id="confirmDeleteBtn" onclick="deleteItem()">Xác nhận</button>
+                        <button id="cancelDeleteBtn" onclick="closeDeleteModal()">Hủy bỏ</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="../js/invoice.js"></script>
+</body>
+
+</html>

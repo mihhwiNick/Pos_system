@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt hàng</title>
+    <link rel="stylesheet" href="../css/order.css">
+</head>
+
+<body>
+    <div class="order-container">
+        <div class="product-selection">
+            <div class="header">
+                <img src="../img/return.png" class="return-icon" onclick="goBackToMainPage()" alt="Quay lại">
+                <div class="filter-menu">
+                    <!-- Lọc hãng dạng dropdown -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" id="brand-filter">Hãng</button>
+                        <div class="dropdown-content" id="brand-options">
+                            <a href="#" onclick="filterByBrand('APPLE')">APPLE</a>
+                            <a href="#" onclick="filterByBrand('OPPO')">OPPO</a>
+                            <a href="#" onclick="filterByBrand('SAMSUNG')">SAMSUNG</a>
+                            <a href="#" onclick="filterByBrand('XIAOMI')">XIAOMI</a>
+                            <a href="#" onclick="filterByBrand('REALME')">REALME</a> 
+                        </div>
+                    </div>
+
+                    <!-- Lọc giá -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" id="price-filter">Mức giá</button>
+                        <div class="dropdown-content" id="price-options">
+                            <a href="#" onclick="filterByPrice(0, 2000000)">Dưới 2 triệu</a>
+                            <a href="#" onclick="filterByPrice(2000000, 4000000)">Từ 2 - 4 triệu</a>
+                            <a href="#" onclick="filterByPrice(4000000, 7000000)">Từ 4 - 7 triệu</a>
+                            <a href="#" onclick="filterByPrice(7000000, 12000000)">Từ 7 - 12 triệu</a>
+                            <a href="#" onclick="filterByPrice(12000000, 20000000)">Từ 12 - 20 triệu</a>
+                            <a href="#" onclick="filterByPrice(20000000, Infinity)">Trên 20 triệu</a>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Thanh tìm kiếm -->
+                <div id="search-container">
+                    <input type="text" id="search-input" placeholder="Nhập tên sản phẩm..."
+                        oninput="toggleClearButton()">
+                    <span id="clear-btn" onclick="clearSearch()">×</span>
+                    <button onclick="searchProduct()">Tìm kiếm</button>
+                </div>
+            </div>
+
+            <div class="product-container">
+                <div id="product-list"></div>
+                <div class="button-pagination">
+                    <img id="prev" class="btn-pagination" src="../img/prev.png" onclick="changePage(-1)"
+                        alt="Trang trước">
+                    <img id="next" class="btn-pagination" src="../img/next.png" onclick="changePage(1)" alt="Trang sau">
+                </div>
+            </div>
+        </div>
+
+        <!-- Giỏ hàng -->
+        <div class="cart" id="cart-container" style="display: none;">
+            <table id="cart-table">
+                <colgroup>
+                    <col style="width: 50%;">
+                    <col style="width: 20%;">
+                    <col style="width: 20%;">
+                    <col style="width: 10%;">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Giá</th>
+                        <th>Số lượng</th>
+                        <th>Xóa</th>
+                    </tr>
+                </thead>
+                <tbody id="cart-list">
+                    <!-- Dữ liệu giỏ hàng sẽ được thêm bằng JavaScript -->
+                </tbody>
+            </table>
+            <div class="cart-pagination">
+                <img id="cart-prev" class="btn-pagination" src="../img/prev.png" onclick="changeCartPage(-1)"
+                    alt="Trang trước">
+                <img id="cart-next" class="btn-pagination" src="../img/next.png" onclick="changeCartPage(1)"
+                    alt="Trang sau">
+            </div>
+            <div class="summary">
+                <hr>
+                <button id="check-member">Kiểm tra thành viên</button>
+                <div class="customer-info">
+                    <div class="row">
+                        <span>Khách hàng:</span>
+                        <span id="customer-name">.....</span>
+                        <span class="spacer"></span>
+                        <span>Số điện thoại:</span>
+                        <span id="customer-phone">.....</span>
+                    </div>
+                    <div class="row">
+                        <span>Điểm hiện tại:</span>
+                        <span id="customer-points">.....</span>
+                    </div>
+                    <div class="row">
+                        <span>Nhập:</span>
+                        <input type="text" id="use-points" placeholder="Nhập điểm">
+                        <span>(1đ = 1.000đ)</span>
+                        <button id="apply-points">Áp dụng</button>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <span>Subtotal</span>
+                    <span id="subtotal">0</span>
+                </div>
+                <div class="row">
+                    <span>Discount</span>
+                    <span id="discount">0</span>
+                </div>
+                <hr>
+                <div class="row total">
+                    <span>Total</span>
+                    <span id="total">0</span>
+                </div>
+            </div>
+            <button id="confirm-order">Thanh toán</button>
+        </div>
+    </div>
+    <script src="../js/order.js"></script>
+</body>
+
+</html>
