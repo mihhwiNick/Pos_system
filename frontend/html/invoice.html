@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Hóa Đơn</title>
     <link rel="stylesheet" href="../css/invoice.css">
+    <link rel="stylesheet" href="../css/invoice_product.css">
+
+
 </head>
 
 <body>
@@ -26,8 +29,7 @@
         <div class="main-content">
             <h2>Quản lý Hóa đơn</h2>
             <div class="search-container">
-                <input type="text" id="search" placeholder="Nhập nội dung tìm kiếm..."
-                    oninput="toggleClearButton()">
+                <input type="text" id="search" placeholder="Nhập nội dung tìm kiếm..." oninput="toggleClearButton()">
                 <span id="clear-btn" onclick="clearSearch()">×</span>
                 <button onclick="searchInvoice()">Tìm kiếm</button>
             </div>
@@ -76,6 +78,113 @@
                     <div class="modal-actions">
                         <button id="confirmDeleteBtn" onclick="deleteItem()">Xác nhận</button>
                         <button id="cancelDeleteBtn" onclick="closeDeleteModal()">Hủy bỏ</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Chỉnh Sửa -->
+            <div id="editModal" class="modal">
+                <div class="modal-content">
+                    <h2>Chỉnh sửa chi tiết hóa đơn</h2>
+                    <form id="editForm">
+                        <input type="hidden" id="editDetailId">
+
+                        <label for="editProductName">Tên sản phẩm:</label>
+                        <input type="text" id="editProductName" readonly class="readonly-input">
+
+                        <label for="editQuantity">Số lượng:</label>
+                        <input type="number" id="editQuantity" required min="1">
+
+                        <label for="editPrice">Giá tiền:</label>
+                        <input type="number" id="editPrice" readonly class="readonly-input">
+
+                        <div class="modal-actions">
+                            <button type="submit" class="confirm-edit" onclick="saveChanges(event)">Lưu thay đổi</button>
+                            <button type="button" class="cancel-edit" onclick="closeEditModal()">Hủy bỏ</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal cho việc thêm chi tiết hóa đơn -->
+            <div id="addDetailModal" class="modal">
+                <div class="modal-content">
+                    <h2>Thêm chi tiết hóa đơn</h2>
+                    <form id="addDetailForm">
+                        <input type="hidden" id="invoice_id" name="invoice_id" />
+
+                        <label for="product_name">Sản phẩm:</label>
+                        <div class="product-input-wrapper">
+                            <input type="text" id="product_name" name="product_name" required placeholder="Chọn sản phẩm"
+                                readonly />
+                            <input type="hidden" id="product_id" name="product_id" />
+                            <button type="button" class="select-product-btn" onclick="openProductSelectionModal()">Chọn
+                                sản phẩm</button>
+                        </div>
+
+                        <label for="quantity">Số lượng:</label>
+                        <input type="number" id="quantity" name="quantity" min="1" required />
+
+                        <label for="price">Giá tiền:</label>
+                        <input type="text" id="price" name="price" readonly class="readonly-input">
+
+                        <div class="modal-actions">
+                            <button type="submit" class="confirm-add" onclick="submitAddDetailModal(event)">Thêm chi tiết</button>
+                            <button type="button" class="cancel-add" onclick="closeAddDetailModal()">Hủy</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="productSelectPanel" style="display: none;">
+                <!-- HTML chọn sản phẩm để sửa -->
+                <div class="product-selection">
+                    <div class="header">
+                        <img src="../img/return.png" class="return-icon" onclick="goBackToMainPage()" alt="Quay lại">
+                        <div class="filter-menu">
+                            <!-- Lọc hãng dạng dropdown -->
+                            <div class="dropdown">
+                                <button class="dropdown-btn" id="brand-filter">Hãng</button>
+                                <div class="dropdown-content" id="brand-options">
+                                    <a href="#" onclick="filterByBrand('APPLE')">APPLE</a>
+                                    <a href="#" onclick="filterByBrand('OPPO')">OPPO</a>
+                                    <a href="#" onclick="filterByBrand('SAMSUNG')">SAMSUNG</a>
+                                    <a href="#" onclick="filterByBrand('XIAOMI')">XIAOMI</a>
+                                    <a href="#" onclick="filterByBrand('REALME')">REALME</a>
+                                </div>
+                            </div>
+
+                            <!-- Lọc giá -->
+                            <div class="dropdown">
+                                <button class="dropdown-btn" id="price-filter">Mức giá</button>
+                                <div class="dropdown-content" id="price-options">
+                                    <a href="#" onclick="filterByPrice(0, 2000000)">Dưới 2 triệu</a>
+                                    <a href="#" onclick="filterByPrice(2000000, 4000000)">Từ 2 - 4 triệu</a>
+                                    <a href="#" onclick="filterByPrice(4000000, 7000000)">Từ 4 - 7 triệu</a>
+                                    <a href="#" onclick="filterByPrice(7000000, 12000000)">Từ 7 - 12 triệu</a>
+                                    <a href="#" onclick="filterByPrice(12000000, 20000000)">Từ 12 - 20 triệu</a>
+                                    <a href="#" onclick="filterByPrice(20000000, Infinity)">Trên 20 triệu</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thanh tìm kiếm -->
+                        <div id="search-container">
+                            <input type="text" id="search-input" placeholder="Nhập tên sản phẩm..."
+                                oninput="toggleClearButton()">
+                            <span id="clear-btn" onclick="clearSearch()">×</span>
+                            <button onclick="searchProduct()">Tìm kiếm</button>
+                        </div>
+                    </div>
+
+                    <div class="product-container">
+                        <div id="product-list"></div>
+                        <div class="button-pagination">
+                            <img id="prevProduct" class="btn-pagination" src="../img/prev.png" onclick="changePageProduct(-1)"
+                                alt="Trang trước">
+                            <img id="nextProduct" class="btn-pagination" src="../img/next.png" onclick="changePageProduct(1)"
+                                alt="Trang sau">
+                        </div>
                     </div>
                 </div>
             </div>

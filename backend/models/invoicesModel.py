@@ -59,12 +59,31 @@ class Invoice:
         cursor.close()
         
     @staticmethod
-    def create_invoiceDetails(invoice_id, product_id, quantity, price):
+    def create_invoiceDetails(id, product_id, quantity, price):
         cursor = db.connection.cursor()
         cursor.execute("INSERT INTO invoice_details (invoice_id, product_id, quantity, price) VALUES (%s, %s, %s, %s)",
-                (invoice_id, product_id, quantity, price))
+                (id, product_id, quantity, price))
         db.connection.commit()
-        cursor.close()   
+        cursor.close()
+        
+    @staticmethod
+    def get_product_price(product_id):
+        try:
+            cursor = db.connection.cursor()  # Sử dụng đúng đối tượng kết nối db
+            cursor.execute("SELECT price FROM products WHERE id = %s", (product_id,))
+            product = cursor.fetchone()
+            
+            cursor.close()
+
+            # Nếu không tìm thấy sản phẩm, trả về None
+            if product is None:
+                return None
+
+            # Trả về giá của sản phẩm
+            return product[0]
+        except Exception as e:
+            print("Lỗi khi truy vấn giá sản phẩm:", e)
+            return None
         
     @staticmethod
     def delete_invoice(id):
@@ -72,7 +91,6 @@ class Invoice:
         cursor.execute("DELETE FROM invoices WHERE id = %s", (id,))
         db.connection.commit()
         cursor.close()
-        return True
         
     @staticmethod
     def delete_invoiceDetails(id):
@@ -81,3 +99,74 @@ class Invoice:
         db.connection.commit()
         cursor.close()
         return True
+    
+    @staticmethod
+    def update_invoice_detail(id, quantity):
+        cursor = db.connection.cursor()
+
+        try:
+            # Kiểm tra quantity trước khi tiến hành cập nhật
+            if quantity is None or quantity <= 0:
+                print("Số lượng không hợp lệ")
+                return None
+
+            # Lấy invoice_id và price từ chi tiết hóa đơn
+            cursor.execute("SELECT invoice_id, price FROM invoice_details WHERE id = %s", (id,))
+            detail = cursor.fetchone()
+            
+            if not detail:
+                print(f"No invoice detail found for ID: {id}")  # Debug line
+                return None
+
+            # Lấy invoice_id và unit_price từ tuple
+            invoice_id = detail[0]
+            unit_price = detail[1]
+
+            # Tính toán lại giá trị total_price cho chi tiết hóa đơn
+            total_price = quantity * unit_price
+
+            # Cập nhật quantity cho chi tiết hóa đơn
+            cursor.execute("""
+                UPDATE invoice_details
+                SET quantity = %s
+                WHERE id = %s
+            """, (quantity, id))
+
+            # Cập nhật lại tổng tiền của hóa đơn
+            cursor.execute("""
+                SELECT SUM(price * quantity) AS total
+                FROM invoice_details
+                WHERE invoice_id = %s
+            """, (invoice_id,))
+
+            total_result = cursor.fetchone()
+
+            # Kiểm tra nếu không có kết quả
+            if not total_result:
+                return None
+
+            new_total = total_result[0] or 0  # Đảm bảo lấy tổng đúng
+
+            # Cập nhật lại total_amount trong bảng invoices
+            cursor.execute("""
+                UPDATE invoices
+                SET total_amount = %s
+                WHERE id = %s
+            """, (new_total, invoice_id))
+
+            db.connection.commit()
+
+            return {
+                'invoice_id': invoice_id,
+                'new_quantity': quantity,
+                'new_total': new_total
+            }
+
+        except Exception as e:
+            db.connection.rollback()
+            print("Lỗi cập nhật chi tiết hóa đơn:", e)
+            return None
+        finally:
+            cursor.close()
+
+
