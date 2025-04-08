@@ -268,13 +268,3 @@ document.querySelectorAll('.brand a').forEach(el => {
 function createOrder() {
     window.location.href = "order.html";
 }
-
-
-
-
-
-
-
-
-
-

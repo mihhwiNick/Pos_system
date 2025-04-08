@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 14, 2025 at 01:30 PM
+-- Generation Time: Mar 30, 2025 at 04:43 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -121,8 +121,8 @@ INSERT INTO `products` (`id`, `name`, `brand`, `price`, `stock`, `image_url`, `s
 (27, 'OPPO Reno7 5G (8GB 256GB)', 'OPPO', 11490000.00, 15, 'img/products/27.jpg', '6.43 inches', 'Dimensity 900', '8 GB', '256 GB', '4500mAh', '64MP + 8MP + 2MP', 'Android', 'Starry Black'),
 (28, 'OPPO Reno 7 Pro', 'OPPO', 13990000.00, 10, 'img/products/28.jpg', '6.55 inches', 'Dimensity 1200-Max', '8 GB', '256 GB', '4500mAh', '50MP + 8MP + 2MP', 'Android', 'Starlight Blue'),
 (29, 'Samsung Galaxy S22 Ultra (12GB - 256GB)', 'Samsung', 22990000.00, 12, 'img/products/29.jpg', '6.8 inches', 'Snapdragon 8 Gen 1', '12 GB', '256 GB', '5000mAh', '108MP + 10MP + 10MP + 12MP', 'Android', 'Burgundy'),
-(30, 'realme 10 8GB 256GB', 'Realmi', 5990000.00, 25, 'img/products/30.jpg', '6.4 inches', 'Helio G99', '8 GB', '256 GB', '5000mAh', '50MP + 2MP', 'Android', 'Rush Black'),
-(31, 'realme C55 (6GB - 128GB)', 'Realmi', 3990000.00, 30, 'img/products/31.jpg', '6.72 inches', 'Helio G88', '6 GB', '128 GB', '5000mAh', '64MP + 2MP', 'Android', 'Sunshower');
+(30, 'realme 10 8GB 256GB', 'Realme', 5990000.00, 25, 'img/products/30.jpg', '6.4 inches', 'Helio G99', '8 GB', '256 GB', '5000mAh', '50MP + 2MP', 'Android', 'Rush Black'),
+(31, 'realme C55 (6GB - 128GB)', 'Realme', 3990000.00, 30, 'img/products/31.jpg', '6.72 inches', 'Helio G88', '6 GB', '128 GB', '5000mAh', '64MP + 2MP', 'Android', 'Sunshower');
 
 -- --------------------------------------------------------
 
@@ -133,15 +133,19 @@ INSERT INTO `products` (`id`, `name`, `brand`, `price`, `stock`, `image_url`, `s
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
-  `password` varchar(255) NOT NULL
+  `password` varchar(255) NOT NULL,
+  `role` enum('admin','staff') NOT NULL DEFAULT 'staff'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`) VALUES
-(1, 'admin', '123456');
+INSERT INTO `users` (`id`, `username`, `password`, `role`) VALUES
+(2, 'admin', '123456', 'admin'),
+(3, 'staff1', '123', 'staff'),
+(4, 'staff2', '456', 'staff'),
+(5, 'staff3', '789', 'staff');
 
 --
 -- Indexes for dumped tables
@@ -214,7 +218,7 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables

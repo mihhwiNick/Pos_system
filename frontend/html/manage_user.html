@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý tài khoản người dùng</title>
+    <link rel="stylesheet" href="../css/manageUser.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Quản lý tài khoản người dùng</h1>
+        
+        <!-- Search User -->
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Tìm kiếm tài khoản...">
+            <button onclick="searchUser()">Tìm kiếm</button>
+        </div>
+
+        <!-- User Table -->
+        <table id="user-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên đăng nhập</th>
+                    <th>Vai trò</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic user rows will be inserted here -->
+            </tbody>
+        </table>
+
+        <!-- Add User -->
+        <div class="form-container">
+            <h2>Thêm tài khoản</h2>
+            <form id="add-user-form">
+                <label for="add-username">Tên đăng nhập:</label>
+                <input type="text" id="add-username" required>
+                
+                <label for="add-password">Mật khẩu:</label>
+                <input type="password" id="add-password" required>
+                
+                <label for="add-role">Vai trò:</label>
+                <select id="add-role">
+                    <option value="admin">Admin</option>
+                    <option value="staff">Staff</option>
+                </select>
+                
+                <button type="submit">Thêm</button>
+            </form>
+        </div>
+
+        <!-- Edit User Modal -->
+        <div id="edit-user-modal" class="modal">
+            <div class="modal-content">
+                <h2>Sửa tài khoản</h2>
+                <form id="edit-user-form">
+                    <input type="hidden" id="edit-user-id">
+                    
+                    <label for="edit-username">Tên đăng nhập:</label>
+                    <input type="text" id="edit-username" required>
+                    
+                    <label for="edit-old-password">Mật khẩu cũ:</label>
+                    <input type="password" id="edit-old-password" required>
+                    
+                    <label for="edit-new-password">Mật khẩu mới:</label>
+                    <input type="password" id="edit-new-password">
+                    
+                    <label for="edit-confirm-password">Xác nhận mật khẩu mới:</label>
+                    <input type="password" id="edit-confirm-password">
+                    
+                    <label for="edit-role">Vai trò:</label>
+                    <select id="edit-role">
+                        <option value="admin">Admin</option>
+                        <option value="staff">Staff</option>
+                    </select>
+                    
+                    <button type="submit">Lưu thay đổi</button>
+                    <button type="button" onclick="closeEditModal()">Hủy</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="../js/manageUser.js"></script>
+</body>
+</html>
