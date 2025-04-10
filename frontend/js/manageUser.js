@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("search-input");
     const editUserModal = document.getElementById("edit-user-modal");
     const editUserForm = document.getElementById("edit-user-form");
+    const changePasswordModal = document.getElementById("change-password-modal");
+    const changePasswordForm = document.getElementById("change-password-form");
 
     // Fetch and display users
     async function fetchUsers() {
@@ -31,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${user.role}</td>
                 <td>
                     <button onclick="editUser(${user.id})" style="background-color: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Chỉnh Sửa</button>
+                    <button onclick="openChangePasswordModal(${user.id})" style="background-color: #f39c12; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Đổi mật khẩu</button>
                     <button onclick="deleteUser(${user.id})" style="background: none; border: none; cursor: pointer;">
                         <img src="../img/delete.png" alt="Delete" style="width: 20px; height: 20px;">
                     </button>
@@ -118,46 +121,105 @@ document.addEventListener("DOMContentLoaded", () => {
         editUserModal.style.display = "flex";
     };
 
-    // Close edit modal
-    window.closeEditModal = function () {
-        editUserModal.style.display = "none";
-    };
-
     // Handle edit user form submission
     editUserForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const id = document.getElementById("edit-user-id").value;
         const username = document.getElementById("edit-username").value;
-        const oldPassword = document.getElementById("edit-old-password").value;
-        const newPassword = document.getElementById("edit-new-password").value;
-        const confirmPassword = document.getElementById("edit-confirm-password").value;
         const role = document.getElementById("edit-role").value;
+        const passwordConfirm = document.getElementById("edit-password-confirm").value;
 
-        if (newPassword && newPassword !== confirmPassword) {
+        try {
+            // Validate password
+            const validateResponse = await fetch(`http://127.0.0.1:5001/accounts/users/${id}/validate-password`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password: passwordConfirm }),
+            });
+
+            if (validateResponse.ok) {
+                // Update username and role
+                const updateResponse = await fetch(`http://127.0.0.1:5001/accounts/users/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, role }),
+                });
+
+                if (updateResponse.ok) {
+                    alert("Thông tin đã được cập nhật thành công!");
+                    fetchUsers();
+                    resetEditUserForm(); // Reset the form
+                    closeEditModal();
+                } else {
+                    alert("Lỗi khi cập nhật thông tin tài khoản!");
+                }
+            } else {
+                alert("Mật khẩu không chính xác!");
+            }
+        } catch (error) {
+            console.error("Error validating password or updating user:", error);
+        }
+    });
+
+    // Close edit modal
+    window.closeEditModal = function () {
+        resetEditUserForm(); // Reset the form
+        editUserModal.style.display = "none";
+    };
+
+    // Reset the edit user form
+    function resetEditUserForm() {
+        editUserForm.reset(); // Reset all form fields
+    }
+
+    // Open change password modal
+    window.openChangePasswordModal = (id) => {
+        document.getElementById("change-password-user-id").value = id;
+        changePasswordModal.style.display = "flex";
+    };
+
+    // Handle change password form submission
+    changePasswordForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("change-password-user-id").value;
+        const currentPassword = document.getElementById("current-password").value;
+        const newPassword = document.getElementById("new-password").value;
+        const confirmNewPassword = document.getElementById("confirm-new-password").value;
+
+        if (newPassword !== confirmNewPassword) {
             alert("Mật khẩu mới và xác nhận mật khẩu không khớp!");
             return;
         }
 
         try {
-            const response = await fetch(`http://127.0.0.1:5001/accounts/users/${id}`, { // Correct URL
-                method: "PUT",
+            const response = await fetch(`http://127.0.0.1:5001/accounts/users/${id}/change-password`, {
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, oldPassword, newPassword, role }),
+                body: JSON.stringify({ currentPassword, newPassword }),
             });
 
             if (response.ok) {
-                alert("Cập nhật tài khoản thành công!");
-                fetchUsers();
-                editUserForm.reset();
-                closeEditModal();
+                alert("Mật khẩu đã được thay đổi thành công!");
+                resetChangePasswordForm(); // Reset the form
+                closeChangePasswordModal();
             } else {
-                const result = await response.json();
-                alert(result.message || "Lỗi khi cập nhật tài khoản!");
+                alert("Mật khẩu hiện tại không chính xác!");
             }
         } catch (error) {
-            console.error("Error updating user:", error);
+            console.error("Error changing password:", error);
         }
     });
+
+    // Close change password modal
+    window.closeChangePasswordModal = function () {
+        resetChangePasswordForm(); // Reset the form
+        changePasswordModal.style.display = "none";
+    };
+
+    // Reset the change password form
+    function resetChangePasswordForm() {
+        changePasswordForm.reset(); // Reset all form fields
+    }
 
     // Logout function
     window.logout = function () {
