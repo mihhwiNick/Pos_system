@@ -281,3 +281,7 @@ async function updateCustomer() {
     }
 }
 
+window.logout = function () {
+    sessionStorage.removeItem("loginData");
+    window.location.href = "app.html";
+};

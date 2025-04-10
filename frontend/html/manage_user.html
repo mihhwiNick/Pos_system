@@ -50,7 +50,7 @@
                 <h2>Thêm tài khoản</h2>
                 <form id="add-user-form">
                     <label for="add-username">Tên đăng nhập:</label>
-                    <input type="text" id="add-username" required>
+                    <input type="text" id="add-username"  required>
                     
                     <label for="add-password">Mật khẩu:</label>
                     <input type="password" id="add-password" required>
@@ -76,16 +76,7 @@
                         <input type="hidden" id="edit-user-id">
                         
                         <label for="edit-username">Tên đăng nhập:</label>
-                        <input type="text" id="edit-username" required>
-                        
-                        <label for="edit-old-password">Mật khẩu cũ:</label>
-                        <input type="password" id="edit-old-password" required>
-                        
-                        <label for="edit-new-password">Mật khẩu mới:</label>
-                        <input type="password" id="edit-new-password">
-                        
-                        <label for="edit-confirm-password">Xác nhận mật khẩu mới:</label>
-                        <input type="password" id="edit-confirm-password">
+                        <input type="text" id="edit-username" placeholder="Tên đăng nhập" required>
                         
                         <label for="edit-role">Vai trò:</label>
                         <select id="edit-role">
@@ -93,8 +84,33 @@
                             <option value="staff">Staff</option>
                         </select>
                         
+                        <label for="edit-password-confirm">Nhập mật khẩu để xác nhận:</label>
+                        <input type="password" id="edit-password-confirm" required>
+                        
                         <button type="submit">Lưu thay đổi</button>
                         <button type="button" onclick="closeEditModal()">Hủy</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Change Password Modal -->
+            <div id="change-password-modal" class="modal">
+                <div class="modal-content">
+                    <h2>Đổi mật khẩu</h2>
+                    <form id="change-password-form">
+                        <input type="hidden" id="change-password-user-id">
+                        
+                        <label for="current-password">Mật khẩu hiện tại:</label>
+                        <input type="password" id="current-password" required>
+                        
+                        <label for="new-password">Mật khẩu mới:</label>
+                        <input type="password" id="new-password" required>
+                        
+                        <label for="confirm-new-password">Xác nhận mật khẩu mới:</label>
+                        <input type="password" id="confirm-new-password" required>
+                        
+                        <button type="submit">Đổi mật khẩu</button>
+                        <button type="button" onclick="closeChangePasswordModal()">Hủy</button>
                     </form>
                 </div>
             </div>

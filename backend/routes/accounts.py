@@ -98,29 +98,52 @@ def delete_user(user_id):
 def update_user(user_id):
     data = request.json
     username = data.get('username')
-    old_password = data.get('oldPassword')
-    new_password = data.get('newPassword')
     role = data.get('role')
 
     cursor = db.connection.cursor()
     try:
-        # Validate old password
-        query = "SELECT password FROM users WHERE id = %s"
-        cursor.execute(query, (user_id,))
-        user = cursor.fetchone()
-        if not user or user[0] != old_password:
-            return jsonify({"message": "Old password is incorrect"}), 400
-
-        # Update user details
-        if new_password:
-            query = "UPDATE users SET username = %s, password = %s, role = %s WHERE id = %s"
-            cursor.execute(query, (username, new_password, role, user_id))
-        else:
-            query = "UPDATE users SET username = %s, role = %s WHERE id = %s"
-            cursor.execute(query, (username, role, user_id))
-
+        query = "UPDATE users SET username = %s, role = %s WHERE id = %s"
+        cursor.execute(query, (username, role, user_id))
         db.connection.commit()
         return jsonify({"message": "User updated successfully"}), 200
     except Exception as e:
         db.connection.rollback()
         return jsonify({"message": "Error updating user", "error": str(e)}), 400
+
+@accounts_bp.route('/users/<int:user_id>/validate-password', methods=['POST'])
+def validate_password(user_id):
+    data = request.json
+    password = data.get('password')
+
+    cursor = db.connection.cursor()
+    query = "SELECT password FROM users WHERE id = %s"
+    cursor.execute(query, (user_id,))
+    user = cursor.fetchone()
+
+    if user and user[0] == password:
+        return jsonify({"message": "Password validated successfully"}), 200
+    else:
+        return jsonify({"message": "Invalid password"}), 400
+
+@accounts_bp.route('/users/<int:user_id>/change-password', methods=['POST'])
+def change_password(user_id):
+    data = request.json
+    current_password = data.get('currentPassword')
+    new_password = data.get('newPassword')
+
+    cursor = db.connection.cursor()
+    query = "SELECT password FROM users WHERE id = %s"
+    cursor.execute(query, (user_id,))
+    user = cursor.fetchone()
+
+    if not user or user[0] != current_password:
+        return jsonify({"message": "Current password is incorrect"}), 400
+
+    try:
+        query = "UPDATE users SET password = %s WHERE id = %s"
+        cursor.execute(query, (new_password, user_id))
+        db.connection.commit()
+        return jsonify({"message": "Password changed successfully"}), 200
+    except Exception as e:
+        db.connection.rollback()
+        return jsonify({"message": "Error changing password", "error": str(e)}), 400

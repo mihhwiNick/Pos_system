@@ -1,13 +1,13 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý hệ thống</title>
     <link rel="stylesheet" href="../css/manage.css">
-    <link rel="stylesheet" href="../css/manageUser.css">
 </head>
+
 <body>
     <div class="container">
         <div class="sidebar">
@@ -17,24 +17,45 @@
                 <li><a href="../html/quanLiSP.html">Sản phẩm</a></li>
                 <li><a href="../html/customer.html">Khách hàng</a></li>
                 <li><a href="../html/invoice.html">Hóa đơn</a></li>
-                <li><a href="../html/manage_user.html" >Tài khoản</a></li>
+                <li><a href="../html/manage_user.html">Tài khoản</a></li>
                 <li><a href="#" onclick="logout()">Đăng xuất</a></li>
             </ul>
         </div>
 
         <div class="main-content">
-            <div id="tab-content">
-                <h1>Tổng quan</h1>
-                <div class="stats">
-                    <div class="card blue">Doanh thu hôm nay: 5,200,000 VND</div>
-                    <div class="card green">Số đơn hàng hôm nay: 35</div>
-                    <div class="card yellow">Khách hàng mới: 5</div>
+            <h1 class="dashboard-title">Thống Kê</h1>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Doanh thu hôm nay</h3>
+                    <p></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Đơn hàng hôm nay</h3>
+                    <p></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Khách hàng mới</h3>
+                    <p></p>
                 </div>
             </div>
-            
+            <h2 class="section-title">Hóa đơn gần đây</h2>
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Mã hóa đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Ngày lập</th>
+                        <th>Số sản phẩm</th>
+                        <th>Tổng tiền</th>
+                    </tr>
+                </thead>
+                <tbody id="invoice-table-body">
+                    <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
+                </tbody>
+            </table>
         </div>
     </div>
     <script src="../js/manage.js"></script>
-    <script src="../js/manageUser.js"></script>
 </body>
+
 </html>

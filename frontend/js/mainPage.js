@@ -261,6 +261,8 @@ function clearSearch() {
     input.value = ""; // Xóa nội dung input
     clearBtn.style.display = "none"; // Ẩn nút X
 
+    filteredProducts = allProducts;
+    currentPage = 1;
     // Giữ nguyên danh sách hiện tại (KHÔNG reset về toàn bộ sản phẩm)
     displayProducts(filteredProducts, currentPage, Math.ceil(filteredProducts.length / productsPerPage));
 }

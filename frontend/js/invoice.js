@@ -24,6 +24,17 @@ function formatPrice(price) {
     }).format(price);
 }
 
+function formatDateTime(dateStr) {
+    const date = new Date(dateStr);
+    const options = {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Ho_Chi_Minh' // Giờ Việt Nam
+    };
+    return date.toLocaleString('vi-VN', options).replace(',', '');
+}
+
 fetchInvoices();
 
 async function fetchInvoices() {
@@ -52,7 +63,7 @@ function displayInvoices(invoicesToDisplay, page, totalPages) {
         row.innerHTML = `
             <td class="invoice-id">${invoice.id}</td>
             <td class="customer-name">${invoice.customer_name}</td>
-            <td class="created-at">${invoice.created_at}</td>
+            <td class="created-at">${formatDateTime(invoice.created_at)}</td>
             <td class="total-amount" id="total-amount-${invoice.id}">${formatPrice(invoice.total_amount)}</td>
             <td class="actions">
                 <div class="action-buttons">
@@ -665,3 +676,7 @@ function submitAddDetailModal(event) {
     addInvoiceDetail();
 }
 
+window.logout = function () {
+    sessionStorage.removeItem("loginData");
+    window.location.href = "app.html";
+};
