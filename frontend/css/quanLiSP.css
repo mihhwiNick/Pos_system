@@ -1,0 +1,56 @@
+html{
+    background-color: #ccc;
+}
+h1{
+    text-align: center;
+}
+body{
+    text-align: center;
+}
+#thong_tin_sp  input{
+    width: 80%;
+    margin: 10px 10px 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    margin-left: 10%;
+}
+#tim_kiem input{
+    width: 500px;
+    padding: 10px;
+    border-radius: 5px;
+}
+#tim_kiem button{
+    width: 100px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: green;
+}
+#ds_sp th {
+    border:1px solid black;
+}
+table{
+    margin: 0 auto;
+}
+table th,
+table td{
+    background-color: white;
+}
+#thong_tin_chi_tiet{
+    display: none;
+}
+#chuc_nang{
+    position: relative;
+}
+#chuc_nang button{
+    width: 120px;
+    margin: 10px;
+    padding: 5px;
+}
+#themVaHuy{
+    display: none;
+    position: absolute;
+    top :0;
+    right: 0;
+    margin-right: 250px;
+}
+

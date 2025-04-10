@@ -38,8 +38,34 @@ def add_invoice():
     if not customer_id or not total_amount:
         return jsonify({"message": "Thiếu thông tin cần thiết"}), 400
 
-    Invoice.create(customer_id, total_amount)
+    Invoice.create_invoice(customer_id, total_amount)
     return jsonify({"message": "Hóa đơn đã được thêm thành công!"}), 201
+
+#Thêm chi tiết hóa đơn
+@invoices_bp.route('/<int:id>/details', methods=['POST'])
+def add_invoice_detail(id):
+    data = request.get_json()
+    product_id = data.get('product_id')
+    quantity = data.get('quantity')
+
+    if not product_id or not quantity:
+        return jsonify({"message": "Thiếu thông tin chi tiết hóa đơn"}), 400
+
+    try:
+        # Sử dụng hàm get_product_price để lấy giá sản phẩm
+        price_per_unit = Invoice.get_product_price(product_id)
+
+        if price_per_unit is None:
+            return jsonify({"message": "Không tìm thấy sản phẩm"}), 404
+
+        # Thêm chi tiết vào invoice_details
+        Invoice.create_invoiceDetails(id, product_id, quantity, price_per_unit)
+
+        return jsonify({"message": "Chi tiết hóa đơn đã được thêm thành công!"}), 201
+
+    except Exception as e:
+        print("Lỗi khi thêm chi tiết:", e)
+        return jsonify({"message": "Lỗi khi thêm chi tiết hóa đơn"}), 500
 
 # Xóa hóa đơn
 @invoices_bp.route('/<int:id>', methods=['DELETE'])
@@ -55,3 +81,28 @@ def delete_invoice_detail(id):
     if not success:
         return jsonify({"message": "Chi tiết hóa đơn không tồn tại"}), 404
     return jsonify({"message": "Chi tiết hóa đơn đã được xóa thành công!"})
+
+
+# Sửa số lượng sản phẩm trong chi tiết hóa đơn
+@invoices_bp.route('/<int:id>/details', methods=['PUT'])
+def update_invoice_detail(id):
+    data = request.get_json()
+    quantity = data.get('quantity')
+
+    if quantity is None or quantity <= 0:
+        return jsonify({'message': 'Thiếu hoặc số lượng không hợp lệ'}), 400
+
+    try:
+        result = Invoice.update_invoice_detail(id, quantity)
+
+        if not result:
+            return jsonify({'message': 'Chi tiết hóa đơn không tồn tại'}), 404
+
+        return jsonify({
+            'message': 'Cập nhật thành công',
+            'new_total_amount': result['new_total']  
+        })
+
+    except Exception as e:
+        return jsonify({'message': 'Lỗi server', 'error': str(e)}), 500
+
