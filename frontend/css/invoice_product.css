@@ -1,9 +1,3 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 #productSelectPanel {
     position: fixed;
     top: 0;
@@ -23,24 +17,23 @@
     max-width: 900px;
     padding: 20px;
     border-radius: 8px;
-    max-height: 100vh;
+    height: 100vh;
     position: relative;
     display: flex;
     flex-direction: column;
     border-right: 4px solid black;
+    
 }
 
 .product-selection {
     width: 100%;
-    height: 100vh;
     display: flex;
     flex-direction: column;
     border-right: 4px solid black;
 }
 
 .header {
-    width: 100%;
-    height: 80px;
+    height: 30px;
     /* Chiều cao hợp lý */
     display: flex;
     align-items: center;
@@ -52,12 +45,9 @@
 
 .return-icon {
     display: block;
-    /* Giữ icon ở dạng block để dễ căn chỉnh */
     width: 40px;
-    /* Kích thước icon */
     height: 40px;
     margin-left: 5px;
-    /* Căn lề giống button cũ */
     cursor: pointer;
     transition: transform 0.2s ease, opacity 0.3s ease;
 }
@@ -196,7 +186,7 @@
 }
 
 .product-container {
-    margin-top: 40px;
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
     /* Sắp xếp theo chiều dọc */
@@ -216,14 +206,11 @@
 
 }
 
-/* Nhóm chứa nút chuyển trang */
 .button-pagination {
     display: flex;
     justify-content: center;
-    /* Căn giữa */
     align-items: center;
     gap: 15px;
-    /* Khoảng cách giữa 2 nút */
 }
 
 /* Nút chuyển trang */
