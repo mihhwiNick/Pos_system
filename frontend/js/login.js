@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("login-form");
     const loginError = document.getElementById("login-error");
     const logoutButton = document.querySelector(".dropdown a:last-child"); // Đăng xuất button
+    const usernameDisplay = document.querySelector(".user .dropdown a:first-child"); // Select the username display link
 
     // Kiểm tra nếu form đăng nhập không tồn tại
     if (!loginForm) {
@@ -13,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Check session storage for login state
     const sessionData = JSON.parse(sessionStorage.getItem("loginData"));
     if (sessionData) {
+        updateUsernameDisplay(sessionData.username); // Update username display
         redirectBasedOnRole(sessionData.role);
     } else {
         loginPopup.style.display = "flex";
@@ -45,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Save login state to session storage
                 sessionStorage.setItem("loginData", JSON.stringify({ username: result.username, role: result.role }));
 
+                updateUsernameDisplay(result.username); // Update username display
                 redirectBasedOnRole(result.role);
             } else {
                 loginError.style.display = "block";
@@ -61,6 +64,13 @@ document.addEventListener("DOMContentLoaded", () => {
         loginPopup.style.display = "flex"; // Show login popup
         alert("Đăng xuất thành công!");
     });
+
+    // Update the username display in the dropdown
+    function updateUsernameDisplay(username) {
+        if (usernameDisplay) {
+            usernameDisplay.textContent = "Người dùng : " + username; // Set the username
+        }
+    }
 
     // Redirect based on role
     function redirectBasedOnRole(role) {
