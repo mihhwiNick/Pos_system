@@ -1,69 +1,95 @@
 <!DOCTYPE html>
-<html >
-<head>
-    <link rel="stylesheet" href="../css/quanLiSP.css">
-</head>
-<body>
-    <h1>Quan Li San Pham</h1>
-    <div id="thong_tin_sp">
-        <input type="text" id="id" placeholder="id" readonly>
-        <input type="text" id="name" placeholder="name">
-        <input type="text" id="brand" placeholder="brand">
-        <input type="text" id="price" placeholder="price">
-        <input type="text" id="stock" placeholder="stock">
-        <input type="file" id="image_url" placeholder="image_url">
-        <br>
-        <button onclick="xemchitiet()">xem chi tiet</button>
-        <div id="thong_tin_chi_tiet">
-            <input type="text" id="screen_size" placeholder="screen_size">
-            <input type="text" id="processor" placeholder="processor">
-            <input type="text" id="ram" placeholder="ram">
-            <input type="text" id="storage" placeholder="storage">
-            <input type="text" id="battery" placeholder="battery">
-            <input type="text" id="camera" placeholder="camera">
-            <input type="text" id="os" placeholder="os">
-            <input type="text" id="color" placeholder="color">
+<html>
+  <head>
+    <link rel="stylesheet" href="../css/quanLiSP.css" />
+  </head>
+  <body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Menu</h2>
+            <ul>
+                <li><a href="../html/manage.html">Tổng quan</a></li>
+                <li><a href="../html/quanLiSP.html"  class="active">Sản phẩm</a></li>
+                <li>Khách hàng</li>
+                <li><a href="../html/invoice.html">Hóa đơn</a></li>
+                <li>Tài khoản</li>
+                <li>Đăng xuất</li>
+            </ul>
         </div>
+        <div id="main_content">
+            <h1>Quan Li San Pham</h1>
+            <div id="thong_tin_sp">
+                <input type="text" id="name" placeholder="name" />
+                <input type="text" id="brand" placeholder="brand" />
+                <input type="text" id="price" placeholder="price" />
+                <input type="text" id="stock" placeholder="stock" />
+                <br>
+                <div id="khung_image_url">
+                    <label for="file_image_url" id="lable_image_url">chon file</label>
+                    <input type="file" id="file_image_url"/>
+                    <input type="text" id="image_url" placeholder="chua file duoc chon"></input>
+                </div>
+                <br />
+                <button onclick="xemchitiet()">xem chi tiet</button>
+                <div id="thong_tin_chi_tiet">
+                    <input type="text" id="screen_size" placeholder="screen_size" />
+                    <input type="text" id="processor" placeholder="processor" />
+                    <input type="text" id="ram" placeholder="ram" />
+                    <input type="text" id="storage" placeholder="storage" />
+                    <input type="text" id="battery" placeholder="battery" />
+                    <input type="text" id="camera" placeholder="camera" />
+                    <input type="text" id="os" placeholder="os" />
+                    <input type="text" id="color" placeholder="color" />
+                </div>
+            </div>
+            <div id="chuc_nang">
+                <div id="themsuaxoa">
+                    <button onclick="taoInputTrong()">them</button>
+                    <button onclick="updateDuLieuTrongBang()">sua</button>
+                    <button onclick="deleteSPKoThamSo()">xoa</button>
+                </div>
+                <div id="themVaHuy">
+                    <button onclick="themSP()" >xac nhan them</button>
+                    <button onclick="huythem()">huy them</button>
+                </div>
+            </div>
+            <div id="tim_kiem">
+                <input type="text" id="input_tim_kiem" />
+                <select name="" id="select_tim_kiem">
+                    <option value="name">name</option>
+                    <option value="brand">brand</option>
+                    <option value="ram">ram</option>
+                    <option value="camera">camera</option>
+                    <option value="os">os</option>
+                </select> 
+            </div>
+            <div>
+                <table id="ds_sp">
+                    <thead>
+                        <tr>
+                            <th width="500">name</th>
+                            <th width="100">brand</th>
+                            <th width="150">price</th>
+                            <th width="100">stock</th>
+                            <th width="100">image</th>
+                            <th width="100">tuy chon</th>
+                        </tr>
+                    </thead>
+                    <tbody id="product_table"></tbody>
+                </table>
+                <div id="phan_trang">
+                    <button id="trang_truoc" onclick="trangTruoc()">
+                        <img src="../img/prev.png" alt="">
+                    </button>
+                    <div id="trang_hien_tai"></div>
+                    <button id="trang_sau" onclick="trangSau()">
+                        <img src="../img/next.png" alt="">
+                    </button>
+                </div>
+            </div>
+      </div>
     </div>
-    <div id="chuc_nang">
-        <button onclick="taoInputTrong()">them</button>
-        <button onclick="updateDuLieuTrongBang()">sua</button>
-        <button onclick="deleteSPKoThamSo()">xoa</button>
-        <div id="themVaHuy">
-            <button onclick="themSP()">xac nhan them</button>
-            <button onclick="huythem()">huy them</button>
-        </div>
-    </div>
-    <div id="tim_kiem">
-        <input type="text" id="input_tim_kiem">
-        <button onclick="timkiem()">tim kiem</button>
-        <select name="" id="select_tim_kiem">
-            <option value="name">name</option>
-            <option value="brand">brand</option>
-            <option value="ram">ram</option>
-            <option value="camera">camera</option>
-            <option value="os">os</option>
-        </select>
-    </div>
-    <div>
-        <table id="ds_sp">
-            <thead>
-                <tr>
-                    <th width="200">name</th>
-                    <th width="50">brand</th>
-                    <th width="100">price</th>
-                    <th width="100">stock</th>
-                    <th width="100">image</th>
-                    <th width="300">tuy chon</th>
-                </tr>
-            </thead>
-            <tbody id="product_table">
-            </tbody>
-        </table>
-    </div>
-
-
 
     <script src="../js/quanLiSP.js"></script>
-</body>
+  </body>
 </html>

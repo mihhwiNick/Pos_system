@@ -1,40 +1,145 @@
-html{
-    background-color: #ccc;
-}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
 h1{
     text-align: center;
 }
-body{
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    flex-direction: column;
     text-align: center;
 }
-#thong_tin_sp  input{
+.container {
+    display: flex;
+    width: 100%;
+    flex-grow: 1;
+}
+#main_content {
+    width: 85%;
+    padding: 20px;
+    flex-grow: 1;
+}
+.sidebar {
+    width: 15%;
+    background: white;
+    color: gray;
+    padding: 20px;
+    border-right: 3px solid #ddd;
+}
+.sidebar h2 {
+    padding: 10px;
+    font-size: 20px;
+    color: #333;
+}
+
+/* Menu List */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+/* Menu Item */
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    background: white;
+    color: gray;
+    transition: background 0.3s, color 0.3s;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.sidebar ul li a.active {
+    color: #fff;
+    background: #3498db;
+}
+
+.sidebar ul li a:hover {
+    background: #ccc;
+}
+
+/* Hover on Active Item */
+.sidebar ul li a.active:hover {
+    background: #2980b9;
+}
+
+#thong_tin_sp input{
     width: 80%;
     margin: 10px 10px 10px 0;
     padding: 10px;
     border-radius: 5px;
     margin-left: 10%;
 }
+#khung_image_url{
+    width: 80%;
+    margin-left: 14%;
+    /* border: solid 1px black; */
+    /* height: 30px; */
+    display: flex;
+}
+#lable_image_url{
+    padding: 5px;
+    margin: 10px 10px 10px 0;
+    border-radius: 5px;
+    width: 10%;
+    border: solid 2px black;
+}
+#image_url{
+    padding: 10px;
+    border-radius: 5px;
+    text-align: start;
+    width: 50% !important;
+    margin-left: 0% !important;
+}
+#file_image_url{
+    display: none;
+}
+#chuc_nang button{
+    width: 100px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: green;
+    color: white;
+}
 #tim_kiem input{
     width: 500px;
     padding: 10px;
     border-radius: 5px;
 }
-#tim_kiem button{
+#tim_kiem select{
     width: 100px;
     padding: 10px;
     border-radius: 5px;
     background-color: green;
+    color: white;
 }
 #ds_sp th {
     border:1px solid black;
 }
 table{
     margin: 0 auto;
+    border-collapse: collapse; /* gộp viền lại, không bị đúp */
+    border-spacing: 0;         /* xoá khoảng cách giữa các ô */
+}
+table th{
+    background-color: blue;
+    color: white;
 }
 table th,
-table td{
-    background-color: white;
+table td,
+table tr{
+    height: 50px;
+    border: solid 2px #ccc;
 }
+
 #thong_tin_chi_tiet{
     display: none;
 }
@@ -48,9 +153,36 @@ table td{
 }
 #themVaHuy{
     display: none;
-    position: absolute;
-    top :0;
-    right: 0;
-    margin-right: 250px;
 }
 
+#phan_trang{
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+#phan_trang img{
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+}
+#phan_trang button,
+.xoasua{
+    background: transparent;  
+    border: none;           
+    padding: 10;           
+    cursor: pointer;    
+    margin-top: 10px;
+}
+.xoasua:hover{
+    background-color: aquamarine;
+}
+#trang_hien_tai{
+    margin: 20px;
+}
+#trang_truoc{
+    display: none;
+}
+.xoasua img{
+    width: 20px;
+    height: 20px;
+}

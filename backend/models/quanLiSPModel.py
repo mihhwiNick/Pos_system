@@ -6,6 +6,7 @@ class quanLiSP:
     def update(product_id, name, brand, price, stock, image_url, screen_size, processor, ram, storage, battery, camera, os, color):
     
         cursor = db.connection.cursor()
+        
         sql = "UPDATE products SET name = %s, brand = %s, price = %s, stock = %s, image_url = %s, " \
         "screen_size = %s, processor = %s, ram = %s, storage = %s, battery = %s, camera = %s, os = %s, color = %s  WHERE id = %s"
         values = (name, brand, price, stock, image_url, screen_size, processor, ram, storage, battery, camera, os, color, product_id)
@@ -25,8 +26,10 @@ class quanLiSP:
         cursor.execute(sql, values)
         db.connection.commit()
         inserted = cursor.rowcount > 0
+        cursor.execute("SELECT LAST_INSERT_ID()")
+        last_inserted_id = cursor.fetchone()[0]
         cursor.close()
-        return inserted
+        return last_inserted_id
 
     # Xóa sản phẩm
     @staticmethod
