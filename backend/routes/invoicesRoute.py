@@ -9,7 +9,7 @@ def get_invoices():
     invoices = Invoice.get_all()
     return jsonify(invoices)
 
-# Lấy chi tiết hóa đơn theo id
+# Lấy hóa đơn theo id
 @invoices_bp.route('/<int:id>', methods=['GET'])
 def get_invoice(id):
     invoice = Invoice.get_invoice(id)

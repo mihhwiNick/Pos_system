@@ -5,9 +5,15 @@ class Invoice:
     def get_all():
         cursor = db.connection.cursor()
         query = """
-            SELECT invoices.id, invoices.created_at, invoices.total_amount, customers.name as customer_name
+            SELECT invoices.id, 
+                invoices.created_at, 
+                invoices.total_amount, 
+                customers.name AS customer_name,
+                COALESCE(SUM(invoice_details.quantity), 0) AS product_count
             FROM invoices
             JOIN customers ON invoices.customer_id = customers.id
+            LEFT JOIN invoice_details ON invoices.id = invoice_details.invoice_id
+            GROUP BY invoices.id, customers.name, invoices.created_at, invoices.total_amount
         """
         cursor.execute(query)
         columns = [desc[0] for desc in cursor.description]

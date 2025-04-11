@@ -70,39 +70,10 @@ body {
     background: #2980b9;
 }
 
-
 .main-content {
     width: 85%;
     padding: 20px;
     flex-grow: 1;
-}
-
-.stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-}
-
-.card {
-    padding: 20px;
-    color: white;
-    border-radius: 5px;
-}
-
-.blue {
-    background: #3498db;
-}
-
-.green {
-    background: #2ecc71;
-}
-
-.yellow {
-    background: #f1c40f;
-}
-
-.red {
-    background: #e74c3c;
 }
 
 .main-content h2 {
