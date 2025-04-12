@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Hóa Đơn</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='invoice_PDF.css') }}">
+</head>
+<body>
+    <h2>HÓA ĐƠN BÁN HÀNG</h2>
+
+    <div class="invoice-info">
+        <p><strong>Mã hóa đơn:</strong> {{ invoice['invoice_id'] }}</p>
+        <p><strong>Khách hàng:</strong> {{ invoice['customer_name'] }}</p>
+        <p><strong>Ngày:</strong> {{ invoice['created_at'].strftime('%d/%m/%Y %H:%M') }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Đơn giá</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in details %}
+            <tr>
+                <td>{{ item['product_name'] }}</td>
+                <td>{{ item['quantity'] }}</td>
+                <td>{{ "{:,.0f}".format(item['price']) }}đ</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="invoice-summary">
+        <p><strong>Thành tiền:</strong> {{ "{:,.0f}".format(sub_total) }}đ</p>
+        <p><strong>Giảm giá:</strong> {{ "{:,.0f}".format(discount) }}đ</p>
+        <hr>
+        <p class="total"><strong>Tổng cộng:</strong> {{ "{:,.0f}".format(invoice['total_amount']) }}đ</p>
+    </div>
+
+    <p class="note">Cảm ơn quý khách đã mua hàng!</p>
+</body>
+</html>

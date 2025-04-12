@@ -25,12 +25,15 @@ function formatPrice(price) {
 }
 
 function formatDateTime(dateStr) {
-    const date = new Date(dateStr);
+    const date = new Date(dateStr);  // Tạo đối tượng Date từ chuỗi ngày giờ
     const options = {
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit',
-        hour12: false,
-        timeZone: 'Asia/Ho_Chi_Minh' // Giờ Việt Nam
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,  // Giữ 24 giờ
+        timeZone: 'Asia/Ho_Chi_Minh'  // Cài đặt múi giờ là Việt Nam
     };
     return date.toLocaleString('vi-VN', options).replace(',', '');
 }
@@ -49,11 +52,11 @@ async function fetchInvoices() {
 }
 
 // Hàm hiển thị hóa đơn lên bảng
-function displayInvoices(invoicesToDisplay, page, totalPages) {
+function displayInvoices(invoicesToDisplay = invoices, page = currentPage) {
     const tbody = document.getElementById("invoice-list");
     tbody.innerHTML = "";
 
-    let start = (currentPage - 1) * rowsPerPage;
+    let start = (page - 1) * rowsPerPage;
     let end = start + rowsPerPage;
     let paginatedInvoices = invoicesToDisplay.slice(start, end);
 
@@ -80,15 +83,16 @@ function displayInvoices(invoicesToDisplay, page, totalPages) {
         tbody.appendChild(row);
     });
 
-    renderPagination();
+    renderPagination(invoicesToDisplay);
 }
 
 
-function renderPagination() {
-    const container = document.getElementById("pagination");
-    container.innerHTML = ""; // Xóa nội dung cũ
 
-    let totalPages = Math.ceil(invoices.length / rowsPerPage);
+function renderPagination(invoicesToDisplay = invoices) {
+    const container = document.getElementById("pagination");
+    container.innerHTML = "";
+
+    let totalPages = Math.ceil(invoicesToDisplay.length / rowsPerPage);
 
     if (totalPages > 1) {
         container.innerHTML = `
@@ -99,15 +103,14 @@ function renderPagination() {
         let prevButton = document.getElementById("prev");
         let nextButton = document.getElementById("next");
 
-        // Vô hiệu hóa nút "Previous" nếu ở trang đầu
         prevButton.classList.toggle("disabled", currentPage === 1);
         prevButton.style.pointerEvents = currentPage === 1 ? 'none' : 'auto';
 
-        // Vô hiệu hóa nút "Next" nếu ở trang cuối
         nextButton.classList.toggle("disabled", currentPage === totalPages);
         nextButton.style.pointerEvents = currentPage === totalPages ? 'none' : 'auto';
     }
 }
+
 
 window.changePage = function (direction) {
     let totalPages = Math.ceil(invoices.length / rowsPerPage);
@@ -116,9 +119,9 @@ window.changePage = function (direction) {
     if (currentPage < 1) currentPage = 1;
     if (currentPage > totalPages) currentPage = totalPages;
 
-    displayInvoices();
-    renderPagination();
+    displayInvoices(invoices, currentPage);
 };
+
 
 // Hàm hiển thị modal xóa
 function showDeleteModal(id, type) {

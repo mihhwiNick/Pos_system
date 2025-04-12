@@ -3,6 +3,8 @@ const productsPerPage = 6;
 let allProducts = []; // Lưu tất cả sản phẩm
 let filteredProducts = []; // Danh sách sản phẩm đã lọc
 
+let currentCustomerId = null;
+
 // Định dạng giá
 function formatPrice(price) {
     return new Intl.NumberFormat("vi-VN", {
@@ -291,7 +293,6 @@ function updateCart() {
         let globalIndex = startIndex + i; // Chỉ mục chính xác trong cart
 
         let row = document.createElement("tr");
-
         row.innerHTML = `
             <td class="product-info">
                 <img src="${item.imageUrl}" alt="${item.name}">
@@ -313,7 +314,8 @@ function updateCart() {
                 </button>
             </td>
         `;
-
+        row.dataset.productId = item.id;
+        row.dataset.quantity = item.quantity;
         cartList.appendChild(row);
     });
 
@@ -321,7 +323,6 @@ function updateCart() {
     updateCartPagination(); // Cập nhật phân trang giỏ hàng
     updateCartTotal();
 }
-
 
 // Hàm cập nhật số lượng sản phẩm
 function updateQuantity(index, change) {
@@ -335,6 +336,20 @@ function updateQuantity(index, change) {
 function removeFromCart(index) {
     cart.splice(index, 1); // Xóa sản phẩm khỏi mảng
     updateCart(); // Cập nhật lại bảng
+    if (cart.length === 0) {
+        resetCustomerInfo();
+    }
+}
+
+function resetCustomerInfo() {
+    document.getElementById("customer-name").textContent = "";
+    document.getElementById("customer-phone").textContent = "";
+    document.getElementById("customer-points").textContent = "0";
+    document.getElementById("input-phone").value = "";
+    document.getElementById("subtotal").textContent = "0";
+    document.getElementById("discount").textContent = "0";
+    document.getElementById("total").textContent = "0";
+    document.getElementById("use-points").value = "";
 }
 
 // Hàm gắn sự kiện nhập số lượng
@@ -402,6 +417,308 @@ function updateCartTotal() {
     document.getElementById("subtotal").textContent = formatPrice(subtotal);
     document.getElementById("discount").textContent = formatPrice(discount);
     document.getElementById("total").textContent = formatPrice(total);
+}
+
+function removeDiscount() {
+    const rawSubtotal = document.getElementById("subtotal").textContent.replace(/[^\d]/g, '');
+    const subtotal = parseInt(rawSubtotal) || 0;
+
+    document.getElementById("discount").textContent = "0";
+    document.getElementById("total").textContent = formatPrice(subtotal);
+}
+
+// Kiểm tra ô nhập điểm trống hay đang có điểm
+document.getElementById("use-points").addEventListener("input", function () {
+    const value = this.value.trim();
+    if (value === "") {
+        removeDiscount();
+    }
+});
+
+function applyPoints() {
+    const usePoints = parseInt(document.getElementById("use-points").value) || 0;
+    const customerPoints = parseInt(document.getElementById("customer-points").textContent) || 0;
+
+    const rawSubtotal = document.getElementById("subtotal").textContent.replace(/[^\d]/g, '');
+    const subtotal = parseInt(rawSubtotal) || 0;
+
+    if (usePoints > customerPoints) {
+        alert("Số điểm nhập vượt quá điểm hiện có!");
+        document.getElementById("use-points").value = customerPoints; // Gán lại max
+        return;
+    }
+
+    if (usePoints < 1) {
+        removeDiscount();
+        return;
+    }
+
+    const discount = usePoints * 1000;
+    const finalDiscount = Math.min(discount, subtotal);
+
+    document.getElementById("discount").textContent = formatPrice(finalDiscount);
+    document.getElementById("total").textContent = formatPrice(subtotal - finalDiscount);
+}
+
+
+function removeDiscount() {
+    const rawSubtotal = document.getElementById("subtotal").textContent.replace(/[^\d]/g, '');
+    const subtotal = parseInt(rawSubtotal) || 0;
+
+    document.getElementById("discount").textContent = "0";
+    document.getElementById("total").textContent = formatPrice(subtotal);
+}
+
+function openPhoneModal() {
+    document.getElementById("phone-modal").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("phone-modal").style.display = "none";
+}
+
+function closeAddCustomerModal() {
+    document.getElementById("add-customer-modal").style.display = "none";
+}
+
+async function handlePhoneConfirm() {
+    const phone = document.getElementById("input-phone").value.trim();
+    if (!phone) {
+        alert("Vui lòng nhập số điện thoại.");
+        return;
+    }
+
+    try {
+        const res = await fetch(`http://127.0.0.1:5001/customers/phone/${phone}`);
+        if (res.status === 404) {
+            closeModal();
+            const confirmAdd = confirm("Không tìm thấy khách hàng. Bạn có muốn thêm mới?");
+            if (confirmAdd) {
+                showAddCustomerModal(phone);
+            }
+            return;
+        }
+
+        const customer = await res.json();
+        currentCustomerId = customer.id;
+        closeModal();
+        renderCustomerInfo(customer);
+        handleMembership(customer);
+
+    } catch (err) {
+        console.error(err);
+        alert("Có lỗi xảy ra khi kiểm tra.");
+    }
+}
+
+function showAddCustomerModal(phone = "") {
+    document.getElementById("add-customer-modal").style.display = "flex";
+    document.getElementById("new-customer-phone").value = phone;
+}
+
+function renderCustomerInfo(customer) {
+    currentCustomerId = customer.id;
+    document.getElementById("customer-name").textContent = customer.name;
+    document.getElementById("customer-phone").textContent = customer.phone;
+    document.getElementById("customer-points").textContent = customer.points || 0;
+}
+
+function handleMembership(customer) {
+    const oldBtn = document.getElementById("register-member");
+
+    if (customer.membership_level === "Regular") {
+        // Clone node để xoá hết sự kiện cũ rồi thay thế
+        const newBtn = oldBtn.cloneNode(true);
+        newBtn.style.display = "inline-block";
+        newBtn.dataset.customerId = customer.id;
+
+        newBtn.addEventListener("click", async () => {
+            try {
+                const res = await fetch(`http://127.0.0.1:5001/customers/upgrade/${customer.id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                if (res.ok) {
+                    alert("Cập nhật thành viên VIP thành công!");
+                    newBtn.style.display = "none";
+                } else {
+                    const error = await res.json();
+                    alert(error.error || "Cập nhật thất bại.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Cập nhật thất bại.");
+            }
+        });
+
+        oldBtn.replaceWith(newBtn); // Thay nút cũ bằng nút mới
+
+    } else {
+        oldBtn.style.display = "none";
+        oldBtn.removeAttribute("data-customerId");
+    }
+}
+
+
+async function handleSaveCustomer() {
+    const name = document.getElementById("new-customer-name").value.trim();
+    const phone = document.getElementById("new-customer-phone").value.trim();
+    const type = document.getElementById("new-customer-type").value;
+
+    if (!name || !phone) {
+        alert("Vui lòng điền đầy đủ thông tin.");
+        return;
+    }
+
+    try {
+        const res = await fetch("http://127.0.0.1:5001/customers/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, phone, membership_level: type }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert("Thêm khách hàng thành công!");
+            closeAddCustomerModal();
+
+            // Gọi lại API để lấy thông tin đầy đủ của khách hàng mới
+            const infoRes = await fetch(`http://127.0.0.1:5001/customers/phone/${phone}`);
+            if (infoRes.ok) {
+                const newCustomer = await infoRes.json();
+                currentCustomerId = newCustomer.id;
+                renderCustomerInfo(newCustomer);
+                handleMembership(newCustomer);
+            }
+        }
+        else {
+            alert(`Không thể thêm khách hàng: ${data.error || "Lỗi không xác định"}`);
+        }
+    } catch (err) {
+        console.error("Fetch error:", err);
+        alert("Đã xảy ra lỗi.");
+    }
+}
+
+function getCustomerId() {
+    return currentCustomerId;
+}
+
+// Lấy thông tin sản phẩm trong đơn hàng
+function getCartItemsFromDOM() {
+    const items = [];
+    const cartList = document.getElementById("cart-list");
+
+    // Duyệt tất cả <tr> trong giỏ hàng
+    const rows = cartList.querySelectorAll("tr");
+
+    rows.forEach(row => {
+        const productId = parseInt(row.dataset.productId);
+        const quantity = parseInt(row.dataset.quantity);
+
+        if (!isNaN(productId) && !isNaN(quantity)) {
+            items.push({ product_id: productId, quantity });
+        }
+    });
+
+    return items;
+}
+
+async function confirmOrder() {
+    const customerId = getCustomerId();
+    const totalAmount = parseInt(document.getElementById("total").textContent.replace(/\D/g, ""));
+    const cartItems = getCartItemsFromDOM();
+    const usedPoints = parseInt(document.getElementById("use-points").value) || 0;
+
+    console.log("customerId:", customerId);
+    console.log("cartItems:", cartItems);
+    console.log("totalAmount:", totalAmount);
+    console.log("usedPoints:", usedPoints);
+
+    if (!customerId || cartItems.length === 0) {
+        alert("Thiếu thông tin khách hàng!");
+        return;
+    }
+
+    try {
+        // 1. Gửi hóa đơn
+        const invoiceRes = await fetch("http://localhost:5001/invoices/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                customer_id: customerId,
+                total_amount: totalAmount
+            }),
+        });
+
+        if (!invoiceRes.ok) {
+            throw new Error("Không thể tạo hóa đơn");
+        }
+
+        const invoiceData = await invoiceRes.json();
+        const invoiceId = invoiceData.invoice_id;
+
+        // 2. Gửi từng chi tiết sản phẩm
+        for (const item of cartItems) {
+            const detailRes = await fetch(`http://localhost:5001/invoices/${invoiceId}/details`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    product_id: item.product_id,
+                    quantity: item.quantity
+                }),
+            });
+
+            if (!detailRes.ok) {
+                throw new Error("Không thể thêm chi tiết hóa đơn");
+            }
+        }
+
+        // 3. Gửi yêu cầu cập nhật điểm
+        const pointRes = await fetch(`http://localhost:5001/customers/${customerId}/points`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                invoice_amount: totalAmount,
+                used_points: usedPoints
+            }),
+        });
+
+        if (!pointRes.ok) {
+            throw new Error("Cập nhật điểm thất bại");
+        }
+
+        alert("Thanh toán thành công!");
+        showInvoiceModal(invoiceId);
+
+    } catch (err) {
+        console.error("Lỗi khi tạo hóa đơn:", err);
+        alert("Có lỗi xảy ra khi tạo hóa đơn!");
+    }
+}
+
+function showInvoiceModal(invoiceId) {
+    console.log("Invoice ID:", invoiceId);
+    const modal = document.getElementById("print-modal");
+    const confirmBtn = document.getElementById("print-confirm");
+    const cancelBtn = document.getElementById("print-cancel");
+
+    modal.style.display = "flex";
+
+    confirmBtn.onclick = () => {
+        const printUrl = `http://localhost:5001/invoices_PDF/invoice/${invoiceId}`;
+        window.open(printUrl, "_blank");
+    
+        modal.style.display = "none";
+        window.location.href = "app.html";
+    };
+
+    cancelBtn.onclick = () => {
+        modal.style.display = "none";
+        window.location.href = "app.html";
+    };
 }
 
 
