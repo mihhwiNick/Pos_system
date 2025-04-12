@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <link rel="stylesheet" href="../css/quanLiSP.css" />
-  </head>
-  <body>
+</head>
+
+<body>
     <div class="container">
         <div class="sidebar">
             <h2>Menu</h2>
             <ul>
                 <li><a href="../html/manage.html">Tổng quan</a></li>
-                <li><a href="../html/quanLiSP.html"  class="active">Sản phẩm</a></li>
-                <li>Khách hàng</li>
+                <li><a href="../html/quanLiSP.html" class="active">Sản phẩm</a></li>
+                <li><a href="../html/customer.html">Khách hàng</a></li>
                 <li><a href="../html/invoice.html">Hóa đơn</a></li>
-                <li>Tài khoản</li>
-                <li>Đăng xuất</li>
+                <li><a href="../html/manage_user.html">Tài khoản</a></li>
+                <li><a href="#" onclick="logout()">Đăng xuất</a></li>
             </ul>
         </div>
         <div id="main_content">
@@ -26,7 +28,7 @@
                 <br>
                 <div id="khung_image_url">
                     <label for="file_image_url" id="lable_image_url">chon file</label>
-                    <input type="file" id="file_image_url"/>
+                    <input type="file" id="file_image_url" />
                     <input type="text" id="image_url" placeholder="chua file duoc chon"></input>
                 </div>
                 <br />
@@ -49,7 +51,7 @@
                     <button onclick="deleteSPKoThamSo()">xoa</button>
                 </div>
                 <div id="themVaHuy">
-                    <button onclick="themSP()" >xac nhan them</button>
+                    <button onclick="themSP()">xac nhan them</button>
                     <button onclick="huythem()">huy them</button>
                 </div>
             </div>
@@ -61,7 +63,7 @@
                     <option value="ram">ram</option>
                     <option value="camera">camera</option>
                     <option value="os">os</option>
-                </select> 
+                </select>
             </div>
             <div>
                 <table id="ds_sp">
@@ -87,9 +89,10 @@
                     </button>
                 </div>
             </div>
-      </div>
+        </div>
     </div>
 
     <script src="../js/quanLiSP.js"></script>
-  </body>
+</body>
+
 </html>
