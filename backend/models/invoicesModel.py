@@ -1,6 +1,18 @@
+import pytz
 from database import db
+from datetime import datetime
 
 class Invoice:
+    @staticmethod
+    def convert_to_vn_timezone(utc_datetime):
+        # Đảm bảo rằng dữ liệu đã có múi giờ (timezone-aware)
+        if utc_datetime.tzinfo is None:
+            # Nếu chưa có múi giờ, bạn có thể giả định rằng nó đã là giờ Việt Nam
+            utc_datetime = pytz.timezone('Asia/Ho_Chi_Minh').localize(utc_datetime)
+        
+        # Trả về định dạng ngày giờ theo yêu cầu (giờ Việt Nam)
+        return utc_datetime.strftime('%d/%m/%Y %H:%M')
+
     @staticmethod
     def get_all():
         cursor = db.connection.cursor()
@@ -19,13 +31,23 @@ class Invoice:
         columns = [desc[0] for desc in cursor.description]
         invoices = [dict(zip(columns, row)) for row in cursor.fetchall()]
         cursor.close()
+
+        # Chuyển đổi thời gian tạo hóa đơn sang giờ Việt Nam
+        for invoice in invoices:
+            invoice['created_at'] = Invoice.convert_to_vn_timezone(invoice['created_at'])
+
         return invoices
 
     @staticmethod
     def get_invoice(invoice_id):
         cursor = db.connection.cursor()
         query = """
-            SELECT * FROM invoices
+            SELECT 
+                invoices.id AS invoice_id,
+                invoices.created_at,
+                invoices.total_amount,
+                customers.name AS customer_name
+            FROM invoices
             JOIN customers ON invoices.customer_id = customers.id
             WHERE invoices.id = %s
         """
@@ -33,8 +55,13 @@ class Invoice:
         columns = [desc[0] for desc in cursor.description]
         invoice = dict(zip(columns, cursor.fetchone())) if cursor.rowcount > 0 else None
         cursor.close()
+
+        # Chuyển đổi thời gian tạo hóa đơn sang giờ Việt Nam
+        if invoice:
+            invoice['created_at'] = Invoice.convert_to_vn_timezone(invoice['created_at'])
+
         return invoice
-    
+
     @staticmethod
     def get_invoiceDetails(invoice_id):
         cursor = db.connection.cursor()
@@ -59,10 +86,15 @@ class Invoice:
     @staticmethod
     def create_invoice(customer_id, total_amount):
         cursor = db.connection.cursor()
-        cursor.execute("INSERT INTO invoices (customer_id, total_amount, created_at) VALUES (%s, %s, NOW())", 
-            (customer_id, total_amount))
+        cursor.execute(
+            "INSERT INTO invoices (customer_id, total_amount, created_at) VALUES (%s, %s, NOW())",
+            (customer_id, total_amount)
+        )
+        invoice_id = cursor.lastrowid
         db.connection.commit()
         cursor.close()
+        return invoice_id
+
         
     @staticmethod
     def create_invoiceDetails(id, product_id, quantity, price):
@@ -174,5 +206,34 @@ class Invoice:
             return None
         finally:
             cursor.close()
+            
+            
+    @staticmethod
+    def get_revenue_today():
+        today = datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')).date()  # Ngày hôm nay
+        cursor = db.connection.cursor()
+        query = """
+            SELECT SUM(total_amount) 
+            FROM invoices
+            WHERE DATE(created_at) = %s
+        """
+        cursor.execute(query, (today,))
+        result = cursor.fetchone()
+        cursor.close()
+        return result[0] if result[0] is not None else 0
+
+    @staticmethod
+    def get_orders_today():
+        today = datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')).date()  # Ngày hôm nay
+        cursor = db.connection.cursor()
+        query = """
+            SELECT COUNT(id) 
+            FROM invoices
+            WHERE DATE(created_at) = %s
+        """
+        cursor.execute(query, (today,))
+        result = cursor.fetchone()
+        cursor.close()
+        return result[0] if result[0] is not None else 0
 
 

@@ -38,8 +38,12 @@ def add_invoice():
     if not customer_id or not total_amount:
         return jsonify({"message": "Thiếu thông tin cần thiết"}), 400
 
-    Invoice.create_invoice(customer_id, total_amount)
-    return jsonify({"message": "Hóa đơn đã được thêm thành công!"}), 201
+    invoice_id = Invoice.create_invoice(customer_id, total_amount)
+    
+    return jsonify({
+        "message": "Hóa đơn đã được thêm thành công!",
+        "invoice_id": invoice_id
+    }), 201
 
 #Thêm chi tiết hóa đơn
 @invoices_bp.route('/<int:id>/details', methods=['POST'])

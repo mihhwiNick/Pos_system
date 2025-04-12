@@ -14,10 +14,16 @@ async function loadInvoices() {
         const res = await fetch("http://localhost:5001/invoices/");
         const invoices = await res.json();
 
-        const tbody = document.getElementById("invoice-table-body");  // đã sửa ở đây
+        // Sắp xếp theo thời gian tạo mới nhất
+        invoices.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        // Lấy 8 hóa đơn mới nhất
+        const latestInvoices = invoices.slice(0, 7);
+
+        const tbody = document.getElementById("invoice-table-body");
         tbody.innerHTML = "";
 
-        invoices.forEach(inv => {
+        latestInvoices.forEach(inv => {
             const row = `
                 <tr>
                     <td>${inv.id}</td>
@@ -34,9 +40,31 @@ async function loadInvoices() {
     }
 }
 
+
 document.addEventListener("DOMContentLoaded", loadInvoices);
 
 window.logout = function () {
     sessionStorage.removeItem("loginData");
     window.location.href = "app.html";
 };
+
+async function loadTodayStats() {
+    try {
+        const res = await fetch("http://127.0.0.1:5001/stats/today_stats");
+        const stats = await res.json();
+
+        const statCards = document.querySelectorAll(".stat-card");
+
+        // Hiển thị lần lượt theo thứ tự thẻ
+        statCards[0].querySelector("p").textContent = Number(stats.revenue_today).toLocaleString() + " đ";
+        statCards[1].querySelector("p").textContent = stats.orders_today + " đơn";
+        statCards[2].querySelector("p").textContent = stats.new_customers_today + " người";
+    } catch (error) {
+        console.error("Lỗi khi load thống kê hôm nay:", error);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadInvoices();
+    loadTodayStats(); // Gọi luôn khi trang tải
+});

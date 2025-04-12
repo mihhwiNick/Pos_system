@@ -22,7 +22,7 @@
                             <a href="#" onclick="filterByBrand('OPPO')">OPPO</a>
                             <a href="#" onclick="filterByBrand('SAMSUNG')">SAMSUNG</a>
                             <a href="#" onclick="filterByBrand('XIAOMI')">XIAOMI</a>
-                            <a href="#" onclick="filterByBrand('REALME')">REALME</a> 
+                            <a href="#" onclick="filterByBrand('REALME')">REALME</a>
                         </div>
                     </div>
 
@@ -89,24 +89,27 @@
             </div>
             <div class="summary">
                 <hr>
-                <button id="check-member">Kiểm tra thành viên</button>
+                <div class="check-register-group">
+                    <button id="check-member" onclick="openPhoneModal()">Kiểm tra thành viên</button>
+                    <button id="register-member" style="display: none;">Đăng ký thành viên</button>
+                </div>
                 <div class="customer-info">
                     <div class="row">
                         <span>Khách hàng:</span>
-                        <span id="customer-name">.....</span>
+                        <span id="customer-name"></span>
                         <span class="spacer"></span>
                         <span>Số điện thoại:</span>
-                        <span id="customer-phone">.....</span>
+                        <span id="customer-phone"></span>
                     </div>
                     <div class="row">
                         <span>Điểm hiện tại:</span>
-                        <span id="customer-points">.....</span>
+                        <span id="customer-points"></span>
                     </div>
                     <div class="row">
                         <span>Nhập:</span>
                         <input type="text" id="use-points" placeholder="Nhập điểm">
                         <span>(1đ = 1.000đ)</span>
-                        <button id="apply-points">Áp dụng</button>
+                        <button id="apply-points" onclick="applyPoints()">Áp dụng</button>
                     </div>
                 </div>
                 <hr>
@@ -124,7 +127,42 @@
                     <span id="total">0</span>
                 </div>
             </div>
-            <button id="confirm-order">Thanh toán</button>
+            <button id="confirm-order" onclick="confirmOrder()">Thanh toán</button>
+
+            <!-- Modal nhập số điện thoại -->
+            <div id="phone-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h3>Nhập số điện thoại</h3>
+                    <input type="text" id="input-phone" placeholder="Nhập số điện thoại">
+                    <button id="confirm-phone" onclick="handlePhoneConfirm()">Xác nhận</button>
+                    <button onclick="closeModal()">Hủy</button>
+                </div>
+            </div>
+
+            <!-- Modal thêm khách hàng mới -->
+            <div id="add-customer-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h3>Thêm khách hàng mới</h3>
+                    <input type="text" id="new-customer-name" placeholder="Nhập tên khách hàng">
+                    <input type="text" id="new-customer-phone" placeholder="Nhập số điện thoại">
+                    <select id="new-customer-type">
+                        <option value="Regular">Regular</option>
+                        <option value="VIP">VIP</option>
+                    </select>
+                    <button id="save-customer" onclick="handleSaveCustomer()">Lưu</button>
+                    <button onclick="closeAddCustomerModal()">Hủy</button>
+                </div>
+            </div>
+
+            <!-- Modal xác nhận in hóa đơn -->
+            <div id="print-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h3>Bạn có muốn in hóa đơn không?</h3>
+                    <button id="print-confirm" class="confirm-btn">In hóa đơn</button>
+                    <button id="print-cancel" class="cancel-btn">Không in</button>
+                </div>
+            </div>
+
         </div>
     </div>
     <script src="../js/order.js"></script>

@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <link rel="stylesheet" href="../css/quanLiSP.css" />
-  </head>
-  <body>
+</head>
+
+<body>
     <div class="container">
         <div class="sidebar">
             <h2>Menu</h2>
             <ul>
                 <li><a href="../html/manage.html">Tổng quan</a></li>
-                <li><a href="../html/quanLiSP.html"  class="active">Sản phẩm</a></li>
-                <li>Khách hàng</li>
+                <li><a href="../html/quanLiSP.html" class="active">Sản phẩm</a></li>
+                <li><a href="../html/customer.html">Khách hàng</a></li>
                 <li><a href="../html/invoice.html">Hóa đơn</a></li>
-                <li>Tài khoản</li>
-                <li>Đăng xuất</li>
+                <li><a href="../html/manage_user.html">Tài khoản</a></li>
+                <li><a href="#" onclick="logout()">Đăng xuất</a></li>
             </ul>
         </div>
         <div id="main_content">
@@ -35,10 +37,11 @@
                 <br>
                 <div id="khung_image_url">
                     <label for="file_image_url" id="lable_image_url">chon file</label>
-                    <input type="file" id="file_image_url"/>
+                    <input type="file" id="file_image_url" />
                     <input type="text" id="image_url" placeholder="chua file duoc chon"></input>
                 </div>
                 <br />
+<<<<<<< HEAD
                 <!-- <button onclick="xemchitiet()">xem chi tiet</button>
                 <div id="thong_tin_chi_tiet"> -->
                 <input type="text" id="screen_size" placeholder="screen_size" />
@@ -57,6 +60,29 @@
                 <div id="sua_thong_tin" class="them_sua">
                     <button onclick="updateDuLieuTrongBang()">sua</button>
                     <button onclick="tatThongTinChiTiet()">huy sua</button>
+=======
+                <button onclick="xemchitiet()">xem chi tiet</button>
+                <div id="thong_tin_chi_tiet">
+                    <input type="text" id="screen_size" placeholder="screen_size" />
+                    <input type="text" id="processor" placeholder="processor" />
+                    <input type="text" id="ram" placeholder="ram" />
+                    <input type="text" id="storage" placeholder="storage" />
+                    <input type="text" id="battery" placeholder="battery" />
+                    <input type="text" id="camera" placeholder="camera" />
+                    <input type="text" id="os" placeholder="os" />
+                    <input type="text" id="color" placeholder="color" />
+                </div>
+            </div>
+            <div id="chuc_nang">
+                <div id="themsuaxoa">
+                    <button onclick="taoInputTrong()">them</button>
+                    <button onclick="updateDuLieuTrongBang()">sua</button>
+                    <button onclick="deleteSPKoThamSo()">xoa</button>
+                </div>
+                <div id="themVaHuy">
+                    <button onclick="themSP()">xac nhan them</button>
+                    <button onclick="huythem()">huy them</button>
+>>>>>>> 86de8e453ddf252be3ab65f822acea28cd1981fe
                 </div>
             </div>
             
@@ -68,12 +94,16 @@
                     <option value="ram">ram</option>
                     <option value="camera">camera</option>
                     <option value="os">os</option>
+<<<<<<< HEAD
                 </select> 
                 <div id="themsuaxoa">
                     <button onclick="taoInputTrong()">them</button>
                     <!-- <button onclick="updateDuLieuTrongBang()">sua</button>
                     <button onclick="deleteSPKoThamSo()">xoa</button> -->
                 </div>
+=======
+                </select>
+>>>>>>> 86de8e453ddf252be3ab65f822acea28cd1981fe
             </div>
             <div>
                 <table id="ds_sp">
@@ -99,9 +129,10 @@
                     </button>
                 </div>
             </div>
-      </div>
+        </div>
     </div>
 
     <script src="../js/quanLiSP.js"></script>
-  </body>
+</body>
+
 </html>

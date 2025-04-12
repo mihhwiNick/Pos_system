@@ -332,3 +332,8 @@ function tatThongTinChiTiet(){
 }
 
 window.onload = fetchProducts();
+
+window.logout = function () {
+  sessionStorage.removeItem("loginData");
+  window.location.href = "app.html";
+};
