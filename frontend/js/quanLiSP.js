@@ -126,14 +126,15 @@ function displayProducts() {
                 <td>${prd.name}</td>
                 <td>${prd.brand}</td>
                 <td>${prd.price}</td>
-                <td>${prd.stock}</td>
                 <td>${prd.image_url}</td>
                 <td>
-                    <button onclick="chon(${prd.id})" class="xoasua">
+                    <button onclick="sua(${prd.id})" class="xoasua">
                       <img src="../img/edit.png" alt="">
                     </button>
                     <button onclick="deleteSP(${prd.id})" class="xoasua">
                       <img src="../img/delete.png" alt="">
+                    </button>
+                    <button onclick="chon(${prd.id})" class="xoasua">chi tiet
                     </button>
                 </td>
             </tr>
@@ -189,19 +190,24 @@ function trangTruoc() {
 function chon(a) {
   allProducts.forEach((prd) => {
     if (prd.id == a) {
+      document.getElementById("thong_tin_sp").style.display = "block";
       updateInput(prd);
       currentProduct = prd;
     }
   });
 }
-
+//
+function sua(a){
+  chon(a);
+  document.getElementById("sua_thong_tin").style.display="block";
+}
 //sua du lieu trong mang allProducts
 function updateDuLieuTrongBang() {
   let id = currentProduct["id"];
   allProducts.forEach((prd) => {
     if (id == prd.id) {
       for (let i = 0; i < dsTieuDe.length; i++) {
-        if (dsTieuDe[i] == "id") continue;
+        if (dsTieuDe[i] == "id" || dsTieuDe[i] == "stock") continue;
         prd[dsTieuDe[i]] = document.getElementById(dsTieuDe[i]).value;
       }
       let testprd = { ...prd };
@@ -217,20 +223,23 @@ function deleteSPKoThamSo() {
   currentProduct = {};
 }
 function deleteSP(id) {
-  deleteProduct(id);
-  for (let i = 0; i < allProducts.length; i++) {
-    if (id == allProducts[i].id) {
-      allProducts.splice(i, 1);
-      updateInput(initSP());
+  if (confirm("co muon xoa sp ko")) {
+    deleteProduct(id);
+    for (let i = 0; i < allProducts.length; i++) {
+      if (id == allProducts[i].id) {
+        allProducts.splice(i, 1);
+        updateInput(initSP());
+        break;
+      }
     }
+    displayProducts();
   }
-  displayProducts();
 }
 
 //sua thong tin tren the input
 function updateInput(prd) {
   for (let i = 0; i < dsTieuDe.length; i++) {
-    if (dsTieuDe[i] == "id") continue;
+    if (dsTieuDe[i] == "id" || dsTieuDe[i] == "stock") continue;
     document.getElementById(dsTieuDe[i]).value = prd[dsTieuDe[i]];
   }
 }
@@ -241,6 +250,7 @@ function initSP() {
     if (dsTieuDe[i] == "id") continue;
     a[dsTieuDe[i]] = "";
   }
+  a["stock"] = 0;
   return a;
 }
 //xem them cac thong tin cua sp
@@ -257,6 +267,7 @@ function xemchitiet() {
 function timkiem() {
   let thongtin = document.getElementById("input_tim_kiem").value; //lay thong tin can tim
   let thuoctinh = document.getElementById("select_tim_kiem").value; //lay thuoc tinh cua thong tin
+  currentPage = 0;
   //tao ds rong
   filteredProducts = [];
   allProducts.forEach((prd) => {
@@ -271,14 +282,14 @@ function timkiem() {
 document.getElementById("input_tim_kiem").addEventListener("input", timkiem);
 //vao che do them sp va tao input trong
 function taoInputTrong() {
+  document.getElementById("thong_tin_sp").style.display = "block";
   updateInput(initSP());
-  document.getElementById("themsuaxoa").style.display = "none";
   document.getElementById("themVaHuy").style.display = "block";
 }
 async function themSP() {
   let a = initSP();
   for (let i = 0; i < dsTieuDe.length; i++) {
-    if (dsTieuDe[i] == "id") continue;
+    if (dsTieuDe[i] == "id" || dsTieuDe[i] == "stock") continue;
     a[dsTieuDe[i]] = document.getElementById(dsTieuDe[i]).value;
   }
   a.id = -1;
@@ -295,6 +306,8 @@ async function themSP() {
   huythem();
   //hien sp len table
   displayProducts();
+  //tat input
+  document.getElementById("thong_tin_sp").style.display = "none";
 }
 document
   .getElementById("file_image_url")
@@ -308,6 +321,14 @@ document
 function huythem() {
   document.getElementById("themVaHuy").style.display = "none";
   document.getElementById("themsuaxoa").style.display = "block";
+  document.getElementById("thong_tin_sp").style.display = "none";
+}
+
+//tat thong tin chi tiet
+function tatThongTinChiTiet(){
+  document.getElementById("thong_tin_sp").style.display="none";
+  document.getElementById("themVaHuy").style.display = "none";
+  document.getElementById("sua_thong_tin").style.display="none";
 }
 
 window.onload = fetchProducts();

@@ -19,10 +19,19 @@
         <div id="main_content">
             <h1>Quan Li San Pham</h1>
             <div id="thong_tin_sp">
+                <button onclick="tatThongTinChiTiet()" >X</button>
+                <h1>thong tin chi tiet</h1>
                 <input type="text" id="name" placeholder="name" />
-                <input type="text" id="brand" placeholder="brand" />
                 <input type="text" id="price" placeholder="price" />
-                <input type="text" id="stock" placeholder="stock" />
+                <select name="brand" id="brand">
+                    <option value=""></option>
+                    <option value="Samsung">Samsung</option>
+                    <option value="Apple">Apple</option>
+                    <option value="Xiaomi">Xiaomi</option>
+                    <option value="Realmi">Realmi</option>
+                    <option value="OPPO">OPPO</option>
+                </select>
+                <!-- <input type="text" id="stock" placeholder="stock" /> -->
                 <br>
                 <div id="khung_image_url">
                     <label for="file_image_url" id="lable_image_url">chon file</label>
@@ -30,29 +39,27 @@
                     <input type="text" id="image_url" placeholder="chua file duoc chon"></input>
                 </div>
                 <br />
-                <button onclick="xemchitiet()">xem chi tiet</button>
-                <div id="thong_tin_chi_tiet">
-                    <input type="text" id="screen_size" placeholder="screen_size" />
-                    <input type="text" id="processor" placeholder="processor" />
-                    <input type="text" id="ram" placeholder="ram" />
-                    <input type="text" id="storage" placeholder="storage" />
-                    <input type="text" id="battery" placeholder="battery" />
-                    <input type="text" id="camera" placeholder="camera" />
-                    <input type="text" id="os" placeholder="os" />
-                    <input type="text" id="color" placeholder="color" />
-                </div>
-            </div>
-            <div id="chuc_nang">
-                <div id="themsuaxoa">
-                    <button onclick="taoInputTrong()">them</button>
-                    <button onclick="updateDuLieuTrongBang()">sua</button>
-                    <button onclick="deleteSPKoThamSo()">xoa</button>
-                </div>
-                <div id="themVaHuy">
+                <!-- <button onclick="xemchitiet()">xem chi tiet</button>
+                <div id="thong_tin_chi_tiet"> -->
+                <input type="text" id="screen_size" placeholder="screen_size" />
+                <input type="text" id="processor" placeholder="processor" />
+                <input type="text" id="ram" placeholder="ram" />
+                <input type="text" id="storage" placeholder="storage" />
+                <input type="text" id="battery" placeholder="battery" />
+                <input type="text" id="camera" placeholder="camera" />
+                <input type="text" id="os" placeholder="os" />
+                <input type="text" id="color" placeholder="color" />
+                <!-- </div> -->
+                <div id="themVaHuy" class="them_sua">
                     <button onclick="themSP()" >xac nhan them</button>
-                    <button onclick="huythem()">huy them</button>
+                    <button onclick="tatThongTinChiTiet()">huy them</button>
+                </div>
+                <div id="sua_thong_tin" class="them_sua">
+                    <button onclick="updateDuLieuTrongBang()">sua</button>
+                    <button onclick="tatThongTinChiTiet()">huy sua</button>
                 </div>
             </div>
+            
             <div id="tim_kiem">
                 <input type="text" id="input_tim_kiem" />
                 <select name="" id="select_tim_kiem">
@@ -62,6 +69,11 @@
                     <option value="camera">camera</option>
                     <option value="os">os</option>
                 </select> 
+                <div id="themsuaxoa">
+                    <button onclick="taoInputTrong()">them</button>
+                    <!-- <button onclick="updateDuLieuTrongBang()">sua</button>
+                    <button onclick="deleteSPKoThamSo()">xoa</button> -->
+                </div>
             </div>
             <div>
                 <table id="ds_sp">
@@ -70,9 +82,9 @@
                             <th width="500">name</th>
                             <th width="100">brand</th>
                             <th width="150">price</th>
-                            <th width="100">stock</th>
+                            <!-- <th width="100">stock</th> -->
                             <th width="100">image</th>
-                            <th width="100">tuy chon</th>
+                            <th width="200">tuy chon</th>
                         </tr>
                     </thead>
                     <tbody id="product_table"></tbody>
