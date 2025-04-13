@@ -1,0 +1,258 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+h1{
+    text-align: center;
+}
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    flex-direction: column;
+    text-align: center;
+}
+.container {
+    display: flex;
+    width: 100%;
+    flex-grow: 1;
+}
+#main_content {
+    width: 85%;
+    padding: 20px;
+    flex-grow: 1;
+}
+.sidebar {
+    width: 15%;
+    background: white;
+    color: gray;
+    padding: 20px;
+    border-right: 3px solid #ddd;
+}
+.sidebar h2 {
+    padding: 10px;
+    font-size: 20px;
+    color: #333;
+}
+
+/* Menu List */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+/* Menu Item */
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    background: white;
+    color: gray;
+    transition: background 0.3s, color 0.3s;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.sidebar ul li a.active {
+    color: #fff;
+    background: #3498db;
+}
+
+.sidebar ul li a:hover {
+    background: #ccc;
+}
+
+/* Hover on Active Item */
+.sidebar ul li a.active:hover {
+    background: #2980b9;
+}
+#thong_tin_sp{
+    display: none;
+    z-index: 20;
+    position: fixed;
+    top: 10%;
+    left: 30%;
+    z-index: 1000;
+    border:solid 2px black;
+    background-color: white;
+    width: 60%;
+    max-height: 80%; /* giới hạn chiều cao */
+    overflow-y: auto;  /* cho phép cuộn dọc */
+    scrollbar-width: none;
+    border-radius: 10px;
+}
+#thong_tin_sp::-webkit-scrollbar{
+    display: none;
+}
+#thong_tin_sp input{
+    width: 80%;
+    margin: 10px 10px 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    /* margin-left: 10%; */
+}
+#brand{
+    width: 50%;
+    margin: 10px 10px 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    border: solid 2px black;
+}
+#thong_tin_sp > button{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+}
+#khung_image_url{
+    width: 80%;
+    margin-left: 14%;
+    /* border: solid 1px black; */
+    /* height: 30px; */
+    display: flex;
+}
+#lable_image_url{
+    padding: 5px;
+    margin: 10px 10px 10px 0;
+    border-radius: 5px;
+    width: 10%;
+    border: solid 2px black;
+}
+#image_url{
+    padding: 10px;
+    border-radius: 5px;
+    text-align: start;
+    width: 50% !important;
+    margin-left: 0% !important;
+}
+#file_image_url{
+    display: none;
+}
+#themsuaxoa button{
+    width: 100px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: green;
+    color: white;
+}
+#tim_kiem{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#tim_kiem input{
+    width: 500px;
+    padding: 10px;
+    border-radius: 5px;
+}
+#tim_kiem select{
+    width: 100px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: green;
+    color: white;
+}
+#ds_sp th {
+    border:1px solid black;
+}
+table{
+    margin: 0 auto;
+    border-collapse: collapse; /* gộp viền lại, không bị đúp */
+    border-spacing: 0;         /* xoá khoảng cách giữa các ô */
+}
+table th{
+    background-color: #3498db;
+    color: white;
+}
+.blue {
+    background: #3498db;
+}
+table th,
+table td,
+table tr{
+    height: 50px;
+    border: solid 2px #ccc;
+}
+
+#thong_tin_chi_tiet{
+    display: none;
+}
+#themsuaxoa button{
+    width: 120px;
+    margin: 10px;
+    padding: 5px;
+}
+#themVaHuy,
+#sua_thong_tin{
+    display: none;
+}
+
+#phan_trang{
+    margin-top: 10px;
+    justify-content: center;
+    display: inline-block;
+    position: relative;
+}
+#phan_trang button,
+#phan_trang #trang_hien_tai {
+  position: absolute;
+  top: 0;
+  height: 100%;
+}
+#trang_hien_tai{
+    left: -25px;
+}
+/* Nút trước ở bên trái */
+#trang_truoc {
+  right: 0;
+}
+
+/* Nút sau ở bên phải */
+#trang_sau {
+  left: 0;
+}
+#phan_trang img{
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+}
+#phan_trang button,
+.xoasua{
+    background: transparent;  
+    border: none;           
+    padding: 10px;           
+    cursor: pointer;    
+    border-radius: 10px;
+}
+.xoasua:hover{
+    background-color: aquamarine;
+}
+#trang_hien_tai{
+    margin: 20px;
+}
+#trang_truoc{
+    display: none;
+}
+.xoasua img{
+    width: 25px;
+    height: 25px;
+}
+.xoasua:nth-of-type(3){
+    background: #3498db;
+}
+.them_sua button{
+    background: #3498db;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px;
+}
