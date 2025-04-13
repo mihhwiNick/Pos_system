@@ -134,7 +134,7 @@ function displayProducts() {
                     <button onclick="deleteSP(${prd.id})" class="xoasua">
                       <img src="../img/delete.png" alt="">
                     </button>
-                    <button onclick="chon(${prd.id})" class="xoasua">chi tiet
+                    <button onclick="xemThongSoKyThuat(${prd.id})" class="xoasua">chi tiet
                     </button>
                 </td>
             </tr>
@@ -190,8 +190,6 @@ function trangTruoc() {
 function chon(a) {
   allProducts.forEach((prd) => {
     if (prd.id == a) {
-      document.getElementById("thong_tin_sp").style.display = "block";
-      updateInput(prd);
       currentProduct = prd;
     }
   });
@@ -199,6 +197,8 @@ function chon(a) {
 //
 function sua(a){
   chon(a);
+  updateInput(prd);
+  document.getElementById("thong_tin_sp").style.display = "block";
   document.getElementById("sua_thong_tin").style.display="block";
 }
 //sua du lieu trong mang allProducts
@@ -262,7 +262,33 @@ function xemchitiet() {
     a.display = "block";
   }
 }
-
+//xem thong so ky thuat
+function xemThongSoKyThuat(id){
+  chon(id);
+  let thongso=document.getElementById("thong_so_ky_thuat");
+  if (thongso.style.display == "block") {
+    thongso.style.display = "none";
+  } else {
+    thongso.style.display = "block";
+  }
+  let a="";
+  a+=`<h3>Thông số kỹ thuật:</h3>`
+  a+=`<button onclick="tatThongSoKyThuat()" >X</button>`
+  for (let i = 0; i < dsTieuDe.length; i++) {
+    let b=dsTieuDe[i]
+    if(b=="name"||b=="image_url"||b=="price"||b=="brand") continue
+    a+=`
+    <div>
+      <strong>${dsTieuDe[i]}</strong> <span>${currentProduct[dsTieuDe[i]]}</span>
+    </div>
+    `
+  }
+  thongso.innerHTML=a;
+}
+//tat thong so kt
+function tatThongSoKyThuat(){
+  document.getElementById("thong_so_ky_thuat").style.display="none";
+}
 //tiem kiem
 function timkiem() {
   let thongtin = document.getElementById("input_tim_kiem").value; //lay thong tin can tim
@@ -287,6 +313,18 @@ function taoInputTrong() {
   document.getElementById("themVaHuy").style.display = "block";
 }
 async function themSP() {
+  let name = document.getElementById("name").value.trim();
+  let price = document.getElementById("price").value.trim();
+  let brand = document.getElementById("brand").value;
+
+  if (name === "" || price === "" || brand === "") {
+    alert("Vui lòng nhập đầy đủ Name, Price và chọn Brand.");
+    return false; // Dừng xử lý tiếp theo
+  }
+  if (isNaN(price) || Number(price) <= 0) {
+    alert("Giá phải là một số lớn hơn 0.");
+    return false;
+  }
   let a = initSP();
   for (let i = 0; i < dsTieuDe.length; i++) {
     if (dsTieuDe[i] == "id" || dsTieuDe[i] == "stock") continue;
