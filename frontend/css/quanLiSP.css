@@ -76,7 +76,8 @@ body {
     background: #2980b9;
 }
 
-#thong_tin_sp {
+#thong_tin_sp,
+#thong_so_ky_thuat{
     display: none;
     z-index: 20;
     position: fixed;
@@ -94,7 +95,8 @@ body {
     border-radius: 10px;
 }
 
-#thong_tin_sp::-webkit-scrollbar {
+#thong_tin_sp::-webkit-scrollbar,
+#thong_so_ky_thuat::-webkit-scrollbar{
     display: none;
 }
 
@@ -114,7 +116,8 @@ body {
     border: solid 2px black;
 }
 
-#thong_tin_sp>button {
+#thong_tin_sp > button,
+#thong_so_ky_thuat > button{
     position: absolute;
     top: 10px;
     right: 10px;
@@ -215,7 +218,18 @@ table tr {
     display: none;
 }
 
-#themsuaxoa button {
+#thong_so_ky_thuat{
+    max-width: 500px; 
+    border: 1px solid #ccc; 
+    padding: 16px; 
+    border-radius: 10px;
+}
+#thong_so_ky_thuat div{
+    display: flex; 
+    justify-content: space-between; 
+    margin: 8px 0;
+}
+#themsuaxoa button{
     width: 120px;
     margin: 10px;
     padding: 5px;
