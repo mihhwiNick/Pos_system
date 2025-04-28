@@ -11,7 +11,6 @@ from routes.invoice_PDF import invoices_PDF_bp
 from routes.statistics import stat_bp
 import bcrypt
 
-
 app = Flask(__name__)
 CORS(app)
 
@@ -35,22 +34,6 @@ app.register_blueprint(stat_bp, url_prefix='/stats')
 @app.route("/")
 def home():
     return render_template("app.html")
-
-@app.route("/login", methods=['POST'])
-def login():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-
-    cursor = db.connection.cursor()
-    query = "SELECT username, password, role FROM users WHERE username=%s"
-    cursor.execute(query, (username,))
-    user = cursor.fetchone()
-
-    if user and bcrypt.checkpw(password.encode('utf-8'), user[1].encode('utf-8')):  # Kiểm tra mật khẩu đã mã hóa
-        return jsonify({"username": user[0], "role": user[2]}), 200
-    else:
-        return jsonify({"message": "Invalid credentials"}), 401
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
