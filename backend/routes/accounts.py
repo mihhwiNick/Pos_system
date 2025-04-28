@@ -72,15 +72,19 @@ def add_user():
     password = data.get('password')
     role = data.get('role')
 
+    # Mã hóa mật khẩu trước khi lưu
+    hashed_password = Account.hash_password(password)
+
     cursor = db.connection.cursor()
     try:
         query = "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)"
-        cursor.execute(query, (username, password, role))
+        cursor.execute(query, (username, hashed_password, role))
         db.connection.commit()
         return jsonify({"message": "User added successfully"}), 201
     except Exception as e:
         db.connection.rollback()
         return jsonify({"message": "Error adding user", "error": str(e)}), 400
+
 
 @accounts_bp.route('/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
@@ -120,10 +124,12 @@ def validate_password(user_id):
     cursor.execute(query, (user_id,))
     user = cursor.fetchone()
 
-    if user and user[0] == password:
+    # Kiểm tra mật khẩu đã mã hóa
+    if user and Account.check_password(user[0], password):
         return jsonify({"message": "Password validated successfully"}), 200
     else:
         return jsonify({"message": "Invalid password"}), 400
+
 
 @accounts_bp.route('/users/<int:user_id>/change-password', methods=['POST'])
 def change_password(user_id):
@@ -136,14 +142,18 @@ def change_password(user_id):
     cursor.execute(query, (user_id,))
     user = cursor.fetchone()
 
-    if not user or user[0] != current_password:
+    if not user or not Account.check_password(user[0], current_password):
         return jsonify({"message": "Current password is incorrect"}), 400
+
+    # Mã hóa mật khẩu mới trước khi lưu vào cơ sở dữ liệu
+    hashed_password = Account.hash_password(new_password)
 
     try:
         query = "UPDATE users SET password = %s WHERE id = %s"
-        cursor.execute(query, (new_password, user_id))
+        cursor.execute(query, (hashed_password, user_id))
         db.connection.commit()
         return jsonify({"message": "Password changed successfully"}), 200
     except Exception as e:
         db.connection.rollback()
         return jsonify({"message": "Error changing password", "error": str(e)}), 400
+
