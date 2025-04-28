@@ -35,19 +35,16 @@ async function updateProduct(product) {
 }
 
 // them sp
-async function addProduct(product) {
+async function addProduct(formData) {
   const response = await fetch(`http://127.0.0.1:5001/quanLiSP/add`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(product),
+    body: formData, // Gửi FormData thay vì JSON
   });
 
   if (response.ok) {
     const result = await response.json();
     console.log("Thêm thành công:", result.message);
-    const newProductId = result.id; // Giả sử API trả về id của sản phẩm mới
+    const newProductId = result.id; // ID sản phẩm mới được trả về từ backend
     console.log("ID của sản phẩm mới:", newProductId);
     return newProductId;
   } else {
@@ -312,6 +309,7 @@ function taoInputTrong() {
   updateInput(initSP());
   document.getElementById("themVaHuy").style.display = "block";
 }
+
 async function themSP() {
   let name = document.getElementById("name").value.trim();
   let price = document.getElementById("price").value.trim();
@@ -325,28 +323,75 @@ async function themSP() {
     alert("Giá phải là một số lớn hơn 0.");
     return false;
   }
+  
   let a = initSP();
   for (let i = 0; i < dsTieuDe.length; i++) {
     if (dsTieuDe[i] == "id" || dsTieuDe[i] == "stock") continue;
     a[dsTieuDe[i]] = document.getElementById(dsTieuDe[i]).value;
   }
   a.id = -1;
-  //them sp vao database
-  addProduct(a);
-  //lay id sp vua vao database
-  a.image_url = "http://127.0.0.1:5500/frontend/" + a.image_url;
-  a.id = await getLatestProduct();
-  //them sp moi vao ds san pham
+
+  // Lấy tệp ảnh
+  let imageFile = document.getElementById("file_image_url").files[0];
+
+  // Tạo đối tượng FormData để gửi cả thông tin sản phẩm và file ảnh
+  let formData = new FormData();
+  formData.append('name', a.name);
+  formData.append('brand', a.brand);
+  formData.append('price', a.price);
+  formData.append('stock', a.stock);
+  formData.append('screen_size', a.screen_size);
+  formData.append('processor', a.processor);
+  formData.append('ram', a.ram);
+  formData.append('storage', a.storage);
+  formData.append('battery', a.battery);
+  formData.append('camera', a.camera);
+  formData.append('os', a.os);
+  formData.append('color', a.color);
+  formData.append('image', imageFile);  // Thêm ảnh
+
+  // Gửi yêu cầu thêm sản phẩm
+  const newProductId = await addProduct(formData);
+
+  // Cập nhật lại đường dẫn ảnh
+  a.image_url = `http://127.0.0.1:5500/frontend/img/products/${newProductId}.jpg`;
+  a.id = newProductId;
+
+  // Thêm sản phẩm vào danh sách sản phẩm
   allProducts.push(a);
-  //hien sp moi len input de theo doi
+
+  // Cập nhật giao diện
   updateInput(allProducts[allProducts.length - 1]);
-  //thoat khoi che do them
+
+  // Thoát khỏi chế độ thêm sản phẩm
   huythem();
-  //hien sp len table
+
+  // Hiển thị sản phẩm lên bảng
   displayProducts();
-  //tat input
+
+  // Ẩn input thông tin sản phẩm
   document.getElementById("thong_tin_sp").style.display = "none";
 }
+
+async function addProduct(formData) {
+  const response = await fetch(`http://127.0.0.1:5001/quanLiSP/add`, {
+    method: "POST",
+    body: formData,  // Gửi FormData thay vì JSON
+  });
+
+  if (response.ok) {
+    const result = await response.json();
+    console.log("Thêm thành công:", result.message);
+    const newProductId = result.id;
+    console.log("ID của sản phẩm mới:", newProductId);
+    return newProductId;
+  } else {
+    const error = await response.json();
+    console.error("Lỗi thêm sản phẩm:", error.message);
+    return null;
+  }
+}
+
 document
   .getElementById("file_image_url")
   .addEventListener("change", function (e) {

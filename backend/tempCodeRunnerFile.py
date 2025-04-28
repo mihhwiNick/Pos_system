@@ -9,8 +9,6 @@ from routes.quanLiSPRoute import quanLiSP_bp
 from routes.accounts import accounts_bp 
 from routes.invoice_PDF import invoices_PDF_bp
 from routes.statistics import stat_bp
-import bcrypt
-
 
 app = Flask(__name__)
 CORS(app)
@@ -36,19 +34,19 @@ app.register_blueprint(stat_bp, url_prefix='/stats')
 def home():
     return render_template("app.html")
 
-@app.route("/login", methods=['POST'])
+@app.route('/login', methods=['POST'])
 def login():
     data = request.json
     username = data.get('username')
     password = data.get('password')
 
     cursor = db.connection.cursor()
-    query = "SELECT username, password, role FROM users WHERE username=%s"
-    cursor.execute(query, (username,))
+    query = "SELECT username, role FROM users WHERE username=%s AND password=%s"
+    cursor.execute(query, (username, password))
     user = cursor.fetchone()
 
-    if user and bcrypt.checkpw(password.encode('utf-8'), user[1].encode('utf-8')):  # Kiểm tra mật khẩu đã mã hóa
-        return jsonify({"username": user[0], "role": user[2]}), 200
+    if user:
+        return jsonify({"username": user[0], "role": user[1]}), 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
 
