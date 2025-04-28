@@ -35,21 +35,5 @@ app.register_blueprint(stat_bp, url_prefix='/stats')
 def home():
     return render_template("app.html")
 
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-
-    cursor = db.connection.cursor()
-    query = "SELECT username, role FROM users WHERE username=%s AND password=%s"
-    cursor.execute(query, (username, password))
-    user = cursor.fetchone()
-
-    if user:
-        return jsonify({"username": user[0], "role": user[1]}), 200
-    else:
-        return jsonify({"message": "Invalid credentials"}), 401
-
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
