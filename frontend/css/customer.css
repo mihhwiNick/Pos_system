@@ -329,7 +329,7 @@ table tr:nth-child(even) {
     color: white;
     border: none;
 }
-#add_btn {
+#customerFilter {
     margin-left: auto;
 }
 #addCustomerModal {
@@ -548,4 +548,21 @@ table tr:nth-child(even) {
     display: flex;
     justify-content: flex-end; /* Đẩy các nút sang bên phải */
     gap: 10px; /* Khoảng cách giữa các nút */
+}
+#customerFilter {
+    padding: 10px 40px 10px 15px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px 16px;
+    transition: background-color 0.3s ease;
+}
+
+#customerFilter:hover {
+    background-color: #2980b9;
 }

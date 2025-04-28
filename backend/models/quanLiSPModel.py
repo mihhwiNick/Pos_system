@@ -3,34 +3,45 @@ from database import db;
 class quanLiSP:
     #  Thêm hàm cập nhật sản phẩm
     @staticmethod
-    def update(product_id, name, brand, price, stock, image_url, screen_size, processor, ram, storage, battery, camera, os, color):
+    def update(product_id, name, brand, price, image_url, screen_size, processor, ram, storage, battery, camera, os, color):
     
         cursor = db.connection.cursor()
         
-        sql = "UPDATE products SET name = %s, brand = %s, price = %s, stock = %s, image_url = %s, " \
+        sql = "UPDATE products SET name = %s, brand = %s, price = %s, image_url = %s, " \
         "screen_size = %s, processor = %s, ram = %s, storage = %s, battery = %s, camera = %s, os = %s, color = %s  WHERE id = %s"
-        values = (name, brand, price, stock, image_url, screen_size, processor, ram, storage, battery, camera, os, color, product_id)
+        values = (name, brand, price, image_url, screen_size, processor, ram, storage, battery, camera, os, color, product_id)
     
         cursor.execute(sql, values)
         db.connection.commit()  # Lưu thay đổi vào database
         updated = cursor.rowcount > 0  # Kiểm tra xem có dòng nào bị ảnh hưởng không
         cursor.close()
         return updated
-     # Thêm sản phẩm mới
+    
+    # Thêm sản phẩm mới
     @staticmethod
-    def add(name, brand, price, stock, image_url, screen_size, processor, ram, storage, battery, camera, os, color):
+    def add(name, brand, price, image_url, screen_size, processor, ram, storage, battery, camera, os, color):
         cursor = db.connection.cursor()
-        sql = """INSERT INTO products (name, brand, price, stock, image_url, screen_size, processor, ram, storage, battery, camera, os, color) 
-                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-        values = (name, brand, price, stock, image_url, screen_size, processor, ram, storage, battery, camera, os, color)
+        sql = """INSERT INTO products (name, brand, price, image_url, screen_size, processor, ram, storage, battery, camera, os, color) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        values = (name, brand, price, image_url, screen_size, processor, ram, storage, battery, camera, os, color)
         cursor.execute(sql, values)
         db.connection.commit()
+
+        # Kiểm tra nếu insert thành công
         inserted = cursor.rowcount > 0
         cursor.execute("SELECT LAST_INSERT_ID()")
         last_inserted_id = cursor.fetchone()[0]
         cursor.close()
+
         return last_inserted_id
 
+    @staticmethod
+    def update_image_url(product_id, image_url):
+        cursor = db.connection.cursor()
+        sql = "UPDATE products SET image_url = %s WHERE id = %s"
+        cursor.execute(sql, (image_url, product_id))
+        db.connection.commit()
+        cursor.close()
     # Xóa sản phẩm
     @staticmethod
     def delete(product_id):

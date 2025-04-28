@@ -721,10 +721,73 @@ function showInvoiceModal(invoiceId) {
     };
 }
 
+// Phần xác thực khuôn mặt
+async function checkFaceMember() {
+    // 1. Chụp ảnh từ webcam (dùng getUserMedia + canvas)
+    // 2. Gửi ảnh lên API nhận diện
+    let formData = new FormData();
+    formData.append('image', blobImage); // blobImage là ảnh vừa chụp
+
+    let res = await fetch('http://localhost:5002/face_recognize', { // port của Flask face_rec
+        method: 'POST',
+        body: formData
+    });
+    if (res.ok) {
+        let data = await res.json();
+        // Hiển thị thông tin khách hàng lên giao diện
+        renderCustomerInfo(data);
+    } else {
+        alert("Không nhận diện được khách hàng. Vui lòng đăng ký mới!");
+    }
+}
 
 
+function openFaceModal() {
+    document.getElementById('face-modal').style.display = 'block';
+    const video = document.getElementById('face-video');
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => { video.srcObject = stream; })
+        .catch(err => { alert("Không thể mở webcam!"); });
+}
 
+function closeFaceModal() {
+    document.getElementById('face-modal').style.display = 'none';
+    const video = document.getElementById('face-video');
+    if (video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+    }
+}
 
+async function captureAndCheckFace() {
+    const video = document.getElementById('face-video');
+    const canvas = document.getElementById('face-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(async function(blob) {
+        let formData = new FormData();
+        formData.append('image', blob, 'face.jpg');
+        try {
+            let res = await fetch('http://localhost:8000/face_recognize', {
+                method: 'POST',
+                body: formData
+            });
+            if (res.ok) {
+                let data = await res.json();
+                // Hiển thị thông tin khách hàng lên giao diện
+                document.getElementById('customer-name').innerText = data.name;
+                document.getElementById('customer-phone').innerText = data.phone;
+                document.getElementById('customer-points').innerText = data.points || 0;
+                closeFaceModal();
+            } else {
+                alert("Không nhận diện được khách hàng. Vui lòng đăng ký mới!");
+            }
+        } catch (e) {
+            alert("Lỗi kết nối đến server nhận diện!");
+        }
+    }, 'image/jpeg');
+}
 
-
-
+window.openFaceModal = openFaceModal;
+window.closeFaceModal = closeFaceModal;
+window.captureAndCheckFace = captureAndCheckFace;

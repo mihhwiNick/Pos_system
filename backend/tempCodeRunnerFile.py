@@ -9,7 +9,6 @@ from routes.quanLiSPRoute import quanLiSP_bp
 from routes.accounts import accounts_bp 
 from routes.invoice_PDF import invoices_PDF_bp
 from routes.statistics import stat_bp
-import bcrypt
 
 app = Flask(__name__)
 CORS(app)
@@ -17,7 +16,7 @@ CORS(app)
 # Cấu hình database
 app.config['MYSQL_HOST'] = "localhost"
 app.config['MYSQL_USER'] = "root"
-app.config['MYSQL_PASSWORD'] = ""
+app.config['MYSQL_PASSWORD'] = "123456"
 app.config['MYSQL_DB'] = "pos_system"
 db = MySQL(app)
 
@@ -34,6 +33,22 @@ app.register_blueprint(stat_bp, url_prefix='/stats')
 @app.route("/")
 def home():
     return render_template("app.html")
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    cursor = db.connection.cursor()
+    query = "SELECT username, role FROM users WHERE username=%s AND password=%s"
+    cursor.execute(query, (username, password))
+    user = cursor.fetchone()
+
+    if user:
+        return jsonify({"username": user[0], "role": user[1]}), 200
+    else:
+        return jsonify({"message": "Invalid credentials"}), 401
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

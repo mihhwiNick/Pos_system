@@ -60,7 +60,8 @@ function renderPagination() {
     const container = document.getElementById("pagination");
     container.innerHTML = ""; // Xóa nội dung cũ
 
-    let totalPages = Math.ceil(customers.length / rowsPerPage);
+    const data = filterCustomer.length ? filterCustomer : customers;
+    const totalPages = Math.ceil(data.length / rowsPerPage);
 
     if (totalPages > 1) {
         container.innerHTML = `
@@ -68,8 +69,8 @@ function renderPagination() {
             <img id="next" class="btn-pagination" src="../img/next.png" onclick="changePage(1)">
         `;
 
-        let prevButton = document.getElementById("prev");
-        let nextButton = document.getElementById("next");
+        const prevButton = document.getElementById("prev");
+        const nextButton = document.getElementById("next");
 
         // Vô hiệu hóa nút "Previous" nếu ở trang đầu
         prevButton.classList.toggle("disabled", currentPage === 1);
@@ -78,17 +79,74 @@ function renderPagination() {
         // Vô hiệu hóa nút "Next" nếu ở trang cuối
         nextButton.classList.toggle("disabled", currentPage === totalPages);
         nextButton.style.pointerEvents = currentPage === totalPages ? 'none' : 'auto';
+
+        // Hiển thị các nút phân trang nếu có nhiều trang
+        prevButton.style.display = "inline-block";
+        nextButton.style.display = "inline-block";
+    } else {
+        // Nếu không có trang, ẩn các nút phân trang
+        const prevButton = document.getElementById("prev");
+        const nextButton = document.getElementById("next");
+        prevButton.style.display = "none";
+        nextButton.style.display = "none";
     }
 }
 
 window.changePage = function (direction) {
-    let totalPages = Math.ceil(customers.length / rowsPerPage);
-    currentPage += direction;
+    const data = filterCustomer.length ? filterCustomer : customers;
+    const totalPages = Math.ceil(data.length / rowsPerPage);
 
+    currentPage += direction;
     if (currentPage < 1) currentPage = 1;
     if (currentPage > totalPages) currentPage = totalPages;
 
-    displayCustomers(customers);
+    displayCustomers(data, currentPage, totalPages);
+    renderPagination();
+};function renderPagination() {
+    const container = document.getElementById("pagination");
+    container.innerHTML = ""; // Xóa nội dung cũ
+
+    const data = filterCustomer.length ? filterCustomer : customers;
+    const totalPages = Math.ceil(data.length / rowsPerPage);
+
+    if (totalPages > 1) {
+        container.innerHTML = `
+            <img id="prev" class="btn-pagination" src="../img/prev.png" onclick="changePage(-1)">
+            <img id="next" class="btn-pagination" src="../img/next.png" onclick="changePage(1)">
+        `;
+
+        const prevButton = document.getElementById("prev");
+        const nextButton = document.getElementById("next");
+
+        // Vô hiệu hóa nút "Previous" nếu ở trang đầu
+        prevButton.classList.toggle("disabled", currentPage === 1);
+        prevButton.style.pointerEvents = currentPage === 1 ? 'none' : 'auto';
+
+        // Vô hiệu hóa nút "Next" nếu ở trang cuối
+        nextButton.classList.toggle("disabled", currentPage === totalPages);
+        nextButton.style.pointerEvents = currentPage === totalPages ? 'none' : 'auto';
+
+        // Hiển thị các nút phân trang nếu có nhiều trang
+        prevButton.style.display = "inline-block";
+        nextButton.style.display = "inline-block";
+    } else {
+        // Nếu không có trang, ẩn các nút phân trang
+        const prevButton = document.getElementById("prev");
+        const nextButton = document.getElementById("next");
+        prevButton.style.display = "none";
+        nextButton.style.display = "none";
+    }
+}
+
+window.changePage = function (direction) {
+    const data = filterCustomer.length ? filterCustomer : customers;
+    const totalPages = Math.ceil(data.length / rowsPerPage);
+
+    currentPage += direction;
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    displayCustomers(data, currentPage, totalPages);
     renderPagination();
 };
 
@@ -192,11 +250,23 @@ function openAddCustomerModal() {
 function closeAddCustomerModal() {
     document.getElementById("addCustomerModal").style.display = "none";
 }
-async function addCustomer() {
+/*async function addCustomer() {
     const name = document.getElementById("customerName").value.trim();
     const phone = document.getElementById("customerPhone").value.trim();
     const membership_level = document.getElementById("customer-type").value.trim();
     const points = document.getElementById("customerPoint").value.trim();
+    const phoneRegex = /^(0[0-9]{9,10})$/;
+    if (!phoneRegex.test(phone)) {
+        alert("Số điện thoại không hợp lệ! Vui lòng nhập số bắt đầu bằng 0 và có 10-11 chữ số.");
+        return;
+    }
+
+    // Kiểm tra số điện thoại đã tồn tại chưa
+    const isDuplicate = customers.some(c => c.phone === phone);
+    if (isDuplicate) {
+        alert("Số điện thoại đã tồn tại! Vui lòng nhập số khác.");
+        return;
+    }
     const newCustomer = {
         name: name,
         phone: phone,
@@ -224,7 +294,7 @@ async function addCustomer() {
     } catch (error) {
         alert(`Đã xảy ra lỗi khi thêm khách hàng.`);
     }
-}
+}*/ //phan them khach hang
 function viewEditCustomer(id) {
     // Tìm khách hàng theo ID
     const customer = customers.find(c => c.id === id);
@@ -234,8 +304,6 @@ function viewEditCustomer(id) {
         // Điền thông tin vào các trường trong modal
         edit.querySelector("#customerName").value = customer.name;
         edit.querySelector("#customerPhone").value = customer.phone;
-        edit.querySelector("#customer-type").value = customer.membership_level;
-        edit.querySelector("#customerPoint").value = customer.points;
 
         edit.style.display = "flex"; // Hiển thị modal
         id_ToEdit=id;
@@ -250,14 +318,10 @@ async function updateCustomer() {
     var edit = document.getElementById("editCustomerModal");
     const name = edit.querySelector("#customerName").value;
     const phone = edit.querySelector("#customerPhone").value;
-    const membership_level = edit.querySelector("#customer-type").value;
-    const points = edit.querySelector("#customerPoint").value;
 
     const updatedCustomer = {
         name: name,
         phone: phone,
-        membership_level: membership_level,
-        points: points
     };
 
     try {
@@ -281,6 +345,29 @@ async function updateCustomer() {
     }
 }
 
+
+function filterCustomersByType() {
+    const selectedType = document.getElementById("customerFilter").value;
+
+    if (selectedType === "all") {
+        // Nếu chọn "Tất cả", hiển thị toàn bộ khách hàng
+        filterCustomer = customers; // Đặt lại danh sách khách hàng lọc
+        currentPage = 1; // Đặt lại trang về 1 nếu chọn tất cả
+    } else {
+        // Lọc khách hàng theo loại (VIP / Regular)
+        filterCustomer = customers.filter(c => c.membership_level === selectedType);
+        currentPage = 1; // Đặt lại trang về 1 khi lọc
+    }
+
+    // Cập nhật dữ liệu hiển thị và phân trang
+    const totalPages = Math.ceil(filterCustomer.length / rowsPerPage);
+    if (currentPage > totalPages) {
+        currentPage = totalPages; // Điều chỉnh lại trang nếu trang hiện tại lớn hơn tổng số trang
+    }
+
+    displayCustomers(filterCustomer, currentPage, totalPages);  // Hiển thị khách hàng sau khi lọc
+    renderPagination();  // Cập nhật phân trang
+}
 window.logout = function () {
     sessionStorage.removeItem("loginData");
     window.location.href = "app.html";
