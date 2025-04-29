@@ -9,11 +9,14 @@ def login():
     data = request.json
     username = data.get('username')
     password = data.get('password')
-    role = data.get('role')
 
-    account = Account.login(username, password, role)
-    if account:
-        return jsonify({"username": account["username"], "role": account["role"]}), 200
+    cursor = db.connection.cursor()
+    query = "SELECT username, role FROM users WHERE username=%s AND password=%s"
+    cursor.execute(query, (username, password))
+    user = cursor.fetchone()
+
+    if user:
+        return jsonify({"username": user[0], "role": user[1]}), 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
 

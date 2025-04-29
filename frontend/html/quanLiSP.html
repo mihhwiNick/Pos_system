@@ -19,10 +19,10 @@
             </ul>
         </div>
         <div id="main_content">
-            <h1>Quan Li San Pham</h1>
+            <h1>Quản Lí Sản Phẩm</h1>
             <div id="thong_tin_sp">
                 <button onclick="tatThongTinChiTiet()" >X</button>
-                <h1>thong tin chi tiet</h1>
+                <h1>Thông Tin Chi Tiết</h1>
                 <input type="text" id="name" placeholder="name" />
                 <input type="text" id="price" placeholder="price" />
                 <select name="brand" id="brand">
@@ -36,7 +36,7 @@
                 <!-- <input type="text" id="stock" placeholder="stock" /> -->
                 <br>
                 <div id="khung_image_url">
-                    <label for="file_image_url" id="lable_image_url">chon file</label>
+                    <label for="file_image_url" id="lable_image_url">Chọn File</label>
                     <input type="file" id="file_image_url" />
                     <input type="text" id="image_url" placeholder="chua file duoc chon"></input>
                 </div>
@@ -53,12 +53,12 @@
                 <input type="text" id="color" placeholder="color" />
                 <!-- </div> -->
                 <div id="themVaHuy" class="them_sua">
-                    <button onclick="themSP()" >xac nhan them</button>
-                    <button onclick="tatThongTinChiTiet()">huy them</button>
+                    <button onclick="themSP()" >Xác Nhận Thêm</button>
+                    <button onclick="tatThongTinChiTiet()">Hủy Thêm</button>
                 </div>
                 <div id="sua_thong_tin" class="them_sua">
-                    <button onclick="updateDuLieuTrongBang()">sua</button>
-                    <button onclick="tatThongTinChiTiet()">huy sua</button>
+                    <button onclick="updateDuLieuTrongBang()">Sữa</button>
+                    <button onclick="tatThongTinChiTiet()">Hủy Sữa</button>
                 </div>
             </div>
             <div id="thong_so_ky_thuat">
@@ -71,7 +71,7 @@
                     <option value="brand">brand</option>
                 </select> 
                 <div id="themsuaxoa">
-                    <button onclick="taoInputTrong()">them</button>
+                    <button onclick="taoInputTrong()">Thêm</button>
                     <!-- <button onclick="updateDuLieuTrongBang()">sua</button>
                     <button onclick="deleteSPKoThamSo()">xoa</button> -->
                 </div>
@@ -85,7 +85,7 @@
                             <th width="150">price</th>
                             <!-- <th width="100">stock</th> -->
                             <th width="100">image</th>
-                            <th width="200">tuy chon</th>
+                            <th width="200">tùy chọn</th>
                         </tr>
                     </thead>
                     <tbody id="product_table"></tbody>

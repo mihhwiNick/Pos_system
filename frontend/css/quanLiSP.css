@@ -87,7 +87,7 @@ body {
     border: solid 2px black;
     background-color: white;
     width: 50%;
-    max-height: 100%;
+    max-height: 90%;
     /* giới hạn chiều cao */
     overflow-y: auto;
     /* cho phép cuộn dọc */

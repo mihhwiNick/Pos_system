@@ -131,7 +131,7 @@ function displayProducts() {
                     <button onclick="deleteSP(${prd.id})" class="xoasua">
                       <img src="../img/delete.png" alt="">
                     </button>
-                    <button onclick="xemThongSoKyThuat(${prd.id})" class="xoasua">chi tiet
+                    <button onclick="xemThongSoKyThuat(${prd.id})" class="xoasua">chi tiết
                     </button>
                 </td>
             </tr>
