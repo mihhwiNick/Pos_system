@@ -11,14 +11,15 @@ def login():
     password = data.get('password')
 
     cursor = db.connection.cursor()
-    query = "SELECT username, role FROM users WHERE username=%s AND password=%s"
-    cursor.execute(query, (username, password))
+    query = "SELECT username, password, role FROM users WHERE username=%s"
+    cursor.execute(query, (username,))
     user = cursor.fetchone()
 
-    if user:
-        return jsonify({"username": user[0], "role": user[1]}), 200
+    if user and Account.check_password(user[1], password):
+        return jsonify({"username": user[0], "role": user[2]}), 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
+
 
 @accounts_bp.route('/', methods=['GET'])
 def get_accounts():

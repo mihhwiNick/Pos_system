@@ -18,6 +18,7 @@ class Account:
         query = "SELECT username, password, role FROM users WHERE username=%s AND role=%s"
         cursor.execute(query, (username, role))
         account = cursor.fetchone()
+        cursor.close()
         if account and Account.check_password(account[1], password):  # Kiểm tra mật khẩu đã mã hóa
             return {"username": account[0], "role": account[2]}
         return None
