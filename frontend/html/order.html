@@ -90,7 +90,7 @@
             <div class="summary">
                 <hr>
                 <div class="check-register-group">
-                    <button id="check-member" onclick="openPhoneModal()">Kiểm tra thành viên</button>
+                    <button id="check-member" onclick="checkMember()">Kiểm tra thành viên</button>
                     <button id="register-member" style="display: none;">Đăng ký thành viên</button>
                 </div>
                 <div class="customer-info">
@@ -128,16 +128,6 @@
                 </div>
             </div>
             <button id="confirm-order" onclick="confirmOrder()">Thanh toán</button>
-
-            <!-- Modal nhập số điện thoại -->
-            <div id="phone-modal" class="modal" style="display: none;">
-                <div class="modal-content">
-                    <h3>Nhập số điện thoại</h3>
-                    <input type="text" id="input-phone" placeholder="Nhập số điện thoại">
-                    <button id="confirm-phone" onclick="handlePhoneConfirm()">Xác nhận</button>
-                    <button onclick="closeModal()">Hủy</button>
-                </div>
-            </div>
 
             <!-- Modal thêm khách hàng mới -->
             <div id="add-customer-modal" class="modal" style="display: none;">

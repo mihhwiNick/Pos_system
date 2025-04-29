@@ -1,5 +1,12 @@
 from flask import Blueprint, jsonify, request
 from models.customerModel import Customers
+from models.face_recognitionModels import FaceRecognition
+from models.webcam import Webcam
+import pickle, base64, torch, cv2, time, math
+import numpy as np
+from facenet_pytorch import MTCNN
+
+
 customers_bp = Blueprint('customers', __name__)
 
 @customers_bp.route('/', methods=['GET'])
@@ -75,3 +82,4 @@ def update_customer_points(id):
     except Exception as e:
         print("Lỗi khi cập nhật điểm:", e)
         return jsonify({"message": "Lỗi khi cập nhật điểm"}), 500
+

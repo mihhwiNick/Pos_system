@@ -469,45 +469,32 @@ function removeDiscount() {
     document.getElementById("total").textContent = formatPrice(subtotal);
 }
 
-function openPhoneModal() {
-    document.getElementById("phone-modal").style.display = "flex";
-}
-
-function closeModal() {
-    document.getElementById("phone-modal").style.display = "none";
-}
-
 function closeAddCustomerModal() {
     document.getElementById("add-customer-modal").style.display = "none";
 }
 
-async function handlePhoneConfirm() {
-    const phone = document.getElementById("input-phone").value.trim();
-    if (!phone) {
-        alert("Vui lòng nhập số điện thoại.");
-        return;
-    }
-
+async function checkMember() {
     try {
-        const res = await fetch(`http://127.0.0.1:5001/customers/phone/${phone}`);
-        if (res.status === 404) {
-            closeModal();
-            const confirmAdd = confirm("Không tìm thấy khách hàng. Bạn có muốn thêm mới?");
-            if (confirmAdd) {
-                showAddCustomerModal(phone);
-            }
-            return;
+        // Gọi API kiểm tra thành viên
+        const response = await fetch('http://localhost:5001/recognize/identify_all_customers_with_camera', {
+            method: 'GET',
+        });
+        const data = await response.json();  // Lấy dữ liệu trả về từ API
+
+        if (data.error) {
+            alert(data.error);  // Hiển thị lỗi nếu không nhận diện được khách hàng
+        } else {
+            // Hiển thị thông tin khách hàng nếu nhận diện thành công
+            document.getElementById("customer-name").innerText = data.name;
+            document.getElementById("customer-phone").innerText = data.phone;
+            document.getElementById("customer-points").innerText = data.points;
+
+            // Hiển thị phần thông tin khách hàng
+            document.querySelector(".customer-info").style.display = "block";
         }
-
-        const customer = await res.json();
-        currentCustomerId = customer.id;
-        closeModal();
-        renderCustomerInfo(customer);
-        handleMembership(customer);
-
-    } catch (err) {
-        console.error(err);
-        alert("Có lỗi xảy ra khi kiểm tra.");
+    } catch (error) {
+        console.error('Error:', error);
+        alert("Đã có lỗi xảy ra, vui lòng thử lại.");
     }
 }
 

@@ -1,7 +1,7 @@
 from database import db
 from flask import Flask, request, jsonify
 from datetime import datetime
-import pytz
+import pytz, base64, pickle
 
 class Customers: 
     @staticmethod
@@ -152,6 +152,5 @@ class Customers:
         result = cursor.fetchone()
         cursor.close()
         return result[0] if result[0] is not None else 0
-
 
 
