@@ -6,18 +6,15 @@ import torch, cv2, time
 
 recognize_bp = Blueprint('recognize', __name__)
 
-@recognize_bp.route('/capture_face_encoding/<phone>', methods=['POST'])
+@recognize_bp.route('/capture_face_encoding/<phone>', methods=['GET'])
 def capture_face_encoding(phone):
-    """Chụp face encoding và lưu vào cơ sở dữ liệu cho khách hàng."""
-    webcam = Webcam()  # Giả sử bạn đã viết lớp Webcam để lấy frame từ webcam
+    webcam = Webcam()
     face_encoding = webcam.capture_face_encoding_from_webcam(phone)
-    
+
     if face_encoding is not None:
-        # Lưu face encoding vào database
-        face_recognition = FaceRecognition(device='cuda' if torch.cuda.is_available() else 'cpu')
-        face_recognition.save_face_encoding_to_db(phone, face_encoding)
         return jsonify({"message": "Face encoding saved successfully!"}), 200
-    return jsonify({"error": "No face detected"}), 400
+    else: # Thêm thông báo nếu không tìm thấy khách hàng
+        return jsonify({"error": f"Customer with phone {phone} does not exist"}), 400
 
 @recognize_bp.route('/identify_all_customers_with_camera', methods=['GET'])
 def identify_all_customers_with_camera():
@@ -70,4 +67,4 @@ def identify_all_customers_with_camera():
             'points': recognized_customer['points']
         })
     else:
-        return jsonify({'error': 'No matching customer found or no face detected'}), 400
+        return jsonify({'error': 'Khách hàng chưa là thành viên. Vui lòng đăng kí'}), 400

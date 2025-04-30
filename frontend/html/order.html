@@ -91,7 +91,7 @@
                 <hr>
                 <div class="check-register-group">
                     <button id="check-member" onclick="checkMember()">Kiểm tra thành viên</button>
-                    <button id="register-member" style="display: none;">Đăng ký thành viên</button>
+                    <button id="register-member" style="display: none;" onclick="registerMember()">Đăng ký thành viên</button>
                 </div>
                 <div class="customer-info">
                     <div class="row">
@@ -135,10 +135,6 @@
                     <h3>Thêm khách hàng mới</h3>
                     <input type="text" id="new-customer-name" placeholder="Nhập tên khách hàng">
                     <input type="text" id="new-customer-phone" placeholder="Nhập số điện thoại">
-                    <select id="new-customer-type">
-                        <option value="Regular">Regular</option>
-                        <option value="VIP">VIP</option>
-                    </select>
                     <button id="save-customer" onclick="handleSaveCustomer()">Lưu</button>
                     <button onclick="closeAddCustomerModal()">Hủy</button>
                 </div>
@@ -152,7 +148,6 @@
                     <button id="print-cancel" class="cancel-btn">Không in</button>
                 </div>
             </div>
-
         </div>
     </div>
     <script src="../js/order.js" defer></script>

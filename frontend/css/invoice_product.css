@@ -156,8 +156,8 @@
 
 #clear-btn {
     position: absolute;
-    right: 160px;
-    top: 76px;
+    right: 150px;
+    top: 95px;
     /* Điều chỉnh vị trí nút X */
     cursor: pointer;
     font-size: 18px;

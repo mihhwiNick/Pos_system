@@ -35,7 +35,6 @@ function displayCustomers(CustomerToDisplay, page, totalPages) {
             <td class="customer-id">${customer.id}</td>
             <td class="customer-name">${customer.name}</td>
             <td class="customer-phone">${customer.phone}</td>
-            <td class="customer-type">${customer.membership_level}</td>
             <td class="customer-point">${customer.points}</td>
             <td class="actions">
                 <div class="action-buttons">
@@ -345,29 +344,6 @@ async function updateCustomer() {
     }
 }
 
-
-function filterCustomersByType() {
-    const selectedType = document.getElementById("customerFilter").value;
-
-    if (selectedType === "all") {
-        // Nếu chọn "Tất cả", hiển thị toàn bộ khách hàng
-        filterCustomer = customers; // Đặt lại danh sách khách hàng lọc
-        currentPage = 1; // Đặt lại trang về 1 nếu chọn tất cả
-    } else {
-        // Lọc khách hàng theo loại (VIP / Regular)
-        filterCustomer = customers.filter(c => c.membership_level === selectedType);
-        currentPage = 1; // Đặt lại trang về 1 khi lọc
-    }
-
-    // Cập nhật dữ liệu hiển thị và phân trang
-    const totalPages = Math.ceil(filterCustomer.length / rowsPerPage);
-    if (currentPage > totalPages) {
-        currentPage = totalPages; // Điều chỉnh lại trang nếu trang hiện tại lớn hơn tổng số trang
-    }
-
-    displayCustomers(filterCustomer, currentPage, totalPages);  // Hiển thị khách hàng sau khi lọc
-    renderPagination();  // Cập nhật phân trang
-}
 window.logout = function () {
     sessionStorage.removeItem("loginData");
     window.location.href = "app.html";

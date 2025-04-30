@@ -1,15 +1,20 @@
 from database import db
 from flask import Flask, request, jsonify
-from datetime import datetime
-import pytz, base64, pickle
+import base64
 
 class Customers: 
     @staticmethod
     def get_customers():
         cursor = db.connection.cursor()
-        cursor.execute("SELECT * FROM customers")
+        cursor.execute("SELECT id, name, phone, points, face_encoding FROM customers")
         columns = [desc[0] for desc in cursor.description]
         Customers_List = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        
+        # Convert face_encoding from bytes to base64 string
+        for customer in Customers_List:
+            if customer.get('face_encoding'):
+                customer['face_encoding'] = base64.b64encode(customer['face_encoding']).decode('utf-8')
+        
         cursor.close()
         return Customers_List
     
@@ -22,11 +27,11 @@ class Customers:
         return True
     
     @staticmethod
-    def add_customer(name, phone, membership_level, points=0):
+    def add_customer(name, phone, points=0):
         cursor = db.connection.cursor()
         try:
-            query = "INSERT INTO customers (name, phone, membership_level, points) VALUES (%s, %s, %s, %s)"
-            cursor.execute(query, (name, phone, membership_level, points))
+            query = "INSERT INTO customers (name, phone, points) VALUES (%s, %s, %s)"
+            cursor.execute(query, (name, phone, points))
             db.connection.commit()
             return True
         except Exception as e:
@@ -56,46 +61,19 @@ class Customers:
         if result:
             columns = [desc[0] for desc in cursor.description]
             customer = dict(zip(columns, result))
+            
+            # Nếu có face_encoding, chuyển nó sang base64
+            if customer.get('face_encoding'):
+                customer['face_encoding'] = base64.b64encode(customer['face_encoding']).decode('utf-8')
         else:
             customer = None
         cursor.close()
         return customer
-    
-    @staticmethod
-    def upgrade_to_vip(id):
-        cursor = db.connection.cursor()
-        query = "UPDATE customers SET membership_level = 'VIP' WHERE id = %s"
-        cursor.execute(query, (id,))
-        db.connection.commit()
-        cursor.close()
-        return True
-    
+
+
     @staticmethod
     def update_points(customer_id, invoice_amount, used_points=0):
         cursor = db.connection.cursor()
-
-        # Lấy membership_level
-        cursor.execute("SELECT membership_level FROM customers WHERE id = %s", (customer_id,))
-        result = cursor.fetchone()
-
-        if not result:
-            cursor.close()
-            return {
-                "earned": 0,
-                "used": used_points,
-                "final": 0
-            }
-
-        membership_level = result[0]
-
-        # Nếu không phải VIP thì không cộng điểm
-        if membership_level != 'VIP':
-            cursor.close()
-            return {
-                "earned": 0,
-                "used": 0,
-                "final": 0
-            }
 
         # VIP + không dùng điểm => tích điểm
         if used_points == 0:
@@ -122,15 +100,6 @@ class Customers:
     @staticmethod
     def subtract_points(customer_id, used_points):
         cursor = db.connection.cursor()
-
-        # Kiểm tra membership_level
-        cursor.execute("SELECT membership_level FROM customers WHERE id = %s", (customer_id,))
-        result = cursor.fetchone()
-
-        if not result or result[0] != 'VIP':
-            cursor.close()
-            return  # Không phải VIP thì không trừ điểm
-
         # Nếu là VIP thì trừ điểm như thường
         cursor.execute("UPDATE customers SET points = points - %s WHERE id = %s", (used_points, customer_id))
         db.connection.commit()

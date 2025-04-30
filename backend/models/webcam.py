@@ -28,8 +28,7 @@ class Webcam:
         text = text.replace(" ", "")  # Loại bỏ khoảng trắng
         return text
 
-    def capture_face_encoding_from_webcam(self):
-        phone = input("Nhập số điện thoại khách hàng: ").strip()
+    def capture_face_encoding_from_webcam(self, phone):
         customer = Customers.get_customer_by_phone(phone)
 
         if not customer:
@@ -72,7 +71,7 @@ class Webcam:
                     print(f"Không thể lưu ảnh {os.path.abspath(img_path)}")
             else:
                 print("Không nhận diện được khuôn mặt, bỏ qua ảnh này.")
-
+                
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 print("Đã thoát quá trình chụp.")
                 break

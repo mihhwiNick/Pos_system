@@ -46,8 +46,8 @@ def add_invoice():
     }), 201
 
 #Thêm chi tiết hóa đơn
-@invoices_bp.route('/<int:id>/details', methods=['POST'])
-def add_invoice_detail(id):
+@invoices_bp.route('/<int:invoice_id>/details', methods=['POST'])
+def add_invoice_detail(invoice_id):
     data = request.get_json()
     product_id = data.get('product_id')
     quantity = data.get('quantity')
@@ -56,36 +56,42 @@ def add_invoice_detail(id):
         return jsonify({"message": "Thiếu thông tin chi tiết hóa đơn"}), 400
 
     try:
-        # Sử dụng hàm get_product_price để lấy giá sản phẩm
+        # Lấy giá sản phẩm
         price_per_unit = Invoice.get_product_price(product_id)
-
         if price_per_unit is None:
             return jsonify({"message": "Không tìm thấy sản phẩm"}), 404
 
-        # Thêm chi tiết vào invoice_details
-        Invoice.create_invoiceDetails(id, product_id, quantity, price_per_unit)
+        # Thêm chi tiết hóa đơn (model tự cập nhật lại tổng tiền)
+        Invoice.create_invoiceDetails(invoice_id, product_id, quantity, price_per_unit)
 
-        return jsonify({"message": "Chi tiết hóa đơn đã được thêm thành công!"}), 201
+        return jsonify({
+            "message": "Chi tiết hóa đơn đã được thêm thành công!",
+            "total_amount": Invoice.get_invoice_total(invoice_id)  # Thêm dòng này
+        }), 201
 
     except Exception as e:
         print("Lỗi khi thêm chi tiết:", e)
         return jsonify({"message": "Lỗi khi thêm chi tiết hóa đơn"}), 500
 
+    
 # Xóa hóa đơn
 @invoices_bp.route('/<int:id>', methods=['DELETE'])
 def delete_invoice(id):
+    Invoice.delete_invoiceDetails(id)
     Invoice.delete_invoice(id)
-    Invoice.delete_invoiceDetails(id)  # Xóa chi tiết hóa đơn khi xóa hóa đơn
     return jsonify({"message": "Hóa đơn đã được xóa thành công!"})
 
 # Xóa hóa đơn chi tiết
 @invoices_bp.route('/<int:id>/details', methods=['DELETE'])
 def delete_invoice_detail(id):
-    success = Invoice.delete_invoiceDetails(id)
-    if not success:
+    result = Invoice.delete_invoiceDetails(id)
+    if not result:
         return jsonify({"message": "Chi tiết hóa đơn không tồn tại"}), 404
-    return jsonify({"message": "Chi tiết hóa đơn đã được xóa thành công!"})
 
+    return jsonify({
+        "message": "Chi tiết hóa đơn đã được xóa thành công!",
+        "total_amount": result['new_total']
+    }), 200
 
 # Sửa số lượng sản phẩm trong chi tiết hóa đơn
 @invoices_bp.route('/<int:id>/details', methods=['PUT'])

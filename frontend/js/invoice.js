@@ -166,6 +166,7 @@ async function deleteItem() {
                 fetchInvoices();
             } else if (type === 'detail') {
                 document.querySelector(`tr[data-detail-id="${id}"]`).remove();
+                fetchInvoices();
             }
             closeDeleteModal();
         } else {
@@ -352,11 +353,17 @@ function saveChanges(event) {
 
 // Hàm để cập nhật tổng tiền sau khi thay đổi chi tiết hóa đơn
 function updateTotalAmount(invoiceId, newTotal) {
+    // Thêm kiểm tra số lần nữa để đảm bảo
+    if (isNaN(newTotal)) {
+        console.error("Giá trị tổng tiền không hợp lệ:", newTotal);
+        return;
+    }
+
     const totalAmountCell = document.getElementById(`total-amount-${invoiceId}`);
     if (totalAmountCell) {
         totalAmountCell.textContent = formatPrice(newTotal);
     } else {
-        console.log("Không tìm thấy phần tử tổng tiền cho hóa đơn với ID:", invoiceId);
+        console.error("Không tìm thấy phần tử tổng tiền cho invoiceId:", invoiceId);
     }
 }
 
@@ -625,53 +632,41 @@ document.addEventListener("click", function (event) {
 async function addInvoiceDetail() {
     const productId = document.getElementById('product_id').value;
     const invoiceId = document.getElementById('invoice_id').value;
-    const quantity = document.getElementById('quantity').value;
+    const quantity = parseInt(document.getElementById('quantity').value);
 
-    // Kiểm tra nếu không có sản phẩm hoặc số lượng, thì không thực hiện
-    if (!productId || !quantity) {
-        alert("Vui lòng chọn sản phẩm và nhập số lượng!");
+    // Kiểm tra dữ liệu đầu vào kỹ hơn
+    if (!productId || isNaN(quantity) || quantity <= 0) {
+        alert("Vui lòng chọn sản phẩm và nhập số lượng hợp lệ!");
         return;
     }
 
-    const url = `http://localhost:5001/invoices/${invoiceId}/details`; // Đường dẫn API
-
-    const data = {
-        product_id: productId,
-        quantity: parseInt(quantity),
-    };
-
-    console.log("Dữ liệu gửi lên:", data);
-
     try {
-        const response = await fetch(url, {
+        const response = await fetch(`http://localhost:5001/invoices/${invoiceId}/details`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: quantity  // Đã parse sang number ở trên
+            })
         });
-    
+
         const result = await response.json();
-        console.log("Phản hồi từ API:", result);
-    
+        
         if (!response.ok) {
-            alert(result.message || `Lỗi server (mã ${response.status})`);
-            return;
+            throw new Error(result.message || `Lỗi server (mã ${response.status})`);
         }
-    
-        if (result.message === "Chi tiết hóa đơn đã được thêm thành công!") {
-            alert("Thêm chi tiết hóa đơn thành công!");
-            closeAddDetailModal();
-            viewInvoiceDetails(invoiceId);
-            // Có thể gọi loadInvoiceDetails() ở đây nếu bạn muốn cập nhật danh sách chi tiết
-        } else {
-            alert(result.message || "Lỗi khi thêm chi tiết hóa đơn");
-        }
+
+
+        // Cập nhật giao diện với dữ liệu đã kiểm tra
+        updateTotalAmount(invoiceId, result.total_amount);
+        viewInvoiceDetails(invoiceId);
+        closeAddDetailModal();
+        alert("Thêm chi tiết thành công!");
+
     } catch (error) {
-        console.error("Lỗi khi gọi API:", error);
-        alert("Đã xảy ra lỗi khi thêm chi tiết hóa đơn.");
+        console.error("Lỗi:", error);
+        alert(error.message);
     }
-    
 }
 
 function submitAddDetailModal(event) {

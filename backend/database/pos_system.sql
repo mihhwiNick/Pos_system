@@ -31,7 +31,6 @@ CREATE TABLE `customers` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `phone` varchar(15) NOT NULL,
-  `membership_level` enum('Regular','VIP') DEFAULT 'Regular',
   `points` int(11) DEFAULT 0,
   `face_encoding` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -40,19 +39,19 @@ CREATE TABLE `customers` (
 -- Dumping data for table `customers`
 --
 
-INSERT INTO `customers` (`id`, `name`, `phone`, `membership_level`, `points`, `face_encoding`) VALUES
-(1, 'Nguyễn Văn A', '0987654321', 'Regular', 0, 'ENCODING_1'),
-(2, 'Trần Thị B', '0978123456', 'VIP', 3098, 'ENCODING_2'),
-(3, 'Lê Văn C', '0912345678', 'Regular', 0, 'ENCODING_3'),
-(4, 'Phạm Minh D', '0934567890', 'VIP', 2949, 'ENCODING_4'),
-(5, 'Hoàng Anh E', '0923456789', 'Regular', 0, 'ENCODING_5'),
-(6, 'Đặng Quốc F', '0967890123', 'VIP', 1328, 'ENCODING_6'),
-(7, 'Bùi Thanh G', '0956789012', 'VIP', 259, 'ENCODING_7'),
-(8, 'Võ Mỹ H', '0945678901', 'Regular', 0, 'ENCODING_8'),
-(9, 'Dương Khoa I', '0934567809', 'VIP', 880, 'ENCODING_9'),
-(10, 'Trịnh Hoài J', '0923456708', 'VIP', 110, 'ENCODING_10'),
-(11, 'Bùi Minh Huy', '0334875874', 'VIP', 737, NULL),
-(12, 'Bùi Minh Huy5', '243456', 'VIP', 98, NULL);
+INSERT INTO `customers` (`id`, `name`, `phone`, `points`, `face_encoding`) VALUES
+(1, 'Nguyễn Văn A', '0987654321',  0, 'ENCODING_1'),
+(2, 'Trần Thị B', '0978123456', 3098, 'ENCODING_2'),
+(3, 'Lê Văn C', '0912345678',  0, 'ENCODING_3'),
+(4, 'Phạm Minh D', '0934567890', 2949, 'ENCODING_4'),
+(5, 'Hoàng Anh E', '0923456789', 0, 'ENCODING_5'),
+(6, 'Đặng Quốc F', '0967890123', 1328, 'ENCODING_6'),
+(7, 'Bùi Thanh G', '0956789012',  259, 'ENCODING_7'),
+(8, 'Võ Mỹ H', '0945678901',  0, 'ENCODING_8'),
+(9, 'Dương Khoa I', '0934567809', 880, 'ENCODING_9'),
+(10, 'Trịnh Hoài J', '0923456708', 110, 'ENCODING_10'),
+(11, 'Bùi Minh Huy', '0334875874',  737, NULL),
+(12, 'Bùi Minh Huy5', '243456', 98, NULL);
 
 -- --------------------------------------------------------
 

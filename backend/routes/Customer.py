@@ -1,11 +1,5 @@
 from flask import Blueprint, jsonify, request
 from models.customerModel import Customers
-from models.face_recognitionModels import FaceRecognition
-from models.webcam import Webcam
-import pickle, base64, torch, cv2, time, math
-import numpy as np
-from facenet_pytorch import MTCNN
-
 
 customers_bp = Blueprint('customers', __name__)
 
@@ -24,14 +18,18 @@ def add_customer():
     data = request.json
     name = data.get('name')
     phone = data.get('phone')
-    membership_level = data.get('membership_level')
-    points = 0 # Mặc định điểm là 0
+    points = 0  # Mặc định điểm là 0
 
-    if Customers.add_customer(name, phone, membership_level, points):
+    # Kiểm tra số điện thoại đã tồn tại chưa bằng cách gọi hàm get_customer_by_phone
+    customer = Customers.get_customer_by_phone(phone)
+    if customer:
+        return jsonify({"message": "Số điện thoại đã tồn tại"}), 400
+
+    success = Customers.add_customer(name, phone, points)
+    if success:
         return jsonify({"message": "Customer added successfully"}), 201
     else:
-        return jsonify({"message": "Failed to add customer"}), 400
-
+        return jsonify({"message": "Invalid input"}), 400
 
 @customers_bp.route('/<int:id>',methods=['PUT'])
 def update_customer(id):
@@ -45,14 +43,6 @@ def get_customer_by_phone(phone):
     if not customer:
         return jsonify({"message": "Customer not found"}), 404
     return jsonify(customer)
-
-# Cập nhật loại khách hàng thành VIP
-@customers_bp.route('/upgrade/<int:id>', methods=['PATCH'])
-def upgrade_to_vip(id):
-    success = Customers.upgrade_to_vip(id)
-    if success:
-        return jsonify({"message": "Khách hàng đã được nâng cấp lên VIP"})
-    return jsonify({"error": "Cập nhật thất bại"}), 400
 
 # Cập nhật điểm cho khách hàng
 @customers_bp.route('/<int:id>/points', methods=['PATCH'])

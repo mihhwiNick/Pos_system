@@ -483,6 +483,8 @@ async function checkMember() {
 
         if (data.error) {
             alert(data.error);  // Hiển thị lỗi nếu không nhận diện được khách hàng
+            document.getElementById("register-member").style.display = "block";  // Hiển thị nút đăng ký thành viên
+            document.getElementById("check-member").style.display = "none";
         } else {
             // Hiển thị thông tin khách hàng nếu nhận diện thành công
             document.getElementById("customer-name").innerText = data.name;
@@ -491,6 +493,7 @@ async function checkMember() {
 
             // Hiển thị phần thông tin khách hàng
             document.querySelector(".customer-info").style.display = "block";
+
         }
     } catch (error) {
         console.error('Error:', error);
@@ -498,9 +501,13 @@ async function checkMember() {
     }
 }
 
-function showAddCustomerModal(phone = "") {
-    document.getElementById("add-customer-modal").style.display = "flex";
-    document.getElementById("new-customer-phone").value = phone;
+function registerMember() {
+    document.getElementById("add-customer-modal").style.display = "block";
+}
+
+// Hàm đóng modal khi nhấn nút "Hủy"
+function closeAddCustomerModal() {
+    document.getElementById("add-customer-modal").style.display = "none";
 }
 
 function renderCustomerInfo(customer) {
@@ -510,87 +517,79 @@ function renderCustomerInfo(customer) {
     document.getElementById("customer-points").textContent = customer.points || 0;
 }
 
-function handleMembership(customer) {
-    const oldBtn = document.getElementById("register-member");
-
-    if (customer.membership_level === "Regular") {
-        // Clone node để xoá hết sự kiện cũ rồi thay thế
-        const newBtn = oldBtn.cloneNode(true);
-        newBtn.style.display = "inline-block";
-        newBtn.dataset.customerId = customer.id;
-
-        newBtn.addEventListener("click", async () => {
-            try {
-                const res = await fetch(`http://127.0.0.1:5001/customers/upgrade/${customer.id}`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" }
-                });
-
-                if (res.ok) {
-                    alert("Cập nhật thành viên VIP thành công!");
-                    newBtn.style.display = "none";
-                } else {
-                    const error = await res.json();
-                    alert(error.error || "Cập nhật thất bại.");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Cập nhật thất bại.");
-            }
-        });
-
-        oldBtn.replaceWith(newBtn); // Thay nút cũ bằng nút mới
-
-    } else {
-        oldBtn.style.display = "none";
-        oldBtn.removeAttribute("data-customerId");
-    }
-}
-
-
 async function handleSaveCustomer() {
     const name = document.getElementById("new-customer-name").value.trim();
     const phone = document.getElementById("new-customer-phone").value.trim();
-    const type = document.getElementById("new-customer-type").value;
 
     if (!name || !phone) {
         alert("Vui lòng điền đầy đủ thông tin.");
         return;
     }
 
+    // Thêm khách hàng vào database
+    console.log("Đang thêm khách hàng:", { name, phone });
+    let data;
     try {
         const res = await fetch("http://127.0.0.1:5001/customers/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, phone, membership_level: type }),
+            body: JSON.stringify({ name, phone }),
         });
-
-        const data = await res.json();
-
-        if (res.ok) {
-            alert("Thêm khách hàng thành công!");
-            closeAddCustomerModal();
-
-            // Gọi lại API để lấy thông tin đầy đủ của khách hàng mới
-            const infoRes = await fetch(`http://127.0.0.1:5001/customers/phone/${phone}`);
-            if (infoRes.ok) {
-                const newCustomer = await infoRes.json();
-                currentCustomerId = newCustomer.id;
-                renderCustomerInfo(newCustomer);
-                handleMembership(newCustomer);
-            }
-        }
-        else {
-            alert(`Không thể thêm khách hàng: ${data.error || "Lỗi không xác định"}`);
+        data = await res.json();
+        console.log("Kết quả thêm khách hàng:", data);
+        if (!res.ok) {
+            alert("Không thể thêm khách hàng: " + (data.message || "Lỗi không xác định"));
+            return;
+        } else {
+            alert("Khách hàng đã được thêm thành công");
         }
     } catch (err) {
-        console.error("Fetch error:", err);
-        alert("Đã xảy ra lỗi.");
+        console.error("Lỗi khi thêm khách hàng:", err.message || err);
+        alert("Đã xảy ra lỗi khi thêm khách hàng.");
+        return;
+    }
+
+    closeAddCustomerModal();
+
+    // Lấy thông tin khách hàng mới
+    const infoRes = await fetch(`http://127.0.0.1:5001/customers/phone/${phone}`);
+    if (infoRes.ok) {
+        const newCustomer = await infoRes.json();
+        currentCustomerId = newCustomer.id;
+        saveCustomerIdToStorage(currentCustomerId);
+        renderCustomerInfo(newCustomer);
+
+        // Chụp khuôn mặt sau khi khách hàng được lưu thành công
+        console.log("Đang chụp khuôn mặt cho số điện thoại:", phone);
+
+        const captureRes = await fetch(`http://127.0.0.1:5001/recognize/capture_face_encoding/${phone}`, {
+            method: 'GET',
+            headers: { "Content-Type": "application/json" }
+        });
+        const captureData = await captureRes.json();
+        console.log("Dữ liệu trả về từ backend:", captureData);
+        
+        if (!captureRes.ok) {
+            alert("Chụp khuôn mặt thất bại: " + (captureData.error || "Không phát hiện được khuôn mặt."));
+        }
+        
+        // Nếu thành công, thông báo
+        alert("Chụp khuôn mặt thành công!");
     }
 }
 
+// Lưu customerId vào sessionStorage khi cập nhật
+function saveCustomerIdToStorage(id) {
+    sessionStorage.setItem("customerId", id);
+}
+
+// Lấy customerId từ sessionStorage
+function getCustomerIdFromStorage() {
+    return sessionStorage.getItem("customerId");
+}
+
 function getCustomerId() {
-    return currentCustomerId;
+    return getCustomerIdFromStorage();
 }
 
 // Lấy thông tin sản phẩm trong đơn hàng
@@ -707,74 +706,3 @@ function showInvoiceModal(invoiceId) {
         window.location.href = "app.html";
     };
 }
-
-// Phần xác thực khuôn mặt
-async function checkFaceMember() {
-    // 1. Chụp ảnh từ webcam (dùng getUserMedia + canvas)
-    // 2. Gửi ảnh lên API nhận diện
-    let formData = new FormData();
-    formData.append('image', blobImage); // blobImage là ảnh vừa chụp
-
-    let res = await fetch('http://localhost:5002/face_recognize', { // port của Flask face_rec
-        method: 'POST',
-        body: formData
-    });
-    if (res.ok) {
-        let data = await res.json();
-        // Hiển thị thông tin khách hàng lên giao diện
-        renderCustomerInfo(data);
-    } else {
-        alert("Không nhận diện được khách hàng. Vui lòng đăng ký mới!");
-    }
-}
-
-
-function openFaceModal() {
-    document.getElementById('face-modal').style.display = 'block';
-    const video = document.getElementById('face-video');
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => { video.srcObject = stream; })
-        .catch(err => { alert("Không thể mở webcam!"); });
-}
-
-function closeFaceModal() {
-    document.getElementById('face-modal').style.display = 'none';
-    const video = document.getElementById('face-video');
-    if (video.srcObject) {
-        video.srcObject.getTracks().forEach(track => track.stop());
-        video.srcObject = null;
-    }
-}
-
-async function captureAndCheckFace() {
-    const video = document.getElementById('face-video');
-    const canvas = document.getElementById('face-canvas');
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob(async function(blob) {
-        let formData = new FormData();
-        formData.append('image', blob, 'face.jpg');
-        try {
-            let res = await fetch('http://localhost:8000/face_recognize', {
-                method: 'POST',
-                body: formData
-            });
-            if (res.ok) {
-                let data = await res.json();
-                // Hiển thị thông tin khách hàng lên giao diện
-                document.getElementById('customer-name').innerText = data.name;
-                document.getElementById('customer-phone').innerText = data.phone;
-                document.getElementById('customer-points').innerText = data.points || 0;
-                closeFaceModal();
-            } else {
-                alert("Không nhận diện được khách hàng. Vui lòng đăng ký mới!");
-            }
-        } catch (e) {
-            alert("Lỗi kết nối đến server nhận diện!");
-        }
-    }, 'image/jpeg');
-}
-
-window.openFaceModal = openFaceModal;
-window.closeFaceModal = closeFaceModal;
-window.captureAndCheckFace = captureAndCheckFace;

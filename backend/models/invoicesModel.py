@@ -97,12 +97,60 @@ class Invoice:
 
         
     @staticmethod
-    def create_invoiceDetails(id, product_id, quantity, price):
+    def create_invoiceDetails(invoice_id, product_id, quantity, price):
         cursor = db.connection.cursor()
-        cursor.execute("INSERT INTO invoice_details (invoice_id, product_id, quantity, price) VALUES (%s, %s, %s, %s)",
-                (id, product_id, quantity, price))
-        db.connection.commit()
-        cursor.close()
+        try:
+            # Kiểm tra và gộp các bản ghi trùng
+            cursor.execute("""
+                SELECT id, quantity FROM invoice_details
+                WHERE invoice_id = %s AND product_id = %s
+            """, (invoice_id, product_id))
+            
+            existing_records = cursor.fetchall()
+            
+            if existing_records:
+                # Tính tổng số lượng mới
+                total_quantity = sum([rec[1] for rec in existing_records]) + quantity
+                
+                # Xóa các bản ghi cũ
+                cursor.execute("""
+                    DELETE FROM invoice_details
+                    WHERE invoice_id = %s AND product_id = %s
+                """, (invoice_id, product_id))
+                
+                # Thêm bản ghi mới đã gộp
+                cursor.execute("""
+                    INSERT INTO invoice_details
+                    (invoice_id, product_id, quantity, price)
+                    VALUES (%s, %s, %s, %s)
+                """, (invoice_id, product_id, total_quantity, price))
+            else:
+                # Thêm mới nếu chưa có
+                cursor.execute("""
+                    INSERT INTO invoice_details
+                    (invoice_id, product_id, quantity, price)
+                    VALUES (%s, %s, %s, %s)
+                """, (invoice_id, product_id, quantity, price))
+            
+            # Bổ sung: Cập nhật tổng tiền
+            cursor.execute("""
+                UPDATE invoices
+                SET total_amount = (
+                    SELECT COALESCE(SUM(quantity * price), 0)
+                    FROM invoice_details
+                    WHERE invoice_id = %s
+                )
+                WHERE id = %s
+            """, (invoice_id, invoice_id))
+            db.connection.commit()
+            
+        except Exception as e:
+            db.connection.rollback()
+            print(f"Lỗi khi xử lý chi tiết hóa đơn: {str(e)}")
+            raise
+        finally:
+            cursor.close()
+
         
     @staticmethod
     def get_product_price(product_id):
@@ -131,12 +179,49 @@ class Invoice:
         cursor.close()
         
     @staticmethod
-    def delete_invoiceDetails(id):
+    def delete_invoiceDetails(detail_id):
         cursor = db.connection.cursor()
-        cursor.execute("DELETE FROM invoice_details WHERE id = %s", (id,))
-        db.connection.commit()
-        cursor.close()
-        return True
+        try:
+            # Lấy invoice_id từ chi tiết hóa đơn trước khi xóa
+            cursor.execute("SELECT invoice_id FROM invoice_details WHERE id = %s", (detail_id,))
+            result = cursor.fetchone()
+            if not result:
+                cursor.close()
+                return False
+
+            invoice_id = result[0]
+
+            # Xóa chi tiết hóa đơn
+            cursor.execute("DELETE FROM invoice_details WHERE id = %s", (detail_id,))
+
+            # Cập nhật lại tổng tiền
+            cursor.execute("""
+                UPDATE invoices
+                SET total_amount = (
+                    SELECT COALESCE(SUM(quantity * price), 0)
+                    FROM invoice_details
+                    WHERE invoice_id = %s
+                )
+                WHERE id = %s
+            """, (invoice_id, invoice_id))
+
+            # Lấy lại total_amount mới để trả về
+            cursor.execute("SELECT total_amount FROM invoices WHERE id = %s", (invoice_id,))
+            new_total = cursor.fetchone()[0]
+
+            db.connection.commit()
+            cursor.close()
+
+            return {
+                'invoice_id': invoice_id,
+                'new_total': new_total
+            }
+
+        except Exception as e:
+            db.connection.rollback()
+            cursor.close()
+            print("Lỗi khi xóa chi tiết hóa đơn:", e)
+            return False
     
     @staticmethod
     def update_invoice_detail(id, quantity):
@@ -207,7 +292,14 @@ class Invoice:
         finally:
             cursor.close()
             
-            
+    @staticmethod
+    def get_invoice_total(invoice_id):
+        cursor = db.connection.cursor()
+        cursor.execute("SELECT total_amount FROM invoices WHERE id = %s", (invoice_id,))
+        result = cursor.fetchone()
+        cursor.close()
+        return result[0] if result else 0
+        
     @staticmethod
     def get_revenue_today():
         today = datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')).date()  # Ngày hôm nay
