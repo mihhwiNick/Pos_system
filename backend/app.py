@@ -9,7 +9,6 @@ from routes.accounts import accounts_bp
 from routes.invoice_PDF import invoices_PDF_bp
 from routes.statistics import stat_bp
 from routes.face_recognitionRoute import recognize_bp
-import bcrypt
 
 app = Flask(__name__)
 CORS(app)

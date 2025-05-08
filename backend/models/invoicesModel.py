@@ -21,11 +21,12 @@ class Invoice:
                 invoices.created_at, 
                 invoices.total_amount, 
                 customers.name AS customer_name,
+                customers.phone AS customer_phone,
                 COALESCE(SUM(invoice_details.quantity), 0) AS product_count
             FROM invoices
             JOIN customers ON invoices.customer_id = customers.id
             LEFT JOIN invoice_details ON invoices.id = invoice_details.invoice_id
-            GROUP BY invoices.id, customers.name, invoices.created_at, invoices.total_amount
+            GROUP BY invoices.id, customers.name, customers.phone, invoices.created_at, invoices.total_amount
         """
         cursor.execute(query)
         columns = [desc[0] for desc in cursor.description]
@@ -46,7 +47,8 @@ class Invoice:
                 invoices.id AS invoice_id,
                 invoices.created_at,
                 invoices.total_amount,
-                customers.name AS customer_name
+                customers.name AS customer_name,
+                customers.phone AS customer_phone
             FROM invoices
             JOIN customers ON invoices.customer_id = customers.id
             WHERE invoices.id = %s
@@ -84,11 +86,11 @@ class Invoice:
         return details
 
     @staticmethod
-    def create_invoice(customer_id, total_amount):
+    def create_invoice(customer_id, total_amount, used_points=0):
         cursor = db.connection.cursor()
         cursor.execute(
-            "INSERT INTO invoices (customer_id, total_amount, created_at) VALUES (%s, %s, NOW())",
-            (customer_id, total_amount)
+            "INSERT INTO invoices (customer_id, total_amount, used_points, created_at) VALUES (%s, %s, %s, NOW())",
+            (customer_id, total_amount, used_points)
         )
         invoice_id = cursor.lastrowid
         db.connection.commit()
@@ -97,7 +99,7 @@ class Invoice:
 
         
     @staticmethod
-    def create_invoiceDetails(invoice_id, product_id, quantity, price):
+    def create_invoiceDetails(invoice_id, product_id, quantity, price, is_update=False):
         cursor = db.connection.cursor()
         try:
             # Kiểm tra và gộp các bản ghi trùng
@@ -105,51 +107,46 @@ class Invoice:
                 SELECT id, quantity FROM invoice_details
                 WHERE invoice_id = %s AND product_id = %s
             """, (invoice_id, product_id))
-            
+
             existing_records = cursor.fetchall()
-            
             if existing_records:
-                # Tính tổng số lượng mới
                 total_quantity = sum([rec[1] for rec in existing_records]) + quantity
-                
-                # Xóa các bản ghi cũ
                 cursor.execute("""
                     DELETE FROM invoice_details
                     WHERE invoice_id = %s AND product_id = %s
                 """, (invoice_id, product_id))
-                
-                # Thêm bản ghi mới đã gộp
                 cursor.execute("""
                     INSERT INTO invoice_details
                     (invoice_id, product_id, quantity, price)
                     VALUES (%s, %s, %s, %s)
                 """, (invoice_id, product_id, total_quantity, price))
             else:
-                # Thêm mới nếu chưa có
                 cursor.execute("""
                     INSERT INTO invoice_details
                     (invoice_id, product_id, quantity, price)
                     VALUES (%s, %s, %s, %s)
                 """, (invoice_id, product_id, quantity, price))
-            
-            # Bổ sung: Cập nhật tổng tiền
-            cursor.execute("""
-                UPDATE invoices
-                SET total_amount = (
-                    SELECT COALESCE(SUM(quantity * price), 0)
-                    FROM invoice_details
-                    WHERE invoice_id = %s
-                )
-                WHERE id = %s
-            """, (invoice_id, invoice_id))
+
+            # Chỉ cập nhật total_amount nếu đang update
+            if is_update:
+                cursor.execute("""
+                    UPDATE invoices
+                    SET total_amount = (
+                        SELECT COALESCE(SUM(quantity * price), 0)
+                        FROM invoice_details
+                        WHERE invoice_id = %s
+                    )
+                    WHERE id = %s
+                """, (invoice_id, invoice_id))
+
             db.connection.commit()
-            
         except Exception as e:
             db.connection.rollback()
             print(f"Lỗi khi xử lý chi tiết hóa đơn: {str(e)}")
             raise
         finally:
             cursor.close()
+
 
         
     @staticmethod

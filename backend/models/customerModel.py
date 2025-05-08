@@ -39,7 +39,6 @@ class Customers:
             db.connection.rollback()
             return False
 
-
     @staticmethod
     def update_customer(id):
         data = request.get_json()
@@ -69,7 +68,6 @@ class Customers:
             customer = None
         cursor.close()
         return customer
-
 
     @staticmethod
     def update_points(customer_id, invoice_amount, used_points=0):

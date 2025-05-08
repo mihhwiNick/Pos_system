@@ -34,11 +34,13 @@ def add_invoice():
     data = request.get_json()
     customer_id = data.get('customer_id')
     total_amount = data.get('total_amount')
+    used_points = data.get('used_points', 0)
+    print(f"Received total_amount: {total_amount}")
     
     if not customer_id or not total_amount:
         return jsonify({"message": "Thiếu thông tin cần thiết"}), 400
 
-    invoice_id = Invoice.create_invoice(customer_id, total_amount)
+    invoice_id = Invoice.create_invoice(customer_id, total_amount, used_points)
     
     return jsonify({
         "message": "Hóa đơn đã được thêm thành công!",
@@ -110,9 +112,33 @@ def update_invoice_detail(id):
 
         return jsonify({
             'message': 'Cập nhật thành công',
-            'new_total_amount': result['new_total']  
+            'new_total_amount': result['new_total']
         })
 
     except Exception as e:
         return jsonify({'message': 'Lỗi server', 'error': str(e)}), 500
 
+@invoices_bp.route('/<int:invoice_id>/details/update', methods=['POST'])
+def add_detail_to_existing_invoice(invoice_id):
+    data = request.get_json()
+    product_id = data.get('product_id')
+    quantity = data.get('quantity')
+
+    if not product_id or not quantity:
+        return jsonify({"message": "Thiếu thông tin"}), 400
+
+    try:
+        price = Invoice.get_product_price(product_id)
+        if price is None:
+            return jsonify({"message": "Không tìm thấy sản phẩm"}), 404
+
+        # Gọi hàm với is_update=True
+        Invoice.create_invoiceDetails(invoice_id, product_id, quantity, price, is_update=True)
+
+        return jsonify({
+            "message": "Đã cập nhật hóa đơn",
+            "new_total": Invoice.get_invoice_total(invoice_id)
+        })
+    except Exception as e:
+        print("Lỗi khi cập nhật hóa đơn:", e)
+        return jsonify({"message": "Lỗi server"}), 500

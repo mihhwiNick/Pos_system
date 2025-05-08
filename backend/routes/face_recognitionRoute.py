@@ -1,70 +1,51 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint
+from flask import Flask, request, jsonify
+from models.faceRecognize import recognize_face
+from models.webcam import capture_image
+from database import db
 from models.customerModel import Customers
-from models.face_recognitionModels import FaceRecognition
-from models.webcam import Webcam
-import torch, cv2, time
 
 recognize_bp = Blueprint('recognize', __name__)
 
-@recognize_bp.route('/capture_face_encoding/<phone>', methods=['GET'])
-def capture_face_encoding(phone):
-    webcam = Webcam()
-    face_encoding = webcam.capture_face_encoding_from_webcam(phone)
+# Route để chụp ảnh
+@recognize_bp.route('/capture_image', methods=['POST'])
+def capture_image_route():
+    # Lấy số điện thoại từ request
+    phone_number = request.json.get('phone_number')
+    
+    if not phone_number:
+        return jsonify({"error": "Phone number is required"}), 400
 
-    if face_encoding is not None:
-        return jsonify({"message": "Face encoding saved successfully!"}), 200
-    else: # Thêm thông báo nếu không tìm thấy khách hàng
-        return jsonify({"error": f"Customer with phone {phone} does not exist"}), 400
+    # Gọi hàm capture_image với số điện thoại
+    capture_image(phone_number)
+    
+    return jsonify({"message": "Image capture started"}), 200
 
-@recognize_bp.route('/identify_all_customers_with_camera', methods=['GET'])
-def identify_all_customers_with_camera():
-    """Mở camera và nhận diện tất cả khách hàng qua face encoding."""
-    # Lấy tất cả khách hàng từ cơ sở dữ liệu
-    customers = Customers.get_customers()
-    if not customers:
-        return jsonify({'error': 'No customers found'}), 404
+# Route để nhận diện khuôn mặt
+@recognize_bp.route('/recognize_face', methods=['GET'])
+def recognize_face_route():
+    try:
+        # Gọi hàm nhận diện và trả về số điện thoại nếu có khách khớp
+        phone_number = recognize_face(db)
+        if not phone_number:
+            return jsonify({"error": "Không nhận diện được khách hàng nào"}), 404
 
-    # Tạo đối tượng nhận diện khuôn mặt
-    face_recognition = FaceRecognition(device='cuda' if torch.cuda.is_available() else 'cpu')
+        # Truy vấn thông tin khách hàng từ DB theo số điện thoại
+        cursor = db.connection.cursor()
+        cursor.execute("SELECT id, name, phone, points FROM customers WHERE phone = %s", (phone_number,))
+        row = cursor.fetchone()
 
-    # Mở camera
-    cap = cv2.VideoCapture(0)
-    start_time = time.time()
-    recognized_customer = None
-    new_encoding = None
+        if row:
+            customer_id, name, phone, points = row
+            return jsonify({
+                "id": customer_id,
+                "name": name,
+                "phone": phone,
+                "points": points
+            }), 200
+        else:
+            return jsonify({"error": "Không tìm thấy thông tin khách hàng"}), 404
 
-    # Để camera chạy liên tục trong 5 giây
-    while time.time() - start_time < 5:
-        ret, frame = cap.read()
-        if not ret:
-            print("[ERROR] Không lấy được khung hình từ camera.")
-            return jsonify({'error': 'Failed to grab frame from camera'}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-        # Capture face encoding từ frame
-        new_encoding = face_recognition.capture_face_encoding(frame)
-        if new_encoding is not None:
-            print(f"[INFO] Face encoding từ camera: {new_encoding[:5]}...")
-
-            # Kiểm tra so sánh với từng face encoding của khách hàng
-            for customer in customers:
-                face_encoding_from_db = face_recognition.load_face_encoding_from_db(customer['phone'])
-                if face_encoding_from_db is not None and face_recognition.compare_face_encoding(face_encoding_from_db, new_encoding):
-                    recognized_customer = customer
-                    break
-
-        # Hiển thị video trong khi kiểm tra
-        cv2.imshow("Camera - Nhấn 'q' để thoát", frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    cap.release()
-    cv2.destroyAllWindows()
-
-    if recognized_customer:
-        return jsonify({
-            'name': recognized_customer['name'],
-            'phone': recognized_customer['phone'],
-            'points': recognized_customer['points']
-        })
-    else:
-        return jsonify({'error': 'Khách hàng chưa là thành viên. Vui lòng đăng kí'}), 400

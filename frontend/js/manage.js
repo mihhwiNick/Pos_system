@@ -14,11 +14,15 @@ async function loadInvoices() {
         const res = await fetch("http://localhost:5001/invoices/");
         const invoices = await res.json();
 
-        // Sắp xếp theo thời gian tạo mới nhất
-        invoices.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        if (!Array.isArray(invoices)) {
+            console.error("Dữ liệu hóa đơn không hợp lệ:", invoices);
+            return;
+        }
 
-        // Lấy 8 hóa đơn mới nhất
-        const latestInvoices = invoices.slice(0, 7);
+        // Sắp xếp theo ID giảm dần (tức hóa đơn mới nhất lên trước)
+        invoices.sort((a, b) => b.id - a.id);
+
+        const latestInvoices = invoices.slice(0, 8);
 
         const tbody = document.getElementById("invoice-table-body");
         tbody.innerHTML = "";
@@ -39,7 +43,6 @@ async function loadInvoices() {
         console.error("Lỗi khi load hóa đơn:", error);
     }
 }
-
 
 document.addEventListener("DOMContentLoaded", loadInvoices);
 

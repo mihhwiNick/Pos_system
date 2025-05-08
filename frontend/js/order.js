@@ -419,14 +419,6 @@ function updateCartTotal() {
     document.getElementById("total").textContent = formatPrice(total);
 }
 
-function removeDiscount() {
-    const rawSubtotal = document.getElementById("subtotal").textContent.replace(/[^\d]/g, '');
-    const subtotal = parseInt(rawSubtotal) || 0;
-
-    document.getElementById("discount").textContent = "0";
-    document.getElementById("total").textContent = formatPrice(subtotal);
-}
-
 // Kiểm tra ô nhập điểm trống hay đang có điểm
 document.getElementById("use-points").addEventListener("input", function () {
     const value = this.value.trim();
@@ -460,7 +452,6 @@ function applyPoints() {
     document.getElementById("total").textContent = formatPrice(subtotal - finalDiscount);
 }
 
-
 function removeDiscount() {
     const rawSubtotal = document.getElementById("subtotal").textContent.replace(/[^\d]/g, '');
     const subtotal = parseInt(rawSubtotal) || 0;
@@ -476,10 +467,11 @@ function closeAddCustomerModal() {
 async function checkMember() {
     try {
         // Gọi API kiểm tra thành viên
-        const response = await fetch('http://localhost:5001/recognize/identify_all_customers_with_camera', {
+        const response = await fetch('http://localhost:5001/recognize/recognize_face', {
             method: 'GET',
         });
         const data = await response.json();  // Lấy dữ liệu trả về từ API
+        console.log("API Response:", data);
 
         if (data.error) {
             alert(data.error);  // Hiển thị lỗi nếu không nhận diện được khách hàng
@@ -490,6 +482,9 @@ async function checkMember() {
             document.getElementById("customer-name").innerText = data.name;
             document.getElementById("customer-phone").innerText = data.phone;
             document.getElementById("customer-points").innerText = data.points;
+
+            console.log("Customer ID:", data.id);
+            saveCustomerIdToStorage(data.id);
 
             // Hiển thị phần thông tin khách hàng
             document.querySelector(".customer-info").style.display = "block";
@@ -562,28 +557,28 @@ async function handleSaveCustomer() {
         // Chụp khuôn mặt sau khi khách hàng được lưu thành công
         console.log("Đang chụp khuôn mặt cho số điện thoại:", phone);
 
-        const captureRes = await fetch(`http://127.0.0.1:5001/recognize/capture_face_encoding/${phone}`, {
-            method: 'GET',
-            headers: { "Content-Type": "application/json" }
+        const captureRes = await fetch("http://127.0.0.1:5001/recognize/capture_image", {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone_number: phone })
         });
         const captureData = await captureRes.json();
         console.log("Dữ liệu trả về từ backend:", captureData);
         
         if (!captureRes.ok) {
             alert("Chụp khuôn mặt thất bại: " + (captureData.error || "Không phát hiện được khuôn mặt."));
+        } else {
+            alert("Chụp khuôn mặt thành công!");
         }
-        
-        // Nếu thành công, thông báo
-        alert("Chụp khuôn mặt thành công!");
     }
 }
 
 // Lưu customerId vào sessionStorage khi cập nhật
 function saveCustomerIdToStorage(id) {
+    console.log("Saving customerId:", id);
     sessionStorage.setItem("customerId", id);
 }
 
-// Lấy customerId từ sessionStorage
 function getCustomerIdFromStorage() {
     return sessionStorage.getItem("customerId");
 }
@@ -614,14 +609,21 @@ function getCartItemsFromDOM() {
 
 async function confirmOrder() {
     const customerId = getCustomerId();
-    const totalAmount = parseInt(document.getElementById("total").textContent.replace(/\D/g, ""));
     const cartItems = getCartItemsFromDOM();
+    const subtotal = parseInt(document.getElementById("subtotal").textContent.replace(/\D/g, "")) || 0;
     const usedPoints = parseInt(document.getElementById("use-points").value) || 0;
 
     console.log("customerId:", customerId);
     console.log("cartItems:", cartItems);
-    console.log("totalAmount:", totalAmount);
+    console.log("subtotal:", subtotal);
     console.log("usedPoints:", usedPoints);
+
+    // Tính toán tổng tiền sau khi áp dụng điểm
+    const discount = usedPoints * 1000;
+    const finalDiscount = Math.min(discount, subtotal);  // Đảm bảo không trừ quá mức
+    const calculatedTotal = subtotal - finalDiscount;
+
+    console.log("calculatedTotal (frontend):", calculatedTotal);
 
     if (!customerId || cartItems.length === 0) {
         alert("Thiếu thông tin khách hàng!");
@@ -635,7 +637,8 @@ async function confirmOrder() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 customer_id: customerId,
-                total_amount: totalAmount
+                total_amount: calculatedTotal,  // Gửi calculatedTotal (đã trừ điểm)
+                used_points: usedPoints
             }),
         });
 
@@ -646,7 +649,7 @@ async function confirmOrder() {
         const invoiceData = await invoiceRes.json();
         const invoiceId = invoiceData.invoice_id;
 
-        // 2. Gửi từng chi tiết sản phẩm
+        // 2. Gửi chi tiết hóa đơn
         for (const item of cartItems) {
             const detailRes = await fetch(`http://localhost:5001/invoices/${invoiceId}/details`, {
                 method: "POST",
@@ -662,12 +665,12 @@ async function confirmOrder() {
             }
         }
 
-        // 3. Gửi yêu cầu cập nhật điểm
+        // 3. Cập nhật điểm
         const pointRes = await fetch(`http://localhost:5001/customers/${customerId}/points`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                invoice_amount: totalAmount,
+                invoice_amount: calculatedTotal,  // Gửi tổng tiền đã tính
                 used_points: usedPoints
             }),
         });

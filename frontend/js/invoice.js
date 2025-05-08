@@ -66,6 +66,7 @@ function displayInvoices(invoicesToDisplay = invoices, page = currentPage) {
         row.innerHTML = `
             <td class="invoice-id">${invoice.id}</td>
             <td class="customer-name">${invoice.customer_name}</td>
+            <td class="customer-phone">${invoice.customer_phone}</td>
             <td class="created-at">${formatDateTime(invoice.created_at)}</td>
             <td class="total-amount" id="total-amount-${invoice.id}">${formatPrice(invoice.total_amount)}</td>
             <td class="actions">
@@ -113,14 +114,16 @@ function renderPagination(invoicesToDisplay = invoices) {
 
 
 window.changePage = function (direction) {
-    let totalPages = Math.ceil(invoices.length / rowsPerPage);
-    currentPage += direction;
+    let sourceInvoices = filteredInvoices.length > 0 ? filteredInvoices : invoices;
+    let totalPages = Math.ceil(sourceInvoices.length / rowsPerPage);
 
+    currentPage += direction;
     if (currentPage < 1) currentPage = 1;
     if (currentPage > totalPages) currentPage = totalPages;
 
-    displayInvoices(invoices, currentPage);
+    displayInvoices(sourceInvoices, currentPage);
 };
+
 
 
 // Hàm hiển thị modal xóa
@@ -272,7 +275,8 @@ function searchInvoice() {
     // Tìm kiếm trên toàn bộ hóa đơn theo tên khách hàng
     let searchFilteredInvoices = invoices.filter(invoice =>
         invoice.customer_name.toLowerCase().includes(searchValue) ||
-        invoice.customer_name.toLowerCase().replace(/\s+/g, '').includes(searchValue)
+        invoice.customer_name.toLowerCase().replace(/\s+/g, '').includes(searchValue) ||
+        (invoice.customer_phone && invoice.customer_phone.toLowerCase().includes(searchValue))
     );
 
     if (searchFilteredInvoices.length === 0) {
@@ -641,7 +645,7 @@ async function addInvoiceDetail() {
     }
 
     try {
-        const response = await fetch(`http://localhost:5001/invoices/${invoiceId}/details`, {
+        const response = await fetch(`http://localhost:5001/invoices/${invoiceId}/details/update`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -658,7 +662,7 @@ async function addInvoiceDetail() {
 
 
         // Cập nhật giao diện với dữ liệu đã kiểm tra
-        updateTotalAmount(invoiceId, result.total_amount);
+        updateTotalAmount(invoiceId, result.new_total);
         viewInvoiceDetails(invoiceId);
         closeAddDetailModal();
         alert("Thêm chi tiết thành công!");
