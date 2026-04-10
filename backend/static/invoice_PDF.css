@@ -1,91 +1,157 @@
+/* 1. Khai báo font Poppins từ folder static (Để PDF Renderer nhận được) */
+@font-face {
+    font-family: 'Poppins';
+    /* Lưu ý: Ông phải tải file .ttf bỏ vào thư mục static/fonts/ nhé */
+    src: url('/static/fonts/Poppins-Regular.ttf') format('truetype');
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('/static/fonts/Poppins-Bold.ttf') format('truetype');
+    font-weight: 600;
+}
+
 * {
     box-sizing: border-box;
 }
 
 body {
-    font-family: 'DejaVu Sans', Arial, sans-serif;
+    /* CHUYỂN SANG POPPINS NÈ CHA */
+    font-family: 'Poppins', Arial, sans-serif;
     font-size: 14px;
     line-height: 1.6;
     margin: 40px;
-    color: #000;
+    color: #333;
 }
 
 h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     text-transform: uppercase;
-    font-size: 20px;
-}
-
-.store-info {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.store-info p {
-    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 3px solid #3498db;
+    padding-bottom: 10px;
 }
 
 .invoice-info {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
 }
 
 .invoice-info p {
-    margin: 4px 0;
+    margin: 5px 0;
+}
+
+.invoice-info strong {
+    color: #555;
+    width: 150px;
+    display: inline-block;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    margin-top: 20px;
+    border: 2px solid #333333;
 }
 
 th, td {
-    border: 1px solid #aaa;
-    padding: 8px;
+    border: 2px solid #333333; /* Bỏ bớt viền dọc cho nó hiện đại */
+    padding: 12px 10px;
     text-align: left;
-    font-size: 14px;
 }
 
 th {
-    background-color: #f0f0f0;
-    font-weight: bold;
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+    text-transform: uppercase;
+    font-size: 12px;
+    border-bottom: 2px solid #333333;
 }
 
-.total {
-    margin-top: 15px;
-    text-align: right;
-    font-weight: bold;
-    font-size: 16px;
-}
+/* Căn lề số cho chuyên nghiệp */
+td:nth-child(2), th:nth-child(2) { text-align: center; }
+td:nth-child(3), th:nth-child(3) { text-align: right; }
 
-.note {
+/* 1. Xóa sạch sành sanh gạch của Table */
+.no-border-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: none !important;
     margin-top: 30px;
-    font-style: italic;
-    font-size: 13px;
-    text-align: center;
 }
 
+.no-border-table th, 
+.no-border-table td {
+    border: none !important; /* Xóa sạch gạch giữa các ô */
+    padding: 10px 5px;
+    background: none !important;
+}
+
+.no-border-table th {
+    font-weight: 600;
+    color: #555;
+    border-bottom: 1px solid #eee !important; /* Giữ một vạch mờ dưới tiêu đề cho dễ nhìn, hoặc xóa luôn nếu ông muốn */
+}
+
+/* 2. Ép độ rộng cột cuối để tí nữa Summary hít theo */
+.no-border-table th:last-child, 
+.no-border-table td:last-child {
+    width: 150px; /* Độ rộng cột Thành tiền */
+    text-align: right;
+}
+
+/* 3. Khối tổng kết nhích qua phải */
+.summary-container-clean {
+    margin-top: 25px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Đẩy toàn bộ nội dung về bên phải */
+}
+
+.summary-line {
+    display: flex;
+    width: 300px; /* Tổng độ rộng của cụm tổng kết */
+    justify-content: flex-end;
+    padding: 4px 0;
+}
+
+.summary-line .label {
+    text-align: right;
+    flex-grow: 1;
+    padding-right: 20px;
+    color: #666;
+}
+
+.summary-line .value {
+    width: 150px; /* BẮT BUỘC bằng width của cột Thành tiền ở trên để thẳng hàng */
+    text-align: right;
+    font-weight: 500;
+}
+
+/* 4. Dòng Tổng cộng cuối cùng */
+.grand-total {
+    margin-top: 10px;
+    padding-top: 10px;
+    font-size: 18px;
+    border-top: 2px solid #333333 !important;
+}
+
+.grand-total .label, 
+.grand-total .value {
+    font-weight: bold;
+    color: #000;
+}
+
+/* Thiết lập khổ giấy in A4 */
 @page {
     size: A4;
-    margin: 30px;
+    margin: 2cm;
 }
 
-.invoice-summary {
-    margin-top: 20px;
-    width: 100%;
-    max-width: 300px;
-    margin-left: auto;
-    font-size: 14px;
-}
-
-.invoice-summary p {
-    margin: 5px 0;
-    text-align: right;
-}
-
-.invoice-summary hr {
-    border: none;
-    border-top: 1px solid #000;
-    margin: 10px 0;
-}

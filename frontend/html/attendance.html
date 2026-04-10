@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Chấm Công</title>
+    <link rel="stylesheet" href="../css/attendance.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Menu</h2>
+            <ul>
+                <li><a href="../html/manage.html">Tổng quan</a></li>
+                <li><a href="../html/quanLiSP.html">Sản phẩm</a></li>
+                <li><a href="../html/customer.html">Khách hàng</a></li>
+                <li><a href="../html/employee.html">Nhân viên</a></li>
+                <li><a href="../html/invoice.html">Hóa đơn</a></li>
+                <li><a href="../html/manage_user.html">Tài khoản</a></li>
+                <li><a href="../html/attendance.html" class="active">Chấm công</a></li>
+                <li><a href="../html/payroll.html">Bảng lương</a></li>
+                <li><a href="#" onclick="logout()">Đăng xuất</a></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <h2>Quản Lý Chấm Công</h2>
+            
+            <div class="search-container">
+                <div>
+                    <input type="text" id="search-name" placeholder="Tìm theo tên nhân viên..." oninput="toggleClearButton()">
+                    
+                    <input type="month" id="filter-month" value="2026-03" onchange="loadAttendanceSummary()">
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 35%;">Tên nhân viên</th>
+                            <th style="width: 20%;">Ngày công tiêu chuẩn</th>
+                            <th style="width: 25%;">Ngày công thực tế</th>
+                            <th style="width: 20%;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendance-summary-list">
+                        </tbody>
+                </table>
+            </div>
+
+            <div id="attendanceDetailModal" class="modal" style="display: none;">
+                <div class="modal-content" style="width: 85%; max-width: 900px;">
+                    <h2>Chi Tiết Lịch Sử Chấm Công</h2>
+                    <p>Nhân viên: <span id="detail-employee-name" style="font-weight: bold; color: #3498db;"></span></p>
+                    
+                    <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Ngày làm</th>
+                                    <th>Công</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendance-detail-list">
+                                </tbody>
+                        </table>
+                    </div>
+
+                    <div class="btn_group" style="margin-top: 20px;">
+                        <button class="cancel-btn" onclick="closeDetailModal()">Đóng</button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <script src="../js/attendance.js"></script>
+</body>
+</html>

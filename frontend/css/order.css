@@ -178,6 +178,8 @@ body {
 
 #search-container button:hover {
     background-color: #444;
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .product-container {
@@ -214,8 +216,9 @@ body {
 
 /* Nút chuyển trang */
 .btn-pagination {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
+    
     cursor: pointer;
     transition: opacity 0.3s ease, transform 0.2s ease;
     flex-shrink: 0;
@@ -369,7 +372,7 @@ body {
     justify-content: center;
     align-items: center;
     position: absolute;
-    bottom: 46%;
+    bottom: 47%;
     width: 100%;
     gap: 10px;
 }
@@ -400,6 +403,22 @@ body {
     position: absolute;
     bottom: 25px;
     width: 100%;
+}
+
+#input-phone {
+    padding: 8px 12px;
+    border: 2px solid black;
+    border-radius: 8px; /* Bo góc giống dropdown-btn */
+    font-size: 14px;
+    width: 180px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hiệu ứng khi click vào ô nhập */
+#input-phone:focus {
+    border-color: #cc3700; /* Đổi sang màu cam đỏ khi focus */
+    box-shadow: 0 0 5px rgba(204, 55, 0, 0.3);
 }
 
 .check-register-group {
@@ -561,4 +580,38 @@ hr {
 .cancel-btn:hover,
 .modal-content button.cancel-btn:hover {
     background-color: #b0b0b0;
+}
+
+#toast-container {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast {
+    background: #2ecc71; /* Màu xanh thành công */
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    animation: slideIn 0.4s ease-out;
+}
+
+.toast.error { background: #e74c3c; } /* Màu đỏ nếu lỗi */
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.toast-fade-out {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.5s ease;
 }

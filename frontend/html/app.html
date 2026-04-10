@@ -15,16 +15,13 @@
         <div id="login-popup" class="popup">
             <div class="popup-content">
                 <h2>Đăng nhập</h2>
-                <form id="login-form">
+                <form id="login-form" novalidate>
                     <label for="username">Tên đăng nhập:</label>
-                    <input type="text" id="username" name="username" required>
-                    
-                    <label for="password">Mật khẩu:</label>
-                    <input type="password" id="password" name="password" required>
+                    <input type="text" id="username" name="username"> <label for="password">Mật khẩu:</label>
+                    <input type="password" id="password" name="password">
                     
                     <button type="submit">Đăng nhập</button>
                 </form>
-                <p id="login-error" style="color: red; display: none;">Đăng nhập thất bại. Vui lòng thử lại!</p>
             </div>
         </div>
         <!--header-->
@@ -49,12 +46,67 @@
                     <a href="#" onclick="toggleMenu()">
                         <img src="../img/user_icon.png" style="width:40px">
                     </a>
-                    <div class="dropdown">
-                        <a href="">Tên người đăng nhập</a>
-                        <!-- <a href="">Quản lý</a> -->
-                        <a href="">Đăng xuất</a>
+                    <div class="dropdown" id="user-dropdown">
+                        <a href="#" class="user-info-link">
+                            <span id="display-user-name"></span>
+                            <img src="../img/edit.png" class="inline-edit-icon" onclick="openEditNameModal(event)" title="Sửa tên">
+                        </a>
+
+                        <a href="#" class="user-info-link">
+                            <span id="display-user-phone"></span>
+                            <img src="../img/edit.png" class="inline-edit-icon" onclick="openEditPhoneModal(event)" title="Sửa SĐT">
+                        </a>
+                        <a href="#" class="income-link" onclick="goToIncomeCenter()">
+                            <span></span> Trung tâm thu nhập
+                        </a>
+                        <a href="#" onclick="openAttendanceModal()">Chấm công</a>
+                        <a href="#" onclick="openSelfAttendanceModal()">Lịch sử chấm công</a>
+                        <a href="#" onclick="openChangePasswordModal()">Đổi mật khẩu</a>
+                        <a href="#" onclick="logout()">Đăng xuất</a>
                     </div>
-                    
+                </div>
+            </div>
+        </div>
+
+        <div id="self-attendance-modal" class="modal-custom" style="display: none;">
+            <div class="modal-content-custom" style="width: 90%; max-width: 800px;">
+                <h3>📅 Lịch sử chấm công của tôi</h3>
+                
+                <div style="margin: 15px 0; text-align: left;">
+                    <label>Chọn tháng: </label>
+                    <input type="month" id="self-att-month" onchange="fetchSelfAttendance()">
+                </div>
+
+                <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd;">
+                    <table style="width: 100%; border-collapse: collapse;" id="self-att-table">
+                        <thead style="background: #3498db; color: white; position: sticky; top: 0;">
+                            <tr>
+                                <th style="padding: 10px;">Ngày</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>Công</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="self-attendance-list">
+                            </tbody>
+                    </table>
+                </div>
+
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button type="button" class="btn-close" onclick="closeSelfAttendanceModal()">Đóng</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="attendance-modal" class="modal-custom" style="display: none;">
+            <div class="modal-content-custom">
+                <h3 id="att-modal-title">🕒 Chấm công nhân viên</h3>
+                <p id="att-modal-msg" style="margin: 15px 0; font-size: 1.1em;"></p>
+                
+                <div class="btn-group">
+                    <button id="btn-att-confirm" class="btn-save" onclick="processAttendance()">Xác nhận</button>
+                    <button type="button" class="btn-close" onclick="closeAttendanceModal()">Hủy bỏ</button>
                 </div>
             </div>
         </div>
@@ -90,6 +142,52 @@
         <div class="order-container">
             <button id="create-order" onclick="createOrder()">Tạo đơn hàng</button>
         </div>
+
+        <div id="change-password-modal" class="modal-custom" style="display: none;">
+            <div class="modal-content-custom">
+                <h3>🔐 Đổi mật khẩu</h3>
+                <form id="change-password-form">
+                    <p id="password-status" style="margin-top: 10px; display: none;"></p>
+                    <input type="password" id="current-password" placeholder="Mật khẩu hiện tại" required>
+                    <input type="password" id="new-password" placeholder="Mật khẩu mới" required>
+                    <input type="password" id="confirm-new-password" placeholder="Xác nhận mật khẩu mới" required>
+                    
+                    <div class="btn-group">
+                        <button type="submit" class="btn-save">Cập nhật</button>
+                        <button type="button" class="btn-close" onclick="closeChangePasswordModal()">Đóng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="edit-name-modal" class="modal-custom" style="display: none;">
+            <div class="modal-content-custom">
+                <h3>📝 Cập nhật Họ và Tên</h3>
+                <form id="edit-name-form" novalidate>
+                    <p id="name-status" style="margin-top: 10px; display: none;"></p>
+                    <input type="text" id="new-full-name" placeholder="Nhập họ tên mới" required>
+                    <div class="btn-group">
+                        <button type="submit" class="btn-save">Lưu thay đổi</button>
+                        <button type="button" class="btn-close" onclick="closeEditNameModal()">Hủy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="edit-phone-modal" class="modal-custom" style="display: none;">
+            <div class="modal-content-custom">
+                <h3>📞 Cập nhật Số điện thoại</h3>
+                <form id="edit-phone-form" novalidate>
+                    <p id="phone-status" style="margin-top: 10px; display: none;"></p>
+                    <input type="text" id="new-phone-number" placeholder="Nhập số điện thoại mới" required>
+                    <div class="btn-group">
+                        <button type="submit" class="btn-save">Lưu thay đổi</button>
+                        <button type="button" class="btn-close" onclick="closeEditPhoneModal()">Hủy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </div>
     <script src="../js/mainPage.js"></script>
     <script src="../js/login.js"></script>

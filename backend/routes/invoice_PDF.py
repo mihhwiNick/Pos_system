@@ -9,20 +9,31 @@ def invoice_PDF(invoice_id):
     invoice = Invoice.get_invoice(invoice_id)
     details = Invoice.get_invoiceDetails(invoice_id)
 
-    # Tính toán lại nếu cần
+    if not invoice:
+        return "Không tìm thấy hóa đơn", 404
+
+    # Tính tổng tiền hàng
     sub_total = sum(item['price'] * item['quantity'] for item in details)
-    discount = sub_total - invoice['total_amount']
+    
+    # Lấy số điểm
+    used_points = int(invoice.get('used_points') or 0)
+    discount = used_points * 1000
+    
+    # Tổng tiền cuối cùng phải bằng sub_total - discount
+    total_final = sub_total - discount
 
-    # Chuyển đổi created_at từ chuỗi thành datetime
-    created_at = datetime.strptime(invoice['created_at'], '%d/%m/%Y %H:%M')
-
-    # Thêm vào dict để truyền sang template
     invoice['sub_total'] = sub_total
     invoice['discount'] = discount
-    invoice['created_at'] = created_at  # Gửi vào template dưới dạng datetime
+    invoice['total_amount'] = total_final
 
-    return render_template('invoice_PDF.html',
-                        invoice=invoice,
-                        details=details,
-                        sub_total=sub_total,
-                        discount=discount)
+    # Chuyển đổi created_at (xử lý cả trường hợp là chuỗi hoặc datetime object)
+    if isinstance(invoice['created_at'], str):
+        created_at = datetime.strptime(invoice['created_at'], '%d/%m/%Y %H:%M')
+    else:
+        created_at = invoice['created_at']
+
+    invoice['created_at'] = created_at
+
+    return render_template('invoice_PDF.html', 
+                        invoice=invoice, 
+                        details=details)

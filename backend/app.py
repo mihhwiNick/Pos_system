@@ -8,7 +8,9 @@ from routes.quanLiSPRoute import quanLiSP_bp
 from routes.accounts import accounts_bp 
 from routes.invoice_PDF import invoices_PDF_bp
 from routes.statistics import stat_bp
-from routes.face_recognitionRoute import recognize_bp
+from routes.employee import employees_bp
+from routes.attendanceRoute import attendance_bp
+from routes.payroll import payroll_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -30,7 +32,9 @@ app.register_blueprint(quanLiSP_bp, url_prefix='/quanLiSP')
 app.register_blueprint(accounts_bp, url_prefix='/accounts')
 app.register_blueprint(invoices_PDF_bp, url_prefix='/invoices_PDF')
 app.register_blueprint(stat_bp, url_prefix='/stats')
-app.register_blueprint(recognize_bp, url_prefix='/recognize')
+app.register_blueprint(employees_bp, url_prefix='/employees')
+app.register_blueprint(attendance_bp, url_prefix='/attendance')
+app.register_blueprint(payroll_bp, url_prefix='/payroll')
 
 @app.route("/")
 def home():

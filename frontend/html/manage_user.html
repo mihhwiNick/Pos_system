@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý tài khoản người dùng</title>
+    <title>Quản Lý Tài Khoản</title>
     <link rel="stylesheet" href="../css/manageUser.css">
-    <link rel="stylesheet" href="../css/manage.css">
 </head>
 <body>
+    <div id="toast-container"></div>
     <div class="container">
         <div class="sidebar">
             <h2>Menu</h2>
@@ -15,29 +15,36 @@
                 <li><a href="../html/manage.html">Tổng quan</a></li>
                 <li><a href="../html/quanLiSP.html">Sản phẩm</a></li>
                 <li><a href="../html/customer.html">Khách hàng</a></li>
+                <li><a href="../html/employee.html">Nhân viên</a></li>
                 <li><a href="../html/invoice.html">Hóa đơn</a></li>
                 <li><a href="../html/manage_user.html" class="active">Tài khoản</a></li>
+                <li><a href="../html/attendance.html">Chấm công</a></li>
+                <li><a href="../html/payroll.html">Bảng lương</a></li>
                 <li><a href="#" onclick="logout()">Đăng xuất</a></li>
             </ul>
         </div>
 
         <div class="main-content">
-            <h2>Quản lý tài khoản người dùng</h2>
+            <h2>Quản Lý Tài Khoản</h2>
             
             <!-- Search User -->
             <div class="search-container">
-                <input type="text" id="search-input" placeholder="Tìm kiếm tài khoản...">
-                <button onclick="searchUser()">Tìm kiếm</button>
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <input type="text" id="search-input" 
+                        placeholder="Tìm theo tên đăng nhập hoặc tên nhân viên..." 
+                        oninput="filterUsers()">
+                </div>
             </div>
 
             <!-- User Table -->
             <table id="user-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Tên đăng nhập</th>
+                        <th>Nhân viên</th>
                         <th>Vai trò</th>
-                        <th>Hành động</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,74 +53,52 @@
             </table>
 
             <!-- Add User -->
-            <div class="form-container">
-                <h2>Thêm tài khoản</h2>
-                <form id="add-user-form">
-                    <label for="add-username">Tên đăng nhập:</label>
-                    <input type="text" id="add-username"  required>
-                    
-                    <label for="add-password">Mật khẩu:</label>
-                    <input type="password" id="add-password" required>
-                    
-                    <label for="add-confirm-password">Xác nhận mật khẩu:</label>
-                    <input type="password" id="add-confirm-password" required>
-                    
-                    <label for="add-role">Vai trò:</label>
-                    <select id="add-role">
-                        <option value="admin">Admin</option>
-                        <option value="staff">Staff</option>
-                    </select>
-                    
-                    <button type="submit">Thêm</button>
-                </form>
-            </div>
-
-            <!-- Edit User Modal -->
-            <div id="edit-user-modal" class="modal">
+            <div id="add-user-modal" class="modal">
                 <div class="modal-content">
-                    <h2>Sửa tài khoản</h2>
-                    <form id="edit-user-form">
-                        <input type="hidden" id="edit-user-id">
+                    <h2>Thêm tài khoản mới</h2>
+                    <form id="add-user-form">
+                        <label for="add-username">Tên đăng nhập:</label>
+                        <input type="text" id="add-username" required>
                         
-                        <label for="edit-username">Tên đăng nhập:</label>
-                        <input type="text" id="edit-username" placeholder="Tên đăng nhập" required>
+                        <label for="add-password">Mật khẩu:</label>
+                        <input type="password" id="add-password" required>
                         
-                        <label for="edit-role">Vai trò:</label>
-                        <select id="edit-role">
+                        <label for="add-confirm-password">Xác nhận mật khẩu:</label>
+                        <input type="password" id="add-confirm-password" required>
+                        
+                        <label for="add-role">Vai trò:</label>
+                        <select id="add-role">
                             <option value="admin">Admin</option>
                             <option value="staff">Staff</option>
                         </select>
                         
-                        <label for="edit-password-confirm">Nhập mật khẩu để xác nhận:</label>
-                        <input type="password" id="edit-password-confirm" required>
-                        
-                        <button type="submit">Lưu thay đổi</button>
-                        <button type="button" onclick="closeEditModal()">Hủy</button>
+                        <div style="margin-top: 20px;">
+                            <button type="submit" style="background-color: #2ecc71;">Xác nhận thêm</button>
+                            <button type="button" class="cancel-btn" onclick="closeAddUserModal()">Hủy</button>
+                        </div>
                     </form>
                 </div>
             </div>
 
-            <!-- Change Password Modal -->
-            <div id="change-password-modal" class="modal">
+            <!-- Reset Password Modal -->
+            <div id="reset-password-modal" class="modal">
                 <div class="modal-content">
-                    <h2>Đổi mật khẩu</h2>
-                    <form id="change-password-form">
-                        <input type="hidden" id="change-password-user-id">
+                    <h2>Cấp lại mật khẩu</h2>
+                    <p>Tài khoản: <span id="reset-username-display" style="font-weight: bold; color: #3498db;"></span></p>
+                    <form id="reset-password-form">
+                        <input type="hidden" id="reset-user-id">
                         
-                        <label for="current-password">Mật khẩu hiện tại:</label>
-                        <input type="password" id="current-password" required>
+                        <label for="admin-new-password">Mật khẩu mới:</label>
+                        <input type="password" id="admin-new-password" placeholder="Nhập mật khẩu mới..." required>
                         
-                        <label for="new-password">Mật khẩu mới:</label>
-                        <input type="password" id="new-password" required>
-                        
-                        <label for="confirm-new-password">Xác nhận mật khẩu mới:</label>
-                        <input type="password" id="confirm-new-password" required>
-                        
-                        <button type="submit">Đổi mật khẩu</button>
-                        <button type="button" onclick="closeChangePasswordModal()">Hủy</button>
+                        <div class="btn-group-modal">
+                            <button type="submit" class="btn-confirm">Xác nhận</button>
+                            <button type="button" class="btn-cancel" onclick="closeResetModal()">Hủy</button>
+                        </div>
                     </form>
                 </div>
             </div>
+
         </div>
     </div>
     <script src="../js/manageUser.js"></script>

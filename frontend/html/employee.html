@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Nhân Viên</title>
+    <link rel="stylesheet" href="../css/employee.css">
+</head>
+
+<body>
+    <div id="toast-container"></div>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Menu</h2>
+            <ul>
+                <li><a href="../html/manage.html">Tổng quan</a></li>
+                <li><a href="../html/quanLiSP.html">Sản phẩm</a></li>
+                <li><a href="../html/customer.html">Khách hàng</a></li>
+                <li><a href="../html/employee.html" class="active">Nhân viên</a></li>
+                <li><a href="../html/invoice.html">Hóa đơn</a></li>
+                <li><a href="../html/manage_user.html">Tài khoản</a></li>
+                <li><a href="../html/attendance.html">Chấm công</a></li>
+                <li><a href="../html/payroll.html">Bảng lương</a></li>
+                <li><a href="#" onclick="logout()">Đăng xuất</a></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <h2>Quản Lý Nhân Viên</h2>
+            <div class="search-container">
+                <div style="display: flex; flex-grow: 1;">
+                    <input type="text" id="search" 
+                        placeholder="Tìm theo tên hoặc số điện thoại của nhân viên..." 
+                        oninput="filterEmployees()"> </div>
+                <button class="btn-add" onclick="openAddEmployeeModal()" style="margin-left: 10px;">Thêm Nhân Viên</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Họ và Tên</th>
+                            <th>Số điện thoại</th>
+                            <th>Loại nhân viên</th>
+                            <th>Lương cơ bản</th>
+                            <th>Ngày bắt đầu</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employee-list">
+                        </tbody>
+                </table>
+            </div>
+            <div id="pagination"></div>
+
+            <!-- Edit Modal -->
+            <div id="editEmployeeModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h2>Sửa Thông Tin Nhân Viên</h2>
+                    <div class="edit-form">
+                        <input type="hidden" id="editEmployeeId">
+                        
+                        <div class="form-group">
+                            <label>Họ và Tên</label>
+                            <input type="text" id="editFullName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Số Điện Thoại</label>
+                            <input type="tel" id="editPhone" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Loại Nhân Viên</label>
+                            <select id="editEmployeeType">
+                                <option value="Thử việc">Thử việc</option>
+                                <option value="Chính thức">Chính thức</option>
+                            </select>
+                            <p id="type-note" style="font-size: 11px; color: #f39c12; margin-top: 5px; display: none;"></p>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Trạng Thái</label>
+                            <select id="editStatus">
+                                <option value="1">Đang làm việc</option>
+                                <option value="0">Đã nghỉ việc</option>
+                            </select>
+                        </div>
+
+                        <div class="btn_group">
+                            <button class="submit-btn" onclick="updateEmployee()">Cập Nhật</button>
+                            <button class="cancel-btn" onclick="closeModal()">Hủy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add modal -->
+            <div id="addEmployeeModal" class="modal" style="display: none;">
+                <div class="modal-content add-emp-modal">
+                    <h2>Thêm Nhân Viên & Tài Khoản</h2>
+                    <div class="edit-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Họ và Tên</label>
+                                <input type="text" id="addFullName" placeholder="Trần Lê Kiều Trang" required>
+                                <span class="error-text" id="error-addFullName"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Số Điện Thoại</label>
+                                <input type="tel" id="addPhone" placeholder="09xxx" required>
+                                <span class="error-text" id="error-addPhone"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Loại nhân viên</label>
+                                <select id="addEmpType" onchange="autoFillSalary()">
+                                    <option value="Chính thức">Chính thức</option>
+                                    <option value="Thử việc">Thử việc</option>
+                                </select>
+                                <span class="error-text" id="error-addEmpType"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Lương cơ bản (VND)</label>
+                                <input type="text" id="addSalary" placeholder="Tự động điền" readonly>
+                                <span class="error-text" id="error-addSalary"></span>
+                            </div>
+                        </div>
+
+                        <div class="divider"><span>Thông tin tài khoản</span></div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Tên đăng nhập</label>
+                                <input type="text" id="addUsername" placeholder="kieu_trang" required>
+                                <span class="error-text" id="error-addUsername"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Mật khẩu</label>
+                                <input type="password" id="addPassword" required placeholder="Ít nhất 5 ký tự">
+                                <span class="error-text" id="error-addPassword"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Xác nhận mật khẩu</label>
+                                <input type="password" id="addConfirmPassword" required placeholder="Nhập lại mật khẩu">
+                                <span class="error-text" id="error-addConfirmPassword"></span>
+                            </div>
+                        </div>
+
+                        <div class="btn_group">
+                            <button class="submit-btn" onclick="saveEmployeeWithAccount()">Xác Nhận</button>
+                            <button class="cancel-btn" onclick="closeAddModal()">Hủy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="salesHistoryModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h2 id="historyTitle">Lịch sử bán hàng</h2>
+                    
+                    <div class="filter-box" style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <label>Chọn tháng lọc:</label>
+                        <input type="month" id="history-filter-month" onchange="reloadSalesHistory()">
+                    </div>
+
+                    <div class="table-container" style="flex-grow: 1; overflow-y: auto; border: 1px solid #eee;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mã HĐ</th>
+                                    <th>Thời gian</th>
+                                    <th>Tiền gốc</th>
+                                    <th>Điểm dùng</th>
+                                    <th>Thực thu</th>
+                                    <th>Hoa hồng (0.5%)</th>
+                                    <th>Thưởng thêm</th>
+                                    <th>Tổng nhận</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-list"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="history-footer-summary"></div>
+
+                    <div class="btn_group" style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                        <button class="cancel-btn" onclick="closeHistoryModal()" style="padding: 10px 30px; background-color: #95a5a6; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Đóng
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="invoiceDetailModal" class="modal" style="display: none; z-index: 10001;">
+                <div class="modal-content" style="width: 600px; border: 2px solid #3498db;">
+                    <h3 id="invoiceDetailTitle">Chi tiết hóa đơn #...</h3>
+                    <table style="margin-top: 15px;">
+                        <thead>
+                            <tr style="background-color: #ecf0f1; color: #2c3e50;">
+                                <th>Tên SP</th>
+                                <th>Hãng</th>
+                                <th>Hệ số</th>
+                                <th>Số lượng</th>
+                                <th>Giá bán</th>
+                                <th>Hoa hồng (Extra)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoice-item-list"></tbody>
+                    </table>
+                    <div class="btn_group">
+                        <button class="cancel-btn" onclick="closeInvoiceDetailModal()">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/employee.js"></script>
+</body>
+
+</html>

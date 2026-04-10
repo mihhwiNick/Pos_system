@@ -1,93 +1,105 @@
-let customers = [];
+let allCustomers = [];      // Dữ liệu gốc từ API
+let filteredCustomers = []; // Dữ liệu sau khi tìm kiếm
 let currentPage = 1;
 const rowsPerPage = 8;
-
-let id_delete = null;
 let id_ToEdit = null;
-let filterCustomer = []; 
-
 fetchCustomers()
 
 async function fetchCustomers() {
     try {
         let response = await fetch("http://127.0.0.1:5001/customers");
-        customers = await response.json();
-        displayCustomers(customers);
-        renderPagination();
+        allCustomers = await response.json();
+        filteredCustomers = allCustomers; 
+        
+        currentPage = 1;
+        displayCustomers();
     } catch (error) {
-        console.error("Lỗi khi lấy danh sách hóa đơn:", error);
+        console.error("Lỗi khi lấy danh sách khách hàng:", error);
     }
 }
 
+window.filterCustomers = function() {
+    const query = document.getElementById("search").value.toLowerCase().trim();
+    
+    filteredCustomers = allCustomers.filter(customer => {
+        const nameMatch = customer.name.toLowerCase().includes(query);
+        const phoneMatch = (customer.phone || "").includes(query);
+        return nameMatch || phoneMatch;
+    });
 
-function displayCustomers(CustomerToDisplay, page, totalPages) {
+    currentPage = 1; // Reset về trang 1 khi search
+    displayCustomers();
+};
+
+function displayCustomers() {
     const tbody = document.getElementById("customer-list");
     tbody.innerHTML = "";
 
+    // Tính toán cắt mảng (Sửa lỗi logic start/end)
     let start = (currentPage - 1) * rowsPerPage;
     let end = start + rowsPerPage;
-    let paginatedInvoices = CustomerToDisplay.slice(start, end);
+    let paginatedData = filteredCustomers.slice(start, end);
 
-    paginatedInvoices.forEach(customer => {
+    if (paginatedData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4">Không tìm thấy khách hàng nào!</td></tr>`;
+        updatePaginationUI(0);
+        return;
+    }
+
+    paginatedData.forEach(customer => {
         const row = document.createElement("tr");
-
         row.innerHTML = `
-            <td class="customer-id">${customer.id}</td>
             <td class="customer-name">${customer.name}</td>
-            <td class="customer-phone">${customer.phone}</td>
+            <td class="customer-phone">${customer.phone || '---'}</td>
             <td class="customer-point">${customer.points}</td>
             <td class="actions">
-                <div class="action-buttons">
-                    <button class="view-btn" data-id="${customer.id}" onclick="viewEditCustomer(${customer.id})">
-                        Chỉnh Sửa
-                    </button>
-                    <button class="delete-btn" data-id="${customer.id}" onclick="showDeleteModal(${customer.id})">
-                        <img src="../img/delete.png" width="20">
-                    </button>
-                </div>
+                <button class="view-btn" onclick="viewEditCustomer(${customer.customer_id})">
+                    Chỉnh Sửa
+                </button>
             </td>
         `;
-
         tbody.appendChild(row);
     });
 
-    renderPagination();
+    updatePaginationUI(filteredCustomers.length);
 }
 
+function updatePaginationUI(totalItems) {
+    const totalPages = Math.ceil(totalItems / rowsPerPage);
+    const trangHienTaiTxt = document.getElementById("trang_hien_tai");
+    const btnTruoc = document.getElementById("trang_truoc");
+    const btnSau = document.getElementById("trang_sau");
 
-function renderPagination() {
-    const container = document.getElementById("pagination");
-    container.innerHTML = ""; // Xóa nội dung cũ
+    if (trangHienTaiTxt) {
+        trangHienTaiTxt.innerText = currentPage;
+    }
 
-    const data = filterCustomer.length ? filterCustomer : customers;
-    const totalPages = Math.ceil(data.length / rowsPerPage);
+    // 2. Xử lý nút TRƯỚC: Luôn hiện, chỉ khóa khi ở trang 1
+    if (btnTruoc) {
+        btnTruoc.style.visibility = "visible"; // Đảm bảo luôn hiện
+        btnTruoc.classList.toggle("disabled", currentPage === 1);
+    }
 
-    if (totalPages > 1) {
-        container.innerHTML = `
-            <img id="prev" class="btn-pagination" src="../img/prev.png" onclick="changePage(-1)">
-            <img id="next" class="btn-pagination" src="../img/next.png" onclick="changePage(1)">
-        `;
+    // 3. Xử lý nút SAU: Luôn hiện, chỉ khóa khi ở trang cuối hoặc không có dữ liệu
+    if (btnSau) {
+        btnSau.style.visibility = "visible"; // Đảm bảo luôn hiện
+        btnSau.classList.toggle("disabled", currentPage >= totalPages || totalPages === 0);
+    }
+}
 
-        const prevButton = document.getElementById("prev");
-        const nextButton = document.getElementById("next");
+window.trangSau = function() {
+    const totalPages = Math.ceil(filteredCustomers.length / rowsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        displayCustomers();
+    }
+}
 
-        // Vô hiệu hóa nút "Previous" nếu ở trang đầu
-        prevButton.classList.toggle("disabled", currentPage === 1);
-        prevButton.style.pointerEvents = currentPage === 1 ? 'none' : 'auto';
-
-        // Vô hiệu hóa nút "Next" nếu ở trang cuối
-        nextButton.classList.toggle("disabled", currentPage === totalPages);
-        nextButton.style.pointerEvents = currentPage === totalPages ? 'none' : 'auto';
-
-        // Hiển thị các nút phân trang nếu có nhiều trang
-        prevButton.style.display = "inline-block";
-        nextButton.style.display = "inline-block";
-    } else {
-        // Nếu không có trang, ẩn các nút phân trang
-        const prevButton = document.getElementById("prev");
-        const nextButton = document.getElementById("next");
-        prevButton.style.display = "none";
-        nextButton.style.display = "none";
+// Hàm nút Trang Trước (Khớp với HTML của ông)
+window.trangTruoc = function() {
+    if (currentPage > 1) {
+        currentPage--;
+        displayCustomers();
     }
 }
 
@@ -149,40 +161,6 @@ window.changePage = function (direction) {
     renderPagination();
 };
 
-// Hàm hiển thị modal xóa
-function showDeleteModal(id) {
-    id_delete = id
-    const messageElement = document.getElementById("deleteMessage");
-    messageElement.textContent = "Bạn có chắc chắn muốn xóa ?";
-    document.getElementById("deleteModal").style.display = "block";
-}
-// Hàm đóng modal xóa
-function closeDeleteModal() {
-    document.getElementById("deleteModal").style.display = "none";
-}
-
-// Hàm xóa hóa đơn hoặc chi tiết hóa đơn
-async function deleteItem() {
-    let id=id_delete
-    apiUrl = `http://127.0.0.1:5001/customers/${id}`;
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-        });
-
-        if (response.ok) { 
-            fetchCustomers()
-            closeDeleteModal();
-        } else {
-            const errorData = await response.json();
-            alert(`Lỗi: ${errorData.message}`);
-        }
-    } catch (error) {
-        alert(`Đã xảy ra lỗi khi xóa .`);
-    }
-}
-
 // Đảm bảo modal ẩn khi tải trang
 window.onload = function() {
     document.getElementById('viewModal').style.display = 'none';
@@ -193,33 +171,23 @@ function closeViewModal() {
     document.getElementById('viewModal').style.display = 'none';
 }
 
-function searchCustomers() {
-    let searchValue = document.getElementById("search").value.trim().toLowerCase();
-
+window.filterCustomers = function() {
+    let searchValue = document.getElementById("search").value.toLowerCase().trim();
     if (!searchValue) {
-        // Nếu ô tìm kiếm rỗng -> giữ nguyên danh sách đang hiển thị
-        displayCustomers(customers, currentPage, Math.ceil(customers.length / rowsPerPage));
+        filteredCustomers = allCustomers;
+        currentPage = 1;
+        displayCustomers();
         return;
     }
+    let keywords = searchValue.split(/\s+/);
+    filteredCustomers = allCustomers.filter(customer => {
+        let customerInfo = `${customer.name} ${customer.phone || ""}`.toLowerCase();
+        return keywords.every(word => customerInfo.includes(word));
+    });
 
-    let searchFilteredCustomer = customers.filter(customers =>
-        customers.name.toLowerCase().includes(searchValue) ||
-        customers.name.toLowerCase().replace(/\s+/g, '').includes(searchValue)
-    );
-
-    if (searchFilteredCustomer.length === 0) {
-        alert("Không tìm thấy hóa đơn nào tương ứng!");
-        return;
-    }
-
-    
-    filterCustomer = searchFilteredCustomer;
-    currentPage = 1; 
-
-    
-    displayCustomers(filterCustomer, currentPage, Math.ceil(filterCustomer.length / rowsPerPage));
-}
-
+    currentPage = 1;
+    displayCustomers();
+};
 
 
 function toggleClearButton() {
@@ -243,60 +211,9 @@ function clearSearch() {
 
     displayCustomers(filterCustomer, currentPage, Math.ceil(filterCustomer.length / rowsPerPage)); 
 }
-function openAddCustomerModal() {
-    document.getElementById("addCustomerModal").style.display = "flex";
-}
-function closeAddCustomerModal() {
-    document.getElementById("addCustomerModal").style.display = "none";
-}
-/*async function addCustomer() {
-    const name = document.getElementById("customerName").value.trim();
-    const phone = document.getElementById("customerPhone").value.trim();
-    const membership_level = document.getElementById("customer-type").value.trim();
-    const points = document.getElementById("customerPoint").value.trim();
-    const phoneRegex = /^(0[0-9]{9,10})$/;
-    if (!phoneRegex.test(phone)) {
-        alert("Số điện thoại không hợp lệ! Vui lòng nhập số bắt đầu bằng 0 và có 10-11 chữ số.");
-        return;
-    }
 
-    // Kiểm tra số điện thoại đã tồn tại chưa
-    const isDuplicate = customers.some(c => c.phone === phone);
-    if (isDuplicate) {
-        alert("Số điện thoại đã tồn tại! Vui lòng nhập số khác.");
-        return;
-    }
-    const newCustomer = {
-        name: name,
-        phone: phone,
-        membership_level: membership_level,
-        points: points
-    };
-
-    try {
-        const response = await fetch("http://127.0.0.1:5001/customers/", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newCustomer),
-        });
-
-        if (response.ok) {
-            // Nếu thêm thành công, cập nhật danh sách khách hàng
-            fetchCustomers();
-            closeAddCustomerModal();
-        } else {
-            const errorData = await response.json();
-            alert(`Lỗi: ${errorData.message}`);
-        }
-    } catch (error) {
-        alert(`Đã xảy ra lỗi khi thêm khách hàng.`);
-    }
-}*/ //phan them khach hang
 function viewEditCustomer(id) {
-    // Tìm khách hàng theo ID
-    const customer = customers.find(c => c.id === id);
+    const customer = allCustomers.find(c => c.customer_id === id);
     var edit = document.getElementById("editCustomerModal");
     
     if (customer) {
@@ -313,35 +230,65 @@ function closeEditCustomerModal() {
 }
 
 async function updateCustomer() {
-    let id = id_ToEdit
-    var edit = document.getElementById("editCustomerModal");
-    const name = edit.querySelector("#customerName").value;
-    const phone = edit.querySelector("#customerPhone").value;
+    const editModal = document.getElementById("editCustomerModal");
+    const name = editModal.querySelector("#customerName").value.trim();
+    const phoneInput = editModal.querySelector("#customerPhone");
+    const phone = phoneInput.value.trim();
 
-    const updatedCustomer = {
-        name: name,
-        phone: phone,
-    };
+    // 🛡️ BỘ LỌC RÀNG BUỘC SĐT
+    const phoneRegex = /^0\d{9,10}$/;
+    if (!phoneRegex.test(phone)) {
+        showStatus("SĐT không hợp lệ! Phải bắt đầu bằng 0 và có 10-11 số.", "error");
+        phoneInput.focus();
+        return;
+    }
+
+    if (!name) {
+        showStatus("Tên khách hàng không được để trống!", "error");
+        return;
+    }
 
     try {
-        const response = await fetch(`http://127.0.0.1:5001/customers/${id}`, {
+        const response = await fetch(`http://127.0.0.1:5001/customers/${id_ToEdit}`, {
             method: 'PUT', 
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updatedCustomer),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, phone }),
         });
+
         if (response.ok) {
-            // Nếu cập nhật thành công, cập nhật danh sách khách hàng
-            fetchCustomers();
+            showStatus("Cập nhật thông tin khách hàng thành công!", "success");
+            await fetchCustomers(); // Load lại danh sách mới
             closeEditCustomerModal();
         } else {
             const errorData = await response.json();
-            alert(`Lỗi: ${errorData.message}`);
+            showStatus("Lỗi: " + errorData.message, "error");
         }
     } catch (error) {
-        alert(`Đã xảy ra lỗi khi cập nhật khách hàng.`);
+        showStatus("Lỗi kết nối máy chủ!", "error");
     }
+}
+
+/** 5. TIỆN ÍCH THÔNG BÁO (TOAST 3S) **/
+function showStatus(message, type = 'success') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icon = type === 'success' ? '✅' : '❌';
+    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-20px)';
+        setTimeout(() => toast.remove(), 500);
+    }, 2500);
 }
 
 window.logout = function () {

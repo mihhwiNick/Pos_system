@@ -13,10 +13,16 @@ class Product:
     @staticmethod
     def get_by_id(product_id):
         cursor = db.connection.cursor()
-        cursor.execute("SELECT * FROM products WHERE id = %s", (product_id,))
-        columns = [desc[0] for desc in cursor.description]
-        product = dict(zip(columns, cursor.fetchone())) if cursor.rowcount > 0 else None
+        # Sửa 'id' thành 'product_id'
+        cursor.execute("SELECT * FROM products WHERE product_id = %s", (product_id,))
+        
+        row = cursor.fetchone()
+        if row:
+            columns = [desc[0] for desc in cursor.description]
+            product = dict(zip(columns, row))
+        else:
+            product = None
+            
         cursor.close()
         return product
-
 

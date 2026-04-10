@@ -8,40 +8,32 @@ def get_customers():
     customer = Customers.get_customers()
     return jsonify(customer)
 
-@customers_bp.route('/<int:id>', methods=['DELETE'])
-def delete_customers(id):
-    Customers.delete_customers(id)
-    return jsonify({"message": "Khach Hang đã được xóa thành công!"})
-
 @customers_bp.route('/', methods=['POST'])
 def add_customer():
     data = request.json
     name = data.get('name')
     phone = data.get('phone')
-    points = 0  # Mặc định điểm là 0
-
-    # Kiểm tra số điện thoại đã tồn tại chưa bằng cách gọi hàm get_customer_by_phone
-    customer = Customers.get_customer_by_phone(phone)
-    if customer:
+    
+    # Kiểm tra SĐT đã tồn tại chưa
+    if Customers.get_customer_by_phone(phone):
         return jsonify({"message": "Số điện thoại đã tồn tại"}), 400
 
-    success = Customers.add_customer(name, phone, points)
+    success = Customers.add_customer(name, phone, 0) # Mặc định 0 điểm
     if success:
-        return jsonify({"message": "Customer added successfully"}), 201
-    else:
-        return jsonify({"message": "Invalid input"}), 400
+        return jsonify({"message": "Thêm khách hàng thành công"}), 201
+    return jsonify({"message": "Lỗi dữ liệu đầu vào"}), 400
 
 @customers_bp.route('/<int:id>',methods=['PUT'])
 def update_customer(id):
     Customers.update_customer(id)
-    return jsonify({"message": "Khach Hang đã được sua thành công!"})
+    return jsonify({"message": "Khach Hang đã được sửa thành công!"})
 
 # Lấy khách hàng theo số điện thoại
 @customers_bp.route('/phone/<string:phone>', methods=['GET'])
 def get_customer_by_phone(phone):
     customer = Customers.get_customer_by_phone(phone)
     if not customer:
-        return jsonify({"message": "Customer not found"}), 404
+        return jsonify({"message": "Không tìm thấy khách hàng"}), 404
     return jsonify(customer)
 
 # Cập nhật điểm cho khách hàng

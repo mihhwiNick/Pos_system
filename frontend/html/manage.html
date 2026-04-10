@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý hệ thống</title>
+    <title>Báo Cáo Kinh Doanh</title>
     <link rel="stylesheet" href="../css/manage.css">
 </head>
-
 <body>
     <div class="container">
         <div class="sidebar">
@@ -16,46 +14,79 @@
                 <li><a href="../html/manage.html" class="active">Tổng quan</a></li>
                 <li><a href="../html/quanLiSP.html">Sản phẩm</a></li>
                 <li><a href="../html/customer.html">Khách hàng</a></li>
+                <li><a href="../html/employee.html">Nhân viên</a></li>
                 <li><a href="../html/invoice.html">Hóa đơn</a></li>
                 <li><a href="../html/manage_user.html">Tài khoản</a></li>
+                <li><a href="../html/attendance.html">Chấm công</a></li>
+                <li><a href="../html/payroll.html">Bảng lương</a></li>
                 <li><a href="#" onclick="logout()">Đăng xuất</a></li>
             </ul>
         </div>
 
         <div class="main-content">
-            <h1 class="dashboard-title">Thống Kê</h1>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Doanh thu hôm nay</h3>
-                    <p></p>
-                </div>
-                <div class="stat-card">
-                    <h3>Đơn hàng hôm nay</h3>
-                    <p></p>
-                </div>
-                <div class="stat-card">
-                    <h3>Khách hàng mới</h3>
-                    <p></p>
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Báo Cáo Kinh Doanh</h1>
+                <div class="filter-bar">
+                    <span>Từ:</span> <input type="date" id="start-date">
+                    <span>Đến:</span> <input type="date" id="end-date">
+                    <button onclick="updateDashboard()" class="btn-filter">Lọc dữ liệu</button>
                 </div>
             </div>
-            <h2 class="section-title">Hóa đơn gần đây</h2>
-            <table class="invoice-table">
-                <thead>
-                    <tr>
-                        <th>Mã hóa đơn</th>
-                        <th>Khách hàng</th>
-                        <th>Ngày lập</th>
-                        <th>Số sản phẩm</th>
-                        <th>Tổng tiền</th>
-                    </tr>
-                </thead>
-                <tbody id="invoice-table-body">
-                    <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
-                </tbody>
-            </table>
+
+            <div class="stats-grid">
+                <div class="stat-card"><h3>📊 Doanh thu</h3><p id="stat-revenue">0 đ</p></div>
+                <div class="stat-card"><h3>🛒 Đơn hàng</h3><p id="stat-orders">0 đơn</p></div>
+                <div class="stat-card"><h3>👤 Khách mới</h3><p id="stat-customers">0 người</p></div>
+                <div class="stat-card">
+                    <h3>🥇Top Hoa hồng</h3>
+                    <p id="stat-comm-combined">
+                        ---: 0 đ
+                    </p>
+                </div>
+            </div>
+
+            <div class="data-tables-grid">
+                <div class="data-box">
+                    <h4>📱 Doanh số theo Hãng</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>Thương hiệu</th><th>Máy bán được</th></tr></thead>
+                        <tbody id="brand-stats-body"></tbody>
+                    </table>
+                </div>
+                <div class="data-box">
+                    <h4>🏆 Top 5 Sản phẩm</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>Tên máy</th><th>Số lượng</th></tr></thead>
+                        <tbody id="top-products-body"></tbody>
+                    </table>
+                </div>
+                <div class="data-box">
+                    <h4>👥 Hiệu suất nhân viên</h4>
+                    <table class="mini-table">
+                        <thead><tr><th>Nhân viên</th><th>Đơn</th><th>Doanh thu</th></tr></thead>
+                        <tbody id="employee-leaderboard-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <h2 class="section-title">🧾 Giao dịch gần nhất</h2>
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Mã HĐ</th>
+                            <th>Khách hàng</th>
+                            <th>Nhân viên</th>
+                            <th>Ngày lập</th>
+                            <th>Số lượng</th>
+                            <th>Tổng tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoice-table-body"></tbody>
+                </table>
+            </div>
         </div>
     </div>
     <script src="../js/manage.js"></script>
 </body>
-
 </html>

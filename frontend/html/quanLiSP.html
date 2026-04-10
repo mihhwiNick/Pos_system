@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 
 <head>
-    <link rel="stylesheet" href="../css/quanLiSP.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Sản Phẩm</title>
+    <link rel="stylesheet" href="../css/quanLiSP.css">
 </head>
 
 <body>
+    <div id="toast-container"></div>
     <div class="container">
         <div class="sidebar">
             <h2>Menu</h2>
@@ -13,97 +17,161 @@
                 <li><a href="../html/manage.html">Tổng quan</a></li>
                 <li><a href="../html/quanLiSP.html" class="active">Sản phẩm</a></li>
                 <li><a href="../html/customer.html">Khách hàng</a></li>
+                <li><a href="../html/employee.html">Nhân viên</a></li>
                 <li><a href="../html/invoice.html">Hóa đơn</a></li>
                 <li><a href="../html/manage_user.html">Tài khoản</a></li>
+                <li><a href="../html/attendance.html">Chấm công</a></li>
+                <li><a href="../html/payroll.html">Bảng lương</a></li>
                 <li><a href="#" onclick="logout()">Đăng xuất</a></li>
             </ul>
         </div>
-        <div id="main_content">
-            <h1>Quản Lí Sản Phẩm</h1>
-            <div id="thong_tin_sp">
-                <button onclick="tatThongTinChiTiet()" >X</button>
-                <h1>Thông Tin Chi Tiết</h1>
-                <input type="text" id="name" placeholder="name" />
-                <input type="text" id="price" placeholder="price" />
-                <select name="brand" id="brand">
-                    <option value=""></option>
-                    <option value="Samsung">Samsung</option>
-                    <option value="Apple">Apple</option>
-                    <option value="Xiaomi">Xiaomi</option>
-                    <option value="Realmi">Realmi</option>
-                    <option value="OPPO">OPPO</option>
-                </select>
-                <!-- <input type="text" id="stock" placeholder="stock" /> -->
-                <br>
-                <div id="khung_image_url">
-                    <label for="file_image_url" id="lable_image_url">Chọn File</label>
-                    <input type="file" id="file_image_url" />
-                    <input type="text" id="image_url" placeholder="chua file duoc chon"></input>
+
+        <div class="main-content">
+            <h2>Quản Lý Sản Phẩm</h2>
+            <div class="search-container">
+                <div style="display: flex; flex-grow: 1;">
+                    <input type="text" id="input_tim_kiem" placeholder="Nhập tên sản phẩm hoặc hãng...">
                 </div>
-                <br />
-                <!-- <button onclick="xemchitiet()">xem chi tiet</button>
-                <div id="thong_tin_chi_tiet"> -->
-                <input type="text" id="screen_size" placeholder="screen_size" />
-                <input type="text" id="processor" placeholder="processor" />
-                <input type="text" id="ram" placeholder="ram" />
-                <input type="text" id="storage" placeholder="storage" />
-                <input type="text" id="battery" placeholder="battery" />
-                <input type="text" id="camera" placeholder="camera" />
-                <input type="text" id="os" placeholder="os" />
-                <input type="text" id="color" placeholder="color" />
-                <!-- </div> -->
-                <div id="themVaHuy" class="them_sua">
-                    <button onclick="themSP()" >Xác Nhận Thêm</button>
-                    <button onclick="tatThongTinChiTiet()">Hủy Thêm</button>
-                </div>
-                <div id="sua_thong_tin" class="them_sua">
-                    <button onclick="updateDuLieuTrongBang()">Sữa</button>
-                    <button onclick="tatThongTinChiTiet()">Hủy Sữa</button>
-                </div>
+                <button class="btn-add" onclick="taoInputTrong()">Thêm Sản Phẩm</button>
             </div>
-            <div id="thong_so_ky_thuat">
-            </div>
-            
-            <div id="tim_kiem">
-                <input type="text" id="input_tim_kiem" />
-                <select name="" id="select_tim_kiem">
-                    <option value="name">name</option>
-                    <option value="brand">brand</option>
-                </select> 
-                <div id="themsuaxoa">
-                    <button onclick="taoInputTrong()">Thêm</button>
-                    <!-- <button onclick="updateDuLieuTrongBang()">sua</button>
-                    <button onclick="deleteSPKoThamSo()">xoa</button> -->
-                </div>
-            </div>
-            <div>
-                <table id="ds_sp">
+
+            <div class="table-container">
+                <table>
                     <thead>
                         <tr>
-                            <th width="500">name</th>
-                            <th width="100">brand</th>
-                            <th width="150">price</th>
-                            <!-- <th width="100">stock</th> -->
-                            <th width="100">image</th>
-                            <th width="200">tùy chọn</th>
+                            <th style="width: 30%;">Tên sản phẩm</th>
+                            <th style="width: 12%;">Hãng</th>
+                            <th style="width: 15%;">Giá bán (VND)</th>
+                            <th style="width: 13%;">Hình ảnh</th>
+                            <th style="width: 15%;">Trạng thái</th>
+                            <th style="width: 12%;">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="product_table"></tbody>
                 </table>
-                <div id="phan_trang">
-                    <button id="trang_truoc" onclick="trangTruoc()">
-                        <img src="../img/prev.png" alt="">
-                    </button>
-                    <div id="trang_hien_tai"></div>
-                    <button id="trang_sau" onclick="trangSau()">
-                        <img src="../img/next.png" alt="">
-                    </button>
-                </div>
+            </div>
+
+            <div id="pagination" class="pagination-container">
+                <button id="trang_truoc" onclick="trangTruoc()"><img src="../img/prev.png" alt="Prev"></button>
+                <div id="trang_hien_tai">1</div>
+                <button id="trang_sau" onclick="trangSau()"><img src="../img/next.png" alt="Next"></button>
             </div>
         </div>
     </div>
 
-    <script src="../js/quanLiSP.js"></script>
+    <div id="statusConfirmModal" class="modal" style="display: none; z-index: 10002;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3 style="margin-top: 0;">Xác nhận thay đổi</h3>
+            <p id="statusModalMsg" style="font-size: 15px; color: #555; margin: 20px 0;"></p>
+            <div class="btn_group" style="justify-content: center; gap: 15px;">
+                <button id="btnConfirmStatus" class="submit-btn" style="background-color: #ff5722;">Đồng ý</button>
+                <button class="cancel-btn" onclick="closeStatusModal()">Hủy bỏ</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Thông Tin Sản Phẩm</h2>
+            <div class="edit-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tên sản phẩm</label>
+                        <input type="text" id="name" placeholder="Ví dụ: iPhone 15 Pro Max">
+                        <span class="error-text" id="error-name"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Giá bán (VNĐ)</label>
+                        <input type="text" id="price" placeholder="Ví dụ: 25000000">
+                        <span class="error-text" id="error-price"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Hãng sản xuất</label>
+                        <select id="brand">
+                            <option value="">-- Chọn Hãng --</option>
+                            <option value="Apple">Apple</option>
+                            <option value="Samsung">Samsung</option>
+                            <option value="Oppo">Oppo</option>
+                            <option value="Xiaomi">Xiaomi</option>
+                            <option value="Realme">Realme</option>
+                        </select>
+                        <span class="error-text" id="error-brand"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Hình ảnh</label>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="text" id="image_url" readonly placeholder="Đường dẫn ảnh...">
+                            <label for="file_image_url" class="file-btn">Chọn File</label>
+                            <input type="file" id="file_image_url" style="display: none;">
+                        </div>
+                        <span class="error-text" id="error-image_url"></span>
+                    </div>
+                </div>
+                <div class="divider"><span>Thông số kỹ thuật</span></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Màn hình</label>
+                        <input type="text" id="screen_size" placeholder="Ví dụ: 6.1 inch">
+                        <span class="error-text" id="error-screen_size"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>CPU</label>
+                        <input type="text" id="processor" placeholder="Ví dụ: Apple A17 Pro">
+                        <span class="error-text" id="error-processor"></span>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>RAM</label>
+                        <input type="text" id="ram" placeholder="Ví dụ: 8GB">
+                        <span class="error-text" id="error-ram"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Bộ nhớ trong</label>
+                        <input type="text" id="storage" placeholder="Ví dụ: 256GB hoặc 1TB">
+                        <span class="error-text" id="error-storage"></span>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Pin</label>
+                        <input type="text" id="battery" placeholder="Ví dụ: 5000 mAh">
+                        <span class="error-text" id="error-battery"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Camera</label>
+                        <input type="text" id="camera" placeholder="Ví dụ: 48MP + 12MP">
+                        <span class="error-text" id="error-camera"></span>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Hệ điều hành</label>
+                        <input type="text" id="os" placeholder="Ví dụ: iOS 17 hoặc Android 14">
+                    </div>
+                    <div class="form-group">
+                        <label>Màu sắc</label>
+                        <input type="text" id="color" placeholder="Ví dụ: Titan Tự Nhiên">
+                    </div>
+                </div>
+                <div class="btn_group" id="group_them">
+                    <button class="submit-btn" onclick="themSP()">Xác Nhận Thêm</button>
+                    <button class="cancel-btn" onclick="tatThongTinChiTiet()">Hủy</button>
+                </div>
+                <div class="btn_group" id="group_sua">
+                    <button class="submit-btn" onclick="updateDuLieuTrongBang()">Cập Nhật</button>
+                    <button class="cancel-btn" onclick="tatThongTinChiTiet()">Hủy</button>
+                </div>
+                <div class="btn_group" id="group_xem">
+                    <button class="cancel-btn" onclick="tatThongTinChiTiet()">Đóng</button>
+                </div>
+            </div>
+        </div>
+        <script src="../js/quanLiSP.js"></script>
 </body>
 
 </html>

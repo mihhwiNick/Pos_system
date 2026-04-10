@@ -10,6 +10,7 @@
     </head>
 
     <body>
+        <div id="toast-container"></div>
         <div class="container">
             <div class="sidebar">
                 <h2>Menu</h2>
@@ -17,25 +18,28 @@
                     <li><a href="../html/manage.html">Tổng quan</a></li>
                     <li><a href="../html/quanLiSP.html">Sản phẩm</a></li>
                     <li><a href="../html/customer.html"class="active" >Khách hàng</a></li>
+                    <li><a href="../html/employee.html">Nhân viên</a></li>
                     <li><a href="../html/invoice.html" >Hóa đơn</a></li>
                     <li><a href="../html/manage_user.html">Tài khoản</a></li>
+                    <li><a href="../html/attendance.html">Chấm công</a></li>
+                    <li><a href="../html/payroll.html">Bảng lương</a></li>
                     <li><a href="#" onclick="logout()">Đăng xuất</a></li>
                 </ul>
             </div>
 
             <div class="main-content">
-                <h2>Quản lý Khách Hàng</h2>
+                <h2>Quản Lý Khách Hàng</h2>
                 <div class="search-container">
-                    <input type="text" id="search" placeholder="Nhập nội dung tìm kiếm..."
-                        oninput="toggleClearButton()">
-                    <span id="clear-btn" onclick="clearSearch()">×</span>
-                    <button onclick="searchCustomers()">Tìm kiếm</button>
+                    <div style="display: flex; flex-grow: 1;">
+                        <input type="text" id="search" 
+                            placeholder="Tìm theo tên hoặc số điện thoại khách hàng..." 
+                            oninput="filterCustomers()"> 
+                    </div>
                 </div>
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>Mã khách hàng</th>
                                 <th>Tên khách hàng</th>
                                 <th>Số điện thoại</th>
                                 <th>Điểm</th>
@@ -54,36 +58,11 @@
                         </tbody>
                     </table>
                 </div>
-                <div id="pagination"></div>
-            <!-- them khach hang-->
-            <!---  <div id="addCustomerModal" class="modal" style="display: none;">
-                    <div class="modal-content">
-                        <h2>Thêm Khách Hàng</h2>
-                        <div class="add-customer-form">
-                            <div class="form-group">
-                                <label for="customerName">Tên Khách Hàng</label>
-                                <input type="text" id="customerName" placeholder="Nhập tên khách hàng" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="customerPhone">Số Điện Thoại</label>
-                                <input type="tel" id="customerPhone" placeholder="Nhập số điện thoại" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="customerType">Loại Khách Hàng</label>
-                                <select id="customer-type">
-                                    <option value="Regular">Vãng lai</option>
-                                    <option value="VIP">Thành viên</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="customerPoint">Điểm</label>
-                                <input type="number" id="customerPoint" placeholder="Nhập điểm" required>
-                            </div>
-                            <button class="submit-btn" onclick="addCustomer()">Thêm Khách Hàng</button>
-                            <button class="cancel-btn" onclick="closeAddCustomerModal()">Hủy</button>
-                        </div>
-                    </div>
-                </div> -->
+                <div id="pagination" class="pagination-container">
+                    <button id="trang_truoc" onclick="trangTruoc()"><img src="../img/prev.png" alt="Prev"></button>
+                    <div id="trang_hien_tai">1</div>
+                    <button id="trang_sau" onclick="trangSau()"><img src="../img/next.png" alt="Next"></button>
+                </div>
 
                 <div id="editCustomerModal" class="modal"style="display: none;">
                     <div class="modal-content">
@@ -106,20 +85,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- Modal Xác Nhận Xóa -->
-                <div id="deleteModal" class="modal">
-                    <div class="modal-content">
-                        <h2>Xác nhận xóa</h2>
-                        <p id="deleteMessage">Bạn có chắc chắn muốn xóa?</p>
-                        <div class="modal-actions">
-                            <button id="confirmDeleteBtn" onclick="deleteItem()">Xác nhận</button>
-                            <button id="cancelDeleteBtn" onclick="closeDeleteModal()">Hủy bỏ</button>
-                        </div>
-                    </div>
-                </div>
-
-
-
+                
             </div>
         </div>
         <script src="../js/customer.js"></script>

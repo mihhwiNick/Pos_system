@@ -2,99 +2,110 @@ from flask import Blueprint, jsonify ,request
 import os
 from models.quanLiSPModel import quanLiSP
 
-quanLiSP_bp=Blueprint('quanLiSP',__name__)
+quanLiSP_bp = Blueprint('quanLiSP', __name__)
 
-# API cập nhật sản phẩm (NEW)
-@quanLiSP_bp.route('/update/<int:product_id>', methods=['PUT'])
-def update_product(product_id):
-    data = request.json 
-    # Kiểm tra xem có đủ dữ liệu không
-    required_fields = ["name", "brand", "price", "image_url", "screen_size", 
-                    "processor", "ram", "storage", "battery", "camera", "os", "color"]
-    if not all(field in data for field in required_fields):
-        return jsonify({"message": "Thiếu dữ liệu cần thiết"}), 400
+# ĐỊA CHỈ TUYỆT ĐỐI ĐỂ LƯU ẢNH (Raw string r"...")
+UPLOAD_FOLDER = r"D:\Desktop\HTTTDN\Pos_System\frontend\img\products"
 
-    success = quanLiSP.update(
-        product_id, data["name"], data["brand"], data["price"], data["image_url"], 
-        data["screen_size"], data["processor"], data["ram"], data["storage"], data["battery"], 
-        data["camera"], data["os"], data["color"]
-    )
-    
-    if success:
-        return jsonify({"message": "Cập nhật thành công!"})
-    else:
-        return jsonify({"message": "Cập nhật thất bại"}), 500
-    
-    # API thêm sản phẩm
+import os
+from flask import Blueprint, jsonify, request
+from models.quanLiSPModel import quanLiSP
+
+quanLiSP_bp = Blueprint('quanLiSP', __name__)
+
+# ĐỊA CHỈ ĐÍCH CỐ ĐỊNH TRÊN MÁY TÍNH CỦA BẠN
+UPLOAD_FOLDER = r"D:\Desktop\HTTTDN\Pos_System\frontend\img\products"
 
 @quanLiSP_bp.route('/add', methods=['POST'])
 def add_product():
     try:
-        # Nhận dữ liệu từ FormData (cả thông tin sản phẩm và file ảnh)
-        data = request.form.to_dict()  # Lấy các trường từ FormData (dưới dạng dictionary)
-        required_fields = ["name", "brand", "price","screen_size",
-                        "processor", "ram", "storage", "battery", "camera", "os", "color"]
+        data = request.form.to_dict()
+        brand = data.get("brand", "")
 
-        # Kiểm tra xem dữ liệu có đầy đủ các trường cần thiết không
-        if not all(field in data for field in required_fields):
-            return jsonify({"message": "Thiếu dữ liệu cần thiết"}), 400
+        # Logic hoa hồng
+        extra_rate = 0.005 if brand in ["Apple", "Samsung"] else 0.01
 
-        # Lấy thông tin sản phẩm từ FormData
-        name = data["name"]
-        brand = data["brand"]
-        price = data["price"]
-        screen_size = data["screen_size"]
-        processor = data["processor"]
-        ram = data["ram"]
-        storage = data["storage"]
-        battery = data["battery"]
-        camera = data["camera"]
-        os_type = data["os"]
-        color = data["color"]
-        
-        # Thêm sản phẩm vào database mà không có image_url
+        # 1. Thêm vào DB trước để lấy ID
         last_inserted_id = quanLiSP.add(
-            name, brand, price, None, screen_size, processor, ram, storage, battery, camera, os_type, color
+            data["name"], brand, data["price"], None, 
+            data["screen_size"], data["processor"], data["ram"], 
+            data["storage"], data["battery"], data["camera"], 
+            data["os"], data["color"], extra_rate
         )
 
-        # Lấy tệp ảnh từ FormData
+        # 2. Xử lý "Chuyển" ảnh từ nơi bất kỳ vào thư mục đồ án
         image_file = request.files.get('image')
+        if image_file and last_inserted_id:
+            # Đảm bảo thư mục tồn tại
+            if not os.path.exists(UPLOAD_FOLDER):
+                os.makedirs(UPLOAD_FOLDER)
+
+            # Đặt tên file theo ID (Ví dụ: 56.jpg)
+            filename = f"{last_inserted_id}.jpg"
+            # Đường dẫn vật lý đầy đủ để lưu file
+            target_path = os.path.join(UPLOAD_FOLDER, filename)
+            
+            # LỆNH QUAN TRỌNG: Lưu nội dung file từ bộ nhớ tạm vào ổ cứng
+            image_file.save(target_path)
+            print(f">>> Đã lưu file thành công tại: {target_path}")
+
+            # 3. Cập nhật lại đường dẫn tương đối để Web hiển thị
+            db_image_url = f"img/products/{filename}"
+            quanLiSP.update_image_url(last_inserted_id, db_image_url)
+
+        return jsonify({"message": "Thêm thành công!", "id": last_inserted_id}), 200
+
+    except Exception as e:
+        print(">>> Lỗi:", str(e))
+        return jsonify({"message": str(e)}), 500
+
+@quanLiSP_bp.route('/update/<int:product_id>', methods=['PUT'])
+def update_product(product_id):
+    try:
+        data = request.form.to_dict()
+        image_file = request.files.get('image')
+        image_url = data.get("image_url", "") 
+
+        # XỬ LÝ LỖI CHỒNG TIỀN TỐ: 
+        # Nếu image_url chứa domain của frontend, ta cắt bỏ nó đi để chỉ lưu đường dẫn tương đối
+        prefix = "http://127.0.0.1:5500/frontend/"
+        if image_url.startswith(prefix):
+            image_url = image_url.replace(prefix, "")
 
         if image_file:
-            # Đảm bảo thư mục 'img/products/' tồn tại
-            img_folder = "frontend/img/products/"
-            os.makedirs(img_folder, exist_ok=True)
-
-            # Đặt tên file ảnh là ID của sản phẩm
-            filename = f"{last_inserted_id}.jpg"
-
-            # Lưu ảnh vào thư mục với tên file là ID
-            image_path = os.path.join(img_folder, filename)
+            # Nếu có upload ảnh mới thì thực hiện lưu file như cũ
+            if not os.path.exists(UPLOAD_FOLDER):
+                os.makedirs(UPLOAD_FOLDER)
+            filename = f"{product_id}.jpg"
+            image_path = os.path.join(UPLOAD_FOLDER, filename)
             image_file.save(image_path)
-
-            # Cập nhật lại image_url vào database
             image_url = f"img/products/{filename}"
-            quanLiSP.update_image_url(last_inserted_id, image_url)
 
-        return jsonify({"message": "Thêm sản phẩm thành công!", "id": last_inserted_id}), 200
-
-    except Exception as e:
-        print(">>> Lỗi khi thêm sản phẩm:", e)
-        return jsonify({"message": "Lỗi server"}), 500
-
-
-# API xóa sản phẩm
-@quanLiSP_bp.route('/delete/<int:product_id>', methods=['DELETE'])
-def delete_product(product_id):
-    try:
-        success = quanLiSP.delete(product_id)
+        # Cập nhật vào DB
+        success = quanLiSP.update(
+            product_id, data["name"], data["brand"], data["price"], image_url, 
+            data["screen_size"], data["processor"], data["ram"], data["storage"], 
+            data["battery"], data["camera"], data["os"], data["color"]
+        )
+        
         if success:
-            return jsonify({"message": "Xóa thành công!"})
-        else:
-            return jsonify({"message": "Không tìm thấy sản phẩm"}), 404
+            return jsonify({"message": "Cập nhật thành công!"})
+        return jsonify({"message": "Không tìm thấy sản phẩm"}), 404
     except Exception as e:
-        print(">>> Lỗi khi xóa sản phẩm:", e)
-        return jsonify({"message": "Lỗi server"}), 500
+        return jsonify({"message": str(e)}), 500
+    
+@quanLiSP_bp.route('/update_status/<int:product_id>', methods=['PATCH'])
+def update_status(product_id):
+    try:
+        data = request.json
+        new_status = data.get('status') # Frontend gửi { "status": 0 hoặc 1 }
+        
+        success = quanLiSP.update_status(product_id, new_status)
+        if success:
+            return jsonify({"message": "Cập nhật trạng thái thành công!"}), 200
+        return jsonify({"message": "Không tìm thấy sản phẩm"}), 404
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
 
 # API lay sản phẩm moi nhat
 @quanLiSP_bp.route('/latest_product', methods=['GET'])
@@ -105,4 +116,5 @@ def latest_product():
         return jsonify(product)
     else:
         return jsonify({"message": "Không có sản phẩm nào"}), 404
+    
 

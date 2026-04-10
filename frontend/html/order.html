@@ -90,7 +90,8 @@
             <div class="summary">
                 <hr>
                 <div class="check-register-group">
-                    <button id="check-member" onclick="checkMember()">Kiểm tra thành viên</button>
+                    <input type="text" id="input-phone" placeholder="Nhập SĐT khách...">
+                    <button onclick="checkMember()">Kiểm tra</button>
                     <button id="register-member" style="display: none;" onclick="registerMember()">Đăng ký thành viên</button>
                 </div>
                 <div class="customer-info">
@@ -128,6 +129,24 @@
                 </div>
             </div>
             <button id="confirm-order" onclick="confirmOrder()">Thanh toán</button>
+
+            <div id="confirm-register-modal" class="modal" style="display: none;">
+                <div class="modal-content" style="width: 600px; max-width: 90%; text-align: center; padding: 40px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px;">Thông báo</h3>
+                    <p style="font-size: 18px; line-height: 1.6; color: #555;">
+                        Không có dữ liệu khách hàng trong hệ thống. <br>
+                        Bạn có muốn thực hiện <strong>đăng ký thành viên mới</strong> không?
+                    </p>
+                    <div class="btn_group" style="justify-content: center; margin-top: 25px; gap: 15px;">
+                        <button class="submit-btn" onclick="openRegisterFromConfirm()" style="background-color: #3498db; padding: 10px 25px;">
+                            Đăng ký thành viên
+                        </button>
+                        <button class="cancel-btn" onclick="closeConfirmModal()" style="padding: 10px 30px;">
+                            Không
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <!-- Modal thêm khách hàng mới -->
             <div id="add-customer-modal" class="modal" style="display: none;">

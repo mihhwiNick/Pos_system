@@ -51,7 +51,7 @@ function displayProducts() {
 
     pageProducts.forEach(product => {
         let productItem = `
-            <div class="product" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}" data-image="${product.image_url}">
+            <div class="product" data-id="${product.product_id}" data-name="${product.name}" data-price="${product.price}" data-image="${product.image_url}">
                 <img src="${product.image_url}" alt="${product.name}">
                 <h3>${product.name}</h3>
                 <p>${formatPrice(product.price)}</p>
@@ -89,6 +89,8 @@ fetchProducts();
 
 // Ẩn box lọc giá và lọc hãng khi vừa nhấn lọc
 document.addEventListener("DOMContentLoaded", function () {
+    sessionStorage.removeItem("customerId");
+    currentCustomerId = null;
     document.querySelectorAll(".dropdown").forEach(dropdown => {
         const button = dropdown.querySelector(".dropdown-btn");
         const menu = dropdown.querySelector(".dropdown-content");
@@ -120,6 +122,37 @@ document.addEventListener("DOMContentLoaded", function () {
         // Ẩn menu khi rời chuột khỏi dropdown
         dropdown.addEventListener("mouseleave", () => { menu.style.opacity = "0"; menu.style.pointerEvents = "none"; });
     });
+
+    const pointInput = document.getElementById("use-points");
+    if (pointInput) {
+        pointInput.addEventListener("keypress", function (e) {
+            // Chỉ cho phép nhập số (phím 0-9 tương ứng mã ASCII 48-57)
+            if (e.which < 48 || e.which > 57) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    const phoneInput = document.getElementById("input-phone");
+    if (phoneInput) {
+        phoneInput.addEventListener("input", function() {
+            // Khi đang gõ SĐT mới, lập tức hủy quyền thanh toán của ID cũ
+            currentCustomerId = null;
+            sessionStorage.removeItem("customerId");
+            
+            // Ẩn luôn khung thông tin khách cũ cho chuyên nghiệp
+            const customerInfoBox = document.querySelector(".customer-info");
+            if (customerInfoBox) {
+                customerInfoBox.style.display = "none";
+            }
+            
+            // Hiện lại nút Đăng ký nếu cần (hoặc ẩn đi tùy ông)
+            const registerBtn = document.getElementById("register-member");
+            if (registerBtn) {
+                registerBtn.style.display = "none";
+            }
+        });
+    }
 });
 
 let brandFilteredProducts = []; // Lưu sản phẩm đã lọc theo hãng
@@ -164,31 +197,47 @@ function filterByPrice(minPrice, maxPrice) {
 }
 
 function searchProduct() {
-    let searchValue = document.getElementById("search-input").value.trim().toLowerCase();
+    let searchValue = document.getElementById("search-input").value.toLowerCase().trim();
 
+    // 1. Nếu ô tìm kiếm rỗng -> Reset về trạng thái ban đầu hoặc danh sách đang lọc hãng
     if (!searchValue) {
-        // Nếu ô tìm kiếm rỗng -> giữ nguyên danh sách đang hiển thị
+        showStatus("Vui lòng nhập tên sản phẩm cần tìm!", "error");
+        // Trả về danh sách lọc theo hãng (nếu có) hoặc toàn bộ sản phẩm
+        filteredProducts = brandFilteredProducts.length > 0 ? brandFilteredProducts : allProducts;
+        currentPage = 1;
         displayProducts(filteredProducts, currentPage, Math.ceil(filteredProducts.length / productsPerPage));
         return;
     }
 
-    // Luôn tìm kiếm trên toàn bộ sản phẩm
-    searchFilteredProducts = allProducts.filter(product =>
-        product.name.toLowerCase().includes(searchValue) ||
-        product.name.toLowerCase().replace(/\s+/g, '').includes(searchValue)
-    );
+    // 🚀 BÍ KÍP TOKENIZE: Tách chuỗi sếp gõ thành mảng các từ khóa
+    // Ví dụ: "15 Pro iPhone" -> ["15", "pro", "iphone"]
+    let keywords = searchValue.split(/\s+/);
 
+    // 2. Thực hiện lọc dữ liệu trên allProducts
+    searchFilteredProducts = allProducts.filter(product => {
+        let productName = product.name.toLowerCase();
+        
+        // LOGIC: Trả về true nếu TẤT CẢ các từ khóa sếp gõ đều xuất hiện trong tên sản phẩm
+        // Không quan trọng thứ tự "15 Pro" hay "Pro 15" kkk
+        return keywords.every(key => productName.includes(key));
+    });
+
+    // 3. Xử lý kết quả
     if (searchFilteredProducts.length === 0) {
-        alert("Không tìm thấy sản phẩm nào tương ứng!");
+        showStatus("Không tìm thấy sản phẩm nào tương ứng!", "error");
         return;
     }
 
-    // Hiển thị kết quả tìm kiếm
-    brandFilteredProducts = [...searchFilteredProducts];
+    // 4. Nếu tìm thấy -> Thông báo xanh cho xịn kkk
+    showStatus(`Tìm thấy ${searchFilteredProducts.length} sản phẩm!`, "success");
+
+    // Cập nhật danh sách hiển thị
     filteredProducts = [...searchFilteredProducts];
     currentPage = 1;
 
-    displayProducts(filteredProducts, currentPage, Math.ceil(filteredProducts.length / productsPerPage));
+    // Tính toán lại tổng số trang cho kết quả tìm kiếm
+    const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+    displayProducts(filteredProducts, currentPage, totalPages);
 }
 
 function toggleClearButton() {
@@ -232,12 +281,12 @@ let cart = [];
 
 // Hàm thêm sản phẩm vào bảng
 function addToCart(productId, name, price, imageUrl) {
-    let existingProduct = cart.find(item => item.id === productId);
+    let existingProduct = cart.find(item => item.product_id === productId);
 
     if (existingProduct) {
         existingProduct.quantity += 1; // Nếu đã có thì tăng số lượng
     } else {
-        cart.push({ id: productId, name, price, imageUrl, quantity: 1 });
+        cart.push({ product_id: productId, name, price, imageUrl, quantity: 1 });
     }
 
     updateCart(); // Cập nhật lại bảng giỏ hàng
@@ -314,7 +363,7 @@ function updateCart() {
                 </button>
             </td>
         `;
-        row.dataset.productId = item.id;
+        row.dataset.productId = item.product_id;
         row.dataset.quantity = item.quantity;
         cartList.appendChild(row);
     });
@@ -428,28 +477,48 @@ document.getElementById("use-points").addEventListener("input", function () {
 });
 
 function applyPoints() {
-    const usePoints = parseInt(document.getElementById("use-points").value) || 0;
+    const usePointsRaw = document.getElementById("use-points").value.trim();
     const customerPoints = parseInt(document.getElementById("customer-points").textContent) || 0;
-
     const rawSubtotal = document.getElementById("subtotal").textContent.replace(/[^\d]/g, '');
     const subtotal = parseInt(rawSubtotal) || 0;
 
-    if (usePoints > customerPoints) {
-        alert("Số điểm nhập vượt quá điểm hiện có!");
-        document.getElementById("use-points").value = customerPoints; // Gán lại max
+    // 1. Kiểm tra nếu chưa nhập gì
+    if (usePointsRaw === "") {
+        showStatus("Vui lòng nhập số điểm muốn sử dụng!", "error");
         return;
     }
 
-    if (usePoints < 1) {
+    const usePoints = parseInt(usePointsRaw);
+
+    // 2. Kiểm tra nếu nhập chữ hoặc không phải số hợp lệ
+    if (isNaN(usePoints)) {
+        showStatus("Điểm nhập vào phải là con số!", "error");
+        return;
+    }
+
+    // 3. Kiểm tra số điểm âm hoặc bằng 0
+    if (usePoints <= 0) {
+        showStatus("Số điểm sử dụng phải lớn hơn 0!", "error");
         removeDiscount();
         return;
     }
 
-    const discount = usePoints * 1000;
-    const finalDiscount = Math.min(discount, subtotal);
+    // 4. Kiểm tra điểm nhập vào có lớn hơn điểm khách đang có không
+    if (usePoints > customerPoints) {
+        showStatus(`Điểm vượt quá mức hiện có (${customerPoints}đ)!`, "error");
+        document.getElementById("use-points").value = customerPoints; // Gán lại mức tối đa cho tiện
+        return;
+    }
 
+    // 5. Logic tính toán: 1 điểm = 1.000 VNĐ
+    const discount = usePoints * 1000;
+    const finalDiscount = Math.min(discount, subtotal); // Không giảm quá tổng tiền đơn hàng
+
+    // Cập nhật giao diện
     document.getElementById("discount").textContent = formatPrice(finalDiscount);
     document.getElementById("total").textContent = formatPrice(subtotal - finalDiscount);
+
+    showStatus("Đã áp dụng giảm giá từ điểm tích lũy!");
 }
 
 function removeDiscount() {
@@ -465,39 +534,77 @@ function closeAddCustomerModal() {
 }
 
 async function checkMember() {
-    try {
-        // Gọi API kiểm tra thành viên
-        const response = await fetch('http://localhost:5001/recognize/recognize_face', {
-            method: 'GET',
-        });
-        const data = await response.json();  // Lấy dữ liệu trả về từ API
-        console.log("API Response:", data);
+    const phoneInput = document.getElementById("input-phone");
+    const phone = phoneInput.value.trim();
 
-        if (data.error) {
-            alert(data.error);  // Hiển thị lỗi nếu không nhận diện được khách hàng
-            document.getElementById("register-member").style.display = "block";  // Hiển thị nút đăng ký thành viên
-            document.getElementById("check-member").style.display = "none";
-        } else {
-            // Hiển thị thông tin khách hàng nếu nhận diện thành công
+    // 1. CHẶN NẾU TRỐNG: Nếu chưa nhập SĐT thì báo lỗi và dừng luôn
+    if (!phone) {
+        showStatus("Vui lòng nhập số điện thoại khách hàng trước!", "error");
+        phoneInput.focus(); // Đưa con trỏ vào ô nhập cho nhân viên dễ làm việc
+        
+        // Xóa sạch dữ liệu khách cũ để tránh nhầm lẫn
+        currentCustomerId = null;
+        sessionStorage.removeItem("customerId");
+        resetCustomerInfo(); // Hàm xóa trắng UI khách hàng
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:5001/customers/phone/${phone}`);
+        const data = await response.json();
+
+        if (response.status === 404) {
+            // Không tìm thấy khách -> Xóa sạch ID cũ
+            currentCustomerId = null;
+            sessionStorage.removeItem("customerId");
+            
+            document.getElementById("confirm-register-modal").style.display = "flex";
+            document.querySelector(".customer-info").style.display = "none";
+            document.getElementById("register-member").style.display = "none";
+        } else if (response.ok) {
+            showStatus("Đã xác nhận thành viên: " + data.name);
+            
             document.getElementById("customer-name").innerText = data.name;
             document.getElementById("customer-phone").innerText = data.phone;
             document.getElementById("customer-points").innerText = data.points;
+            
+            // LƯU ID MỚI VÀO CẢ BIẾN TOÀN CỤC VÀ STORAGE
+            currentCustomerId = data.customer_id;
+            saveCustomerIdToStorage(data.customer_id);
 
-            console.log("Customer ID:", data.id);
-            saveCustomerIdToStorage(data.id);
-
-            // Hiển thị phần thông tin khách hàng
             document.querySelector(".customer-info").style.display = "block";
-
+            document.getElementById("register-member").style.display = "none";
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert("Đã có lỗi xảy ra, vui lòng thử lại.");
+        showStatus("Lỗi kết nối máy chủ!", "error");
     }
 }
 
+function openRegisterFromConfirm() {
+    // Lấy số điện thoại từ ô "Kiểm tra"
+    const phoneInput = document.getElementById("input-phone").value.trim();
+    
+    // Đóng modal xác nhận
+    closeConfirmModal();
+    
+    // Mở modal đăng ký (hàm registerMember cũ của ông)
+    registerMember();
+    
+    // Tự động điền SĐT vào ô đăng ký mới
+    const newPhoneField = document.getElementById("new-customer-phone");
+    if (newPhoneField) {
+        newPhoneField.value = phoneInput;
+        newPhoneField.focus(); // Đưa con trỏ vào ô SĐT để khách có thể sửa nếu muốn
+    }
+}
+
+/** --- 3. HÀM ĐÓNG MODAL XÁC NHẬN --- **/
+function closeConfirmModal() {
+    document.getElementById("confirm-register-modal").style.display = "none";
+}
+
 function registerMember() {
-    document.getElementById("add-customer-modal").style.display = "block";
+    document.getElementById("add-customer-modal").style.display = "flex";
 }
 
 // Hàm đóng modal khi nhấn nút "Hủy"
@@ -506,7 +613,7 @@ function closeAddCustomerModal() {
 }
 
 function renderCustomerInfo(customer) {
-    currentCustomerId = customer.id;
+    currentCustomerId = customer.customer_id;
     document.getElementById("customer-name").textContent = customer.name;
     document.getElementById("customer-phone").textContent = customer.phone;
     document.getElementById("customer-points").textContent = customer.points || 0;
@@ -517,66 +624,82 @@ async function handleSaveCustomer() {
     const phone = document.getElementById("new-customer-phone").value.trim();
 
     if (!name || !phone) {
-        alert("Vui lòng điền đầy đủ thông tin.");
+        showStatus("Vui lòng điền đầy đủ thông tin!", "error");
         return;
     }
+    const phoneRegex = /^0\d{9,10}$/;
 
-    // Thêm khách hàng vào database
-    console.log("Đang thêm khách hàng:", { name, phone });
-    let data;
+    if (!phoneRegex.test(phone)) {
+        showStatus("SĐT phải bắt đầu bằng số 0 và có 10-11 chữ số!", "error");
+        // Giữ modal lại để khách sửa, không cho chạy tiếp
+        return; 
+    }
+
     try {
         const res = await fetch("http://127.0.0.1:5001/customers/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name, phone }),
         });
-        data = await res.json();
-        console.log("Kết quả thêm khách hàng:", data);
-        if (!res.ok) {
-            alert("Không thể thêm khách hàng: " + (data.message || "Lỗi không xác định"));
-            return;
-        } else {
-            alert("Khách hàng đã được thêm thành công");
-        }
-    } catch (err) {
-        console.error("Lỗi khi thêm khách hàng:", err.message || err);
-        alert("Đã xảy ra lỗi khi thêm khách hàng.");
-        return;
-    }
-
-    closeAddCustomerModal();
-
-    // Lấy thông tin khách hàng mới
-    const infoRes = await fetch(`http://127.0.0.1:5001/customers/phone/${phone}`);
-    if (infoRes.ok) {
-        const newCustomer = await infoRes.json();
-        currentCustomerId = newCustomer.id;
-        saveCustomerIdToStorage(currentCustomerId);
-        renderCustomerInfo(newCustomer);
-
-        // Chụp khuôn mặt sau khi khách hàng được lưu thành công
-        console.log("Đang chụp khuôn mặt cho số điện thoại:", phone);
-
-        const captureRes = await fetch("http://127.0.0.1:5001/recognize/capture_image", {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone_number: phone })
-        });
-        const captureData = await captureRes.json();
-        console.log("Dữ liệu trả về từ backend:", captureData);
         
-        if (!captureRes.ok) {
-            alert("Chụp khuôn mặt thất bại: " + (captureData.error || "Không phát hiện được khuôn mặt."));
-        } else {
-            alert("Chụp khuôn mặt thành công!");
+        const data = await res.json();
+
+        if (!res.ok) {
+            showStatus("Lỗi: " + (data.message || "Không thể thêm khách"), "error");
+            return;
         }
+
+        // Nếu thêm thành công
+        showStatus("Đã thêm khách hàng mới!");
+
+        // Lấy thông tin chi tiết để hiển thị ra đơn hàng
+        const infoRes = await fetch(`http://127.0.0.1:5001/customers/phone/${phone}`);
+        if (infoRes.ok) {
+            const newCustomer = await infoRes.json();
+            
+            // Đợi 0.5s cho khách kịp nhìn thông báo rồi mới đóng modal cho mượt
+            setTimeout(() => {
+                closeAddCustomerModal();
+                currentCustomerId = newCustomer.customer_id; 
+                saveCustomerIdToStorage(currentCustomerId);
+                renderCustomerInfo(newCustomer);
+                showStatus("Đăng ký thành viên thành công!");
+            }, 800);
+        }
+
+    } catch (err) {
+        showStatus("Lỗi kết nối server!", "error");
+        console.error(err);
     }
 }
 
+function showStatus(message, type = 'success') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <span>${type === 'success' ? '✅' : '❌'}</span>
+        <span>${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    // Tự động xóa element khỏi DOM sau 3.2s để tránh rác code
+    setTimeout(() => {
+        toast.remove();
+    }, 3200);
+}
+
 // Lưu customerId vào sessionStorage khi cập nhật
-function saveCustomerIdToStorage(id) {
-    console.log("Saving customerId:", id);
-    sessionStorage.setItem("customerId", id);
+function saveCustomerIdToStorage(customer_id) {
+    console.log("Saving customerId:", customer_id);
+    sessionStorage.setItem("customerId", customer_id);
 }
 
 function getCustomerIdFromStorage() {
@@ -608,42 +731,52 @@ function getCartItemsFromDOM() {
 }
 
 async function confirmOrder() {
-    const customerId = getCustomerId();
+    const customerIdRaw = getCustomerId();
     const cartItems = getCartItemsFromDOM();
+    const loginData = JSON.parse(sessionStorage.getItem("loginData"));
+    
+    // 1. Ép kiểu về Integer để Backend không mắng
+    const customerId = parseInt(customerIdRaw);
+    const employeeId = loginData ? parseInt(loginData.employee_id) : null;
+    
     const subtotal = parseInt(document.getElementById("subtotal").textContent.replace(/\D/g, "")) || 0;
     const usedPoints = parseInt(document.getElementById("use-points").value) || 0;
 
-    console.log("customerId:", customerId);
-    console.log("cartItems:", cartItems);
-    console.log("subtotal:", subtotal);
-    console.log("usedPoints:", usedPoints);
-
-    // Tính toán tổng tiền sau khi áp dụng điểm
     const discount = usedPoints * 1000;
-    const finalDiscount = Math.min(discount, subtotal);  // Đảm bảo không trừ quá mức
-    const calculatedTotal = subtotal - finalDiscount;
+    const calculatedTotal = subtotal - discount;
 
-    console.log("calculatedTotal (frontend):", calculatedTotal);
-
-    if (!customerId || cartItems.length === 0) {
-        alert("Thiếu thông tin khách hàng!");
+    // 2. Kiểm tra dữ liệu đầu vào (Validation)
+    if (isNaN(customerId)) {
+        showStatus("Vui lòng cung cấp thông tin khách hàng trước khi thanh toán", "error");
+        return;
+    }
+    if (cartItems.length === 0) {
+        showStatus("Giỏ hàng đang trống!", "error");
+        return;
+    }
+    if (!employeeId) {
+        showStatus("Lỗi bảo mật: Vui lòng đăng nhập lại!", "error");
         return;
     }
 
     try {
-        // 1. Gửi hóa đơn
+        // 3. Gửi hóa đơn với dữ liệu SẠCH
         const invoiceRes = await fetch("http://localhost:5001/invoices/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                customer_id: customerId,
-                total_amount: calculatedTotal,  // Gửi calculatedTotal (đã trừ điểm)
-                used_points: usedPoints
+                customer_id: customerId,      // Đã là số nguyên
+                employee_id: employeeId,      // Đã là số nguyên
+                total_amount: calculatedTotal, // Số
+                used_points: usedPoints,       // Số
+                status: 1                      // Thêm status cho chắc cú
             }),
         });
 
         if (!invoiceRes.ok) {
-            throw new Error("Không thể tạo hóa đơn");
+            const errorText = await invoiceRes.text();
+            console.error("Backend phản hồi lỗi:", errorText);
+            throw new Error("Lỗi Backend: " + errorText);
         }
 
         const invoiceData = await invoiceRes.json();
@@ -679,7 +812,6 @@ async function confirmOrder() {
             throw new Error("Cập nhật điểm thất bại");
         }
 
-        alert("Thanh toán thành công!");
         showInvoiceModal(invoiceId);
 
     } catch (err) {

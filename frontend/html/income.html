@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trung tâm thu nhập - POS</title>
+    <link rel="stylesheet" href="../css/income.css">
+</head>
+<body>
+    <div class="income-container">
+        <div class="header">
+            <div class="header-left">
+                <img src="../img/return.png" class="return-icon" onclick="window.location.href='app.html'">
+                <h2>Trung tâm thu nhập</h2>
+            </div>
+            <div class="user-brief">
+                <span class="user-label">Nhân viên:</span>
+                <span id="user-name-display" class="user-name"></span>
+            </div>
+        </div>
+
+        <div class="income-tabs">
+            <button class="tab-btn active" onclick="switchTab('sales')">Lịch sử hoa hồng</button>
+            <button class="tab-btn" onclick="switchTab('payslip')">Xem phiếu lương</button>
+        </div>
+
+        <div class="filter-section">
+            <label>Chọn tháng:</label>
+            <input type="month" id="income-filter-month">
+        </div>
+
+        <div id="content-sales" class="tab-content active">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã HĐ</th>
+                            <th>Thời gian</th>
+                            <th>Tiền hàng gốc</th> <th>Điểm sử dụng</th>
+                            <th>Thực thu (Sau giảm)</th> <th>Hoa hồng 0.5%</th>
+                            <th>Thưởng sản phẩm</th>
+                            <th>Tổng nhận</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-list"></tbody>
+                </table>
+            </div>
+            <div class="summary-bar" id="sales-summary"></div>
+        </div>
+
+        <div id="content-payslip" class="tab-content payslip-wrapper">
+            
+            <div id="payslip-real-content" style="display: none; width: 100%; flex-direction: column; align-items: center;">
+                <div class="payslip-card">
+                    <div class="payslip-header">
+                        <div class="brand-info">
+                            <h3 id="payslip-dynamic-title">PHIẾU LƯƠNG THÁNG --/----</h3>
+                            <p id="payslip-employee-display">Nhân viên: --</p>
+                        </div>
+                        <div class="stamp-pro">CHÍNH THỨC</div>
+                    </div>
+
+                    <div class="payslip-body">
+                        <div class="pay-section">
+                            <h4>💼 Thu nhập cố định</h4>
+                            <div class="pay-row"><span>Lương cơ bản</span><b id="lb-base">0 VNĐ</b></div>
+                        </div>
+
+                        <div class="pay-section">
+                            <h4>📈 Thu nhập biến đổi</h4>
+                            <div class="pay-row"><span>Hoa hồng doanh số (0.5%)</span><b id="lb-comm-fixed">0 VNĐ</b></div>
+                            <div class="pay-row"><span>Thưởng sản phẩm (Extra)</span><b id="lb-comm-extra">0 VNĐ</b></div>
+                            <div class="pay-row highlight">
+                                <span>Tổng hoa hồng nhận được</span><b id="lb-comm-total">0 VNĐ</b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payslip-footer">
+                        <div class="pay-row total-row">
+                            <span>THỰC NHẬN</span>
+                            <div class="total-amount-box"><span id="lb-total">0 VNĐ</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="payslip-actions">
+                    <button class="btn-print" onclick="window.print()">🖨️ In phiếu lương</button>
+                </div>
+            </div>
+
+            <div id="payslip-lock-content" style="display: none; text-align: center; padding-top: 100px;">
+                <span style="font-size: 80px;">🔒</span>
+                <h3 style="color: #555; margin-top: 20px;">Phiếu lương hiện tại chưa được công bố</h3>
+                <p style="color: #888;">Vui lòng quay lại sau khi quản lý chốt bảng lương!</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>Chi tiết hóa đơn <span id="dt-id"></span></h3>
+            <table id="dt-table"></table>
+            <button class="close-btn" onclick="closeModal()">Đóng</button>
+        </div>
+    </div>
+
+    <script src="../js/income.js"></script>
+</body>
+</html>

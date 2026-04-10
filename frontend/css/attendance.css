@@ -1,0 +1,245 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+* {
+    box-sizing: border-box; /* Quan trọng nhất để padding không làm nở width */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    flex-direction: column;
+    overflow: hidden; /* Ngăn cuộn toàn trang gây vỡ layout */
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    flex-grow: 1;
+    overflow: hidden; /* Giữ sidebar và content cố định */
+}
+
+/* --- SIDEBAR STYLE (Đồng bộ tuyệt đối) --- */
+.sidebar {
+    width: 15%;
+    background: white;
+    color: gray;
+    padding: 20px;
+    border-right: 3px solid #ddd;
+}
+
+.sidebar h2 {
+    padding: 10px;
+    font-size: 20px;
+    color: #333;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    background: white;
+    color: gray;
+    transition: 0.3s;
+    text-decoration: none;
+    font-size: 16px;
+    transition: 0.3s ease;
+}
+
+.sidebar ul li a.active {
+    color: #fff;
+    background: #3498db;
+}
+
+.sidebar ul li a:hover:not(.active) {
+    background: #ccc;
+    color: #333;
+}
+
+.sidebar ul li a:hover:not(.active) { background: #eee; transform: translateX(5px); }
+
+/* --- MAIN CONTENT --- */
+.main-content {
+    width: 85%;
+    padding: 20px;
+    height: 100vh; /* Giữ nguyên để cố định chiều cao trang */
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content h2 {
+    margin-bottom: 15px;
+    color: #333;
+    font-weight: 600;
+}
+
+/* --- SEARCH CONTAINER (Fix ô input dài) --- */
+.search-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+/* Group chứa 2 ô input */
+.search-container > div {
+    display: flex;
+    gap: 10px;
+    flex-grow: 1; /* Ép group này chiếm hết khoảng trống */
+}
+
+.search-container input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.search-container input[type="month"] {
+    width: 200px; /* Ô tháng giữ độ rộng vừa đủ */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.search-container input:focus {
+    border-color: #3498db;
+}
+
+/* --- TABLE STYLE (Bỏ bo góc) --- */
+.table-container {
+    background: white;
+    border-radius: 0; /* Bỏ bo góc theo ý bạn */
+    flex-grow: 0; 
+    height: auto; 
+    width: 100%;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+    font-weight: normal;
+}
+
+table th {
+    background-color: #3498db;
+    color: white;
+    border-radius: 0 !important; /* Xóa bo góc theo ý bạn */
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover { background-color: #f1faff; }
+/* --- MODAL STYLE --- */
+.modal-content {
+    background-color: white;
+    border-radius: 8px; /* Bo góc nhẹ theo style Customer */
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- COLORS --- */
+.status-1 { color: #2ecc71; font-weight: 600; }
+.status-05 { color: #f1c40f; font-weight: 600; }
+.status-0 { color: #e74c3c; font-weight: 600; }
+
+/* Style cho nút Xem chi tiết - Đồng bộ với các module khác */
+.view-btn {
+    background-color: #3498db; /* Màu xanh dương chuẩn */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.view-btn:hover {
+    background-color: #2980b9; /* Đậm hơn khi di chuột */
+    transform: translateY(-1px); /* Nhích nhẹ lên tạo hiệu ứng nổi */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.view-btn:active {
+    transform: translateY(0);
+}
+
+/* Modal CSS bổ sung để đảm bảo hiển thị đẹp */
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5); /* Phông nền mờ */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.cancel-btn {
+    background-color: #95a5a6; /* Màu xám hiện đại */
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.cancel-btn:hover {
+    background-color: #7f8c8d; /* Đậm hơn một chút */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.cancel-btn:active {
+    transform: translateY(0);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    margin-top: auto; 
+    padding: 20px 0;
+}

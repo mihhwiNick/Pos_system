@@ -1,11 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-/* General Styles */
-/* body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-} */
+
+* {
+    box-sizing: border-box; /* Giúp padding không làm nở chiều rộng cột */
+}
+
 body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
@@ -13,18 +11,15 @@ body {
     display: flex;
     height: 100vh;
     flex-direction: column;
+    overflow: hidden;
 }
-/* .container {
-    display: flex;
-    height: 100vh;
-    background-color: #f4f4f4;
-} */
 
 .container {
     display: flex;
     width: 100%;
     flex-grow: 1;
 }
+
 /* Sidebar Styles */
 .sidebar {
     width: 15%;
@@ -32,6 +27,10 @@ body {
     color: gray;
     padding: 20px;
     border-right: 3px solid #ddd;
+}
+
+.table-container {
+    height: 500px;
 }
 
 .sidebar h2 {
@@ -56,7 +55,7 @@ body {
     margin-bottom: 5px;
     background: white;
     color: gray;
-    transition: background 0.3s, color 0.3s;
+    transition: 0.3s ease;
     text-decoration: none;
     font-size: 16px;
 }
@@ -74,19 +73,17 @@ body {
 .sidebar ul li a.active:hover {
     background: #2980b9;
 }
+.sidebar ul li a:hover:not(.active) {
+    background: #ccc;
+    color: #333;
+}
+.sidebar ul li a:hover:not(.active) { background: #eee; transform: translateX(5px); }
+
 .main-content h2 {
     margin-bottom: 15px;
     color: #333;
 }
-/* Main Content Styles */
-/* .main-content {
-    flex: 1;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    margin: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-} */
+
 .main-content {
     width: 85%;
     padding: 20px;
@@ -97,40 +94,47 @@ body {
 /* Search Container */
 .search-container {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     margin-bottom: 20px;
 }
 
 .search-container input {
-    width: 90%;
+    width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
 }
+
+
 .search-container button {
-    padding: 8px 15px;
+    padding: 10px 25px;
     background-color: #3498db;
     color: white;
     border: none;
     border-radius: 5px;
     font-size: 14px;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 .search-container button:hover {
     background-color: #0056b3;
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 /* Table Styles */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
+    background: white;
+    table-layout: fixed;
 }
 
 table th, table td {
     border: 1px solid #ddd;
-    padding: 10px;
+    padding: 12px;
     text-align: center;
+    font-weight: normal;
 }
 
 table th {
@@ -142,42 +146,7 @@ table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-table tr:hover {
-    background-color: #f1f1f1;
-}
-
-/* Form Container */
-.form-container {
-    margin-top: 20px;
-}
-
-.form-container h2 {
-    margin-bottom: 10px;
-    color: #333;
-}
-
-.form-container form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.form-container input, .form-container select, .form-container button {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-.form-container button {
-    background-color: #3498db;
-    color: white;
-    cursor: pointer;
-}
-
-.form-container button:hover {
-    background-color: #3498db;
-}
+table tr:hover { background-color: #f1faff; }
 
 /* Modal Styles */
 .modal {
@@ -228,3 +197,113 @@ table tr:hover {
 .modal-content button:hover {
     background-color: #0056b3;
 }
+
+
+/* Căn chỉnh các nút trong cùng một ô */
+.action-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Khoảng cách giữa 2 nút */
+}
+
+/* Nút Reset (Màu đỏ cam để phân biệt với màu cam của Đổi mật khẩu) */
+.btn-reset-pass {
+    background-color: #e67e22; /* Màu Carrot */
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.btn-reset-pass:hover {
+    background-color: #d35400; /* Đậm hơn khi hover */
+    transform: scale(1.05);
+}
+
+.btn-reset-pass:active {
+    transform: scale(0.95);
+}
+
+/* Container chứa 2 nút trong Modal */
+.btn_group, .btn-group-modal {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px; /* Đã tăng thêm để thụt xuống xíu cho thoáng theo ý Huy */
+}
+
+.submit-btn, .btn-confirm, .cancel-btn, .btn-cancel {
+    font-size: 13px !important;
+    padding: 8px 20px !important;
+    border-radius: 5px !important;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none !important;
+    color: white !important;
+    display: inline-block;
+}
+
+.submit-btn, .btn-confirm {
+    background-color: #2ecc71 !important;
+}
+
+.submit-btn:hover, .btn-confirm:hover {
+    background-color: #27ae60 !important;
+    transform: scale(1.05);
+}
+
+.cancel-btn, .btn-cancel {
+    background-color: #95a5a6 !important;
+}
+
+.cancel-btn:hover, .btn-cancel:hover {
+    background-color: #7f8c8d !important;
+    transform: scale(1.05);
+}
+
+.submit-btn:active, .btn-confirm:active, .cancel-btn:active, .btn-cancel:active {
+    transform: scale(0.95);
+}
+
+/* Đảm bảo nút Reset cũng có kích thước tương đương */
+.btn-reset-pass {
+    padding: 6px 15px !important; 
+    font-size: 13px !important;
+}
+
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10005;
+}
+
+.toast {
+    min-width: 250px;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.3s ease-out;
+    transition: all 0.5s ease;
+}
+
+.toast.success { background-color: #2ecc71; border-left: 5px solid #27ae60; }
+.toast.error { background-color: #e74c3c; border-left: 5px solid #c0392b; }
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+

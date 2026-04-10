@@ -1,18 +1,14 @@
 let currentPage = 1;
 const productsPerPage = 6;
-let allProducts = []; // Lưu tất cả sản phẩm
-let filteredProducts = []; // Danh sách sản phẩm đã lọc
+let allProducts = []; 
+let filteredProducts = []; 
 
 // Định dạng giá
 function formatPrice(price) {
-    return new Intl.NumberFormat("vi-VN", {
-        style: "currency",
-        currency: "VND",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(price);
+    return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
 }
 
+// Lấy danh sách sản phẩm và hiển thị
 // Lấy danh sách sản phẩm và hiển thị
 async function fetchProducts() {
     try {
@@ -20,11 +16,13 @@ async function fetchProducts() {
         if (!response.ok) {
             throw new Error(`Failed to fetch products: ${response.status} ${response.statusText}`);
         }
-        allProducts = await response.json();
+        let rawData = await response.json();
+        allProducts = rawData.filter(product => parseInt(product.status) !== 0);
         filteredProducts = allProducts;
 
         const totalPages = Math.ceil(allProducts.length / productsPerPage);
         displayProducts(allProducts, currentPage, totalPages);
+
     } catch (error) {
         console.error("Lỗi khi lấy dữ liệu:", error);
         document.querySelector(".product-container").innerHTML = `<p class="no-products">Không thể tải sản phẩm. Vui lòng thử lại sau!</p>`;
@@ -61,7 +59,7 @@ function displayProducts(products, page, totalPages) {
 
     pageProducts.forEach(product => {
         let productItem = `
-            <div class="product" onclick="fetchProductDetail(${product.id})">
+            <div class="product" onclick="fetchProductDetail(${product.product_id})">
                 <img src="${product.image_url}" alt="${product.name}">
                 <h3>${product.name}</h3>
                 <p>${formatPrice(product.price)}</p>
@@ -142,8 +140,6 @@ function changePage(direction) {
     displayProducts(filteredProducts, currentPage, totalPages);
 }
 
-// Lần đầu tiên gọi hàm fetch khi trang tải
-fetchProducts();
 
 // Ẩn box lọc giá khi vừa nhấn lọc
 document.addEventListener("DOMContentLoaded", function () {
@@ -216,34 +212,75 @@ function filterByPrice(minPrice, maxPrice) {
     displayProducts(filteredProducts, currentPage, totalPages);
 }
 
-
-
+/** --- CẬP NHẬT HÀM TÌM KIẾM SẢN PHẨM --- **/
 function searchProduct() {
-    let searchValue = document.getElementById("search-input").value.trim().toLowerCase();
+    let searchValue = document.getElementById("search-input").value.toLowerCase().trim();
 
+    // 1. Nếu ô tìm kiếm rỗng -> Reset về trạng thái ban đầu hoặc danh sách đang lọc hãng
     if (!searchValue) {
-        // Nếu ô tìm kiếm rỗng -> giữ nguyên danh sách đang hiển thị
+        showStatus("Vui lòng nhập tên sản phẩm cần tìm!", "error");
+        // Trả về danh sách lọc theo hãng (nếu có) hoặc toàn bộ sản phẩm
+        filteredProducts = brandFilteredProducts.length > 0 ? brandFilteredProducts : allProducts;
+        currentPage = 1;
         displayProducts(filteredProducts, currentPage, Math.ceil(filteredProducts.length / productsPerPage));
         return;
     }
 
-    // Luôn tìm kiếm trên toàn bộ sản phẩm
-    searchFilteredProducts = allProducts.filter(product =>
-        product.name.toLowerCase().includes(searchValue) ||
-        product.name.toLowerCase().replace(/\s+/g, '').includes(searchValue)
-    );
+    // 🚀 BÍ KÍP TOKENIZE: Tách chuỗi sếp gõ thành mảng các từ khóa
+    // Ví dụ: "15 Pro iPhone" -> ["15", "pro", "iphone"]
+    let keywords = searchValue.split(/\s+/);
 
+    // 2. Thực hiện lọc dữ liệu trên allProducts
+    searchFilteredProducts = allProducts.filter(product => {
+        let productName = product.name.toLowerCase();
+        
+        // LOGIC: Trả về true nếu TẤT CẢ các từ khóa sếp gõ đều xuất hiện trong tên sản phẩm
+        // Không quan trọng thứ tự "15 Pro" hay "Pro 15" kkk
+        return keywords.every(key => productName.includes(key));
+    });
+
+    // 3. Xử lý kết quả
     if (searchFilteredProducts.length === 0) {
-        alert("Không tìm thấy sản phẩm nào tương ứng!");
+        showStatus("Không tìm thấy sản phẩm nào tương ứng!", "error");
         return;
     }
 
-    // Hiển thị kết quả tìm kiếm
-    brandFilteredProducts = [...searchFilteredProducts];
+    // 4. Nếu tìm thấy -> Thông báo xanh cho xịn kkk
+    showStatus(`Tìm thấy ${searchFilteredProducts.length} sản phẩm!`, "success");
+
+    // Cập nhật danh sách hiển thị
     filteredProducts = [...searchFilteredProducts];
     currentPage = 1;
 
-    displayProducts(filteredProducts, currentPage, Math.ceil(filteredProducts.length / productsPerPage));
+    // Tính toán lại tổng số trang cho kết quả tìm kiếm
+    const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+    displayProducts(filteredProducts, currentPage, totalPages);
+}
+
+function showStatus(message, type = 'success') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <span>${type === 'success' ? '✅' : '❌'}</span>
+        <span>${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    // Hiệu ứng mờ dần và xóa sau 3 giây
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-20px)';
+        toast.style.transition = 'all 0.5s ease';
+        setTimeout(() => toast.remove(), 500);
+    }, 2500);
 }
 
 function toggleClearButton() {
@@ -275,4 +312,278 @@ document.querySelectorAll('.brand a').forEach(el => {
 
 function createOrder() {
     window.location.href = "order.html";
+}
+
+// Hiện/Ẩn Menu Dropdown khi nhấn vào Icon User
+function toggleMenu() {
+    const dropdown = document.getElementById("user-dropdown");
+    dropdown.classList.toggle("show");
+}
+
+// Đóng menu nếu người dùng nhấn ra ngoài vùng icon
+window.onclick = function(event) {
+    if (!event.target.matches('.user img')) {
+        const dropdown = document.getElementById("user-dropdown");
+        if (dropdown && dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        }
+    }
+}
+
+// Hàm mở Modal Đổi mật khẩu
+window.openChangePasswordModal = () => {
+    // Lấy thông tin login từ sessionStorage (mà bạn đã lưu lúc đăng nhập)
+    const loginData = JSON.parse(sessionStorage.getItem("loginData"));
+    
+    if (!loginData) {
+        alert("Bạn chưa đăng nhập! Vui lòng đăng nhập để đổi mật khẩu.");
+        return;
+    }
+
+    document.getElementById("change-password-modal").style.display = "flex";
+};
+
+// Hàm đóng Modal
+window.closeChangePasswordModal = () => {
+    document.getElementById("change-password-modal").style.display = "none";
+    document.getElementById("change-password-form").reset();
+};
+
+// Xử lý gửi Form Đổi mật khẩu về Backend
+const changePasswordForm = document.getElementById("change-password-form");
+if (changePasswordForm) {
+    changePasswordForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        // Lấy thẻ hiển thị trạng thái
+        const statusMsg = document.getElementById("password-status");
+        const loginData = JSON.parse(sessionStorage.getItem("loginData"));
+        const userId = loginData.user_id; 
+        
+        const currentPassword = document.getElementById("current-password").value;
+        const newPassword = document.getElementById("new-password").value;
+        const confirmNewPassword = document.getElementById("confirm-new-password").value;
+
+        // Reset trạng thái thông báo mỗi lần nhấn Cập nhật
+        statusMsg.style.display = "none";
+
+        if (newPassword !== confirmNewPassword) {
+            statusMsg.innerText = "⚠️ Mật khẩu mới không khớp!";
+            statusMsg.style.color = "#e67e22";
+            statusMsg.style.display = "block";
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://127.0.0.1:5001/accounts/users/${userId}/change-password`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ currentPassword, newPassword }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // 1. Hiện thông báo thành công
+                statusMsg.innerText = "✅ Đổi mật khẩu thành công!";
+                statusMsg.style.color = "#2ecc71";
+                statusMsg.style.display = "block";
+                statusMsg.style.fontWeight = "bold";
+
+                // 2. Xóa trắng form
+                changePasswordForm.reset();
+
+                // 3. Đợi 1.5 giây rồi tự đóng Modal
+                setTimeout(() => {
+                    closeChangePasswordModal();
+                    statusMsg.style.display = "none";
+                }, 1500);
+
+            } else {
+                // Hiện lỗi từ Backend (ví dụ: sai mật khẩu cũ)
+                statusMsg.innerText = "❌ " + (result.message || "Không thể đổi mật khẩu");
+                statusMsg.style.color = "#e74c3c";
+                statusMsg.style.display = "block";
+            }
+        } catch (error) {
+            console.error("Error changing password:", error);
+            statusMsg.innerText = "❌ Lỗi kết nối đến máy chủ!";
+            statusMsg.style.color = "#e74c3c";
+            statusMsg.style.display = "block";
+        }
+    });
+}
+
+// --- LOGIC MỞ/ĐÓNG MODAL ---
+window.openEditNameModal = (event) => {
+    event.stopPropagation(); // Không cho đóng dropdown khi bấm
+    const data = JSON.parse(sessionStorage.getItem("loginData"));
+    document.getElementById("new-full-name").value = data.full_name || "";
+    document.getElementById("edit-name-modal").style.display = "flex";
+};
+
+window.closeEditNameModal = () => {
+    document.getElementById("edit-name-modal").style.display = "none";
+};
+
+window.openEditPhoneModal = (event) => {
+    event.stopPropagation();
+    const data = JSON.parse(sessionStorage.getItem("loginData"));
+    document.getElementById("new-phone-number").value = data.phone_number || "";
+    document.getElementById("edit-phone-modal").style.display = "flex";
+};
+
+window.closeEditPhoneModal = () => {
+    document.getElementById("edit-phone-modal").style.display = "none";
+};
+
+
+// 1. Cập nhật Tên
+document.getElementById("edit-name-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const newName = document.getElementById("new-full-name").value.trim();
+    if (!newName) return showStatus("Vui lòng nhập tên mới!", "error");
+    
+    await updateUserInfo({ full_name: newName }, "name-status", closeEditNameModal);
+});
+
+// 2. Cập nhật SĐT (🚀 ĐÃ THÊM RÀNG BUỘC)
+document.getElementById("edit-phone-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const phoneInput = document.getElementById("new-phone-number");
+    const newPhone = phoneInput.value.trim();
+    if (!newPhone) {
+        showStatus("Vui lòng nhập số điện thoại mới!", "error");
+        phoneInput.focus();
+        return;
+    }
+
+    const phoneRegex = /^0\d{9,10}$/;
+
+    if (!phoneRegex.test(newPhone)) {
+        // Thông báo lỗi 3s (Hàm showStatus của ông giáo đã có sẵn logic 3s rồi)
+        showStatus("SĐT không hợp lệ! Phải bắt đầu bằng số 0 và có 10-11 chữ số.", "error");
+        
+        // Tiện tay focus vào ô nhập và bôi đen cho nhân viên dễ sửa
+        phoneInput.focus();
+        phoneInput.select();
+        
+        return; // Dừng lại, không cho gọi hàm updateUserInfo nữa
+    }
+
+    // Nếu vượt qua bộ lọc thì mới gọi API
+    await updateUserInfo({ phone_number: newPhone }, "phone-status", closeEditPhoneModal);
+});
+
+// Hàm dùng chung để Update
+async function updateUserInfo(payload, statusId, closeCallback) {
+    const sessionData = JSON.parse(sessionStorage.getItem("loginData"));
+    const statusMsg = document.getElementById(statusId);
+
+    if (!sessionData || !sessionData.user_id) {
+        showStatus("Lỗi xác thực người dùng!", "error");
+        return;
+    }
+
+    try {
+        // 🚀 SỬA Ở ĐÂY: Gọi đúng Route bên employees_bp mà mình vừa tạo
+        const response = await fetch(`http://127.0.0.1:5001/employees/update-profile/${sessionData.user_id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            const updatedData = { ...sessionData, ...payload };
+            sessionStorage.setItem("loginData", JSON.stringify(updatedData));
+
+            showStatus("Cập nhật thông tin thành công!", "success");
+            if (typeof closeCallback === "function") closeCallback();
+            setTimeout(() => {
+                location.reload(); 
+            }, 1000);
+        } else {
+            statusMsg.innerText = "❌ " + (result.message || "Lỗi cập nhật");
+            statusMsg.style.display = "block";
+            statusMsg.style.color = "red";
+        }
+    } catch (error) {
+        console.error("Lỗi Fetch:", error);
+        showStatus("Không thể kết nối đến máy chủ!", "error");
+    }
+}
+
+function goToIncomeCenter() {
+    window.location.href = "income.html";
+}
+
+window.openSelfAttendanceModal = () => {
+    const data = JSON.parse(sessionStorage.getItem("loginData"));
+    if (!data || !data.employee_id) {
+        showStatus("Lỗi xác thực thông tin nhân viên!", "error");
+        return;
+    }
+
+    // Set mặc định tháng hiện tại vào ô lọc
+    const now = new Date();
+    document.getElementById("self-att-month").value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    
+    document.getElementById("self-attendance-modal").style.display = "flex";
+    fetchSelfAttendance(); // Gọi hàm lấy dữ liệu luôn
+};
+
+window.closeSelfAttendanceModal = () => {
+    document.getElementById("self-attendance-modal").style.display = "none";
+};
+
+async function fetchSelfAttendance() {
+    const data = JSON.parse(sessionStorage.getItem("loginData"));
+    const empId = data.employee_id;
+    const filterVal = document.getElementById("self-att-month").value;
+    
+    if (!filterVal) return;
+    const [year, month] = filterVal.split("-");
+
+    const listBody = document.getElementById("self-attendance-list");
+    listBody.innerHTML = `<tr><td colspan="5" style="padding:20px;">Đang tải dữ liệu...</td></tr>`;
+
+    try {
+        // Tái sử dụng chính cái Route mà ông giáo đã làm cho trang Quản lý kkk
+        const res = await fetch(`http://127.0.0.1:5001/attendance/details/${empId}?month=${month}&year=${year}`);
+        let details = await res.json();
+
+        // Sắp xếp ngày tăng dần cho dễ nhìn
+        details.sort((a, b) => new Date(a.work_date) - new Date(b.work_date));
+
+        listBody.innerHTML = "";
+        if (details.length === 0) {
+            listBody.innerHTML = `<tr><td colspan="5" style="padding:20px;">Không có dữ liệu trong tháng này.</td></tr>`;
+            return;
+        }
+
+        details.forEach(record => {
+            const dateStr = new Date(record.work_date).toLocaleDateString('vi-VN');
+            let color = "#e74c3c"; // Đỏ (nghỉ)
+            let statusText = "Nghỉ/Không tính";
+
+            if (record.work_value >= 1) { color = "#2ecc71"; statusText = "Đủ công"; }
+            else if (record.work_value > 0) { color = "#f1c40f"; statusText = "Nửa công"; }
+
+            listBody.innerHTML += `
+                <tr style="border-bottom: 1px solid #eee; text-align: center;">
+                    <td style="padding: 12px;">${dateStr}</td>
+                    <td>${record.check_in || '--:--'}</td>
+                    <td>${record.check_out || '--:--'}</td>
+                    <td style="font-weight: bold;">${record.work_value}</td>
+                    <td><span style="color: ${color}; font-weight: 600;">${statusText}</span></td>
+                </tr>
+            `;
+        });
+
+    } catch (error) {
+        console.error("Lỗi fetch lịch sử công:", error);
+        listBody.innerHTML = `<tr><td colspan="5" style="color:red; padding:20px;">Lỗi kết nối máy chủ!</td></tr>`;
+    }
 }
